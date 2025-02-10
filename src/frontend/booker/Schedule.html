@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+    <title>ตารางการใช้ห้อง</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .header {
+            background-color: #ff5722;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .filters input,
+        .filters button {
+            padding: 5px;
+            font-size: 1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 10px;
+        }
+
+        table th {
+            background-color: #673ab7;
+            color: white;
+        }
+
+        table tr.highlight {
+            background-color: #ffeb3b;
+        }
+
+        .btn-confirm {
+            display: block;
+            margin: 20px auto;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn-confirm:hover {
+            background-color: #e64a19;
+        }
+
+        table td.checked {
+            background-color: #c8e6c9;
+            color: black;
+            font-weight: bold;
+        }
+
+        .checked {
+            background-color: #c8e6c9 !important;
+            /* สีเขียวเมื่อเลือก */
+            font-weight: bold;
+        }
+
+        .disabled {
+            background-color: #ffcccb !important;
+            /* สีแดงอ่อนสำหรับที่ถูกจองแล้ว */
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <a href="booking.php" style="text-decoration: none; color: white;">&#8592;</a>
+        <h1>ตารางการใช้ห้อง</h1>
+    </div>
+
+    <div class="container">
+        <form method="GET" action="">
+            <div class="filters">
+                <label for="room">ห้อง:</label>
+                <div class="room-option">
+                    SC2-308 - ห้องปฏิบัติการคอมพิวเตอร์ (ความจุ 80 คน)
+                </div>
+
+                <label for="start_date">ระหว่างวันที่:</label>
+                <input type="date" id="start_date" name="start_date">
+
+                <label for="end_date">ถึง:</label>
+                <input type="date" id="end_date" name="end_date">
+
+                <label for="search_date">เลือกวันที่:</label>
+                <input type="date" id="search_date" name="search_date">
+
+                <button type="submit">ค้นหา</button>
+            </div>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>วัน</th>
+                    <th>08.00-09.00</th>
+                    <th>09.00-10.00</th>
+                    <th>10.00-11.00</th>
+                    <th>11.00-12.00</th>
+                    <th>12.00-13.00</th>
+                    <th>13.00-14.00</th>
+                    <th>14.00-15.00</th>
+                    <th>15.00-16.00</th>
+                    <th>16.00-17.00</th>
+                    <th>17.00-18.00</th>
+                    <th>18.00-19.00</th>
+                    <th>19.00-20.00</th>
+                    <th>20.00-21.00</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>จันทร์ </td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                </tr>
+                <tr>
+                    <td>อังคาร</td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                </tr>
+                <tr>
+                    <td>พุธ</td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                </tr>
+                <tr>
+                    <td>พฤหัสบดี</td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                </tr>
+                <tr>
+                    <td>ศุกร์</td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                </tr>
+                <tr>
+                    <td>เสาร์</td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                </tr>
+                <tr>
+                    <td>อาทิตย์</td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                    <td class="time-slot"></td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <button class="btn-confirm" type="button" onclick="confirmBooking()">ยืนยัน</button>
+        <button>ยกเลิก</button>
+    </div>
+
+    <script src="Schedule.js"></script>
+
+</body>
+
+</html>

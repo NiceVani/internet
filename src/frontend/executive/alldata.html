@@ -9,6 +9,13 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap JS (พร้อม Popper.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -57,7 +64,7 @@
 </head>
 
 <body>
-<div id="sidebar-container"></div>
+  <div id="sidebar-container"></div>
   <div class="content-area">
     <!-- เนื้อหาในส่วนนี้จะไม่ถูก Sidebar ทับ -->
     <div class="container" onclick="window.location.href='detailroom.html';">
@@ -81,26 +88,23 @@
           <div>
             <h3 class="graph-header">จำนวนคนจอง
               <div class="dropdown d-inline">
-                <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #929292; font-size: 10px;">
+                <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  style="color: #929292; font-size: 10px;">
                 </i>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Week</a></li>
-                    <li><a class="dropdown-item" href="#">Mouth</a></li>
-                    <li><a class="dropdown-item" href="#">Year</a></li>
+                  <li><a class="dropdown-item" href="#">Week</a></li>
+                  <li><a class="dropdown-item" href="#">Mouth</a></li>
+                  <li><a class="dropdown-item" href="#">Year</a></li>
                 </ul>
               </div>
             </h3>
           </div>
           <div>
-            <img src="graph.png" alt="graphpeople">
+            <canvas id="barChart2" style="height: 630px; width: 100%; "></canvas>
+
           </div>
-          <div>
-            <p class="box-it"></p>
-            <p>จำนวนนิสิต สาขา เทคโนโลยีฯ</p><br>
-            <p class="box-com"></p>
-            <p>จำนวนนิสิต สาขา วิทยาการคอมฯ</p>
-          </div><br>
-          <br><button onclick="window.location.href='grap.html'" style="border-radius: 5px;">Details</button>
+          <br><button onclick="window.location.href='grap.html'"
+            style="border-radius: 5px; margin-top: 2rem;">Details</button>
         </div>
       </section>
 
@@ -109,11 +113,12 @@
           <div>
             <h3 class="graph-header" style="text-align: center;">อุปกรณ์
               <div class="dropdown d-inline">
-                <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #929292; font-size: 10px;">
+                <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  style="color: #929292; font-size: 10px;">
                 </i>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">อุปกรณ์แจ้งซ่อม</a></li>
-                    <li><a class="dropdown-item" href="#">อุปกรณ์ยืม</a></li>
+                  <li><a class="dropdown-item" href="#">อุปกรณ์แจ้งซ่อม</a></li>
+                  <li><a class="dropdown-item" href="#">อุปกรณ์ยืม</a></li>
                 </ul>
               </div>
             </h3>
@@ -123,7 +128,7 @@
               <canvas id="doughnutChart1"></canvas>
             </div>
           </div>
-          <div onclick="window.location.href='borrow_equipment.html';"style="cursor: pointer;">
+          <div onclick="window.location.href='borrow_equipment.html';" style="cursor: pointer;">
             <div style="width: auto; height: auto;">
               <canvas id="doughnutChart2"></canvas>
             </div>
@@ -133,228 +138,347 @@
     </div>
 
     <div class="container-three">
-        <section class="moststuden-container">
-          <div>
-            <h3 class="moststuden-header">นิสิตที่จองใช้งานห้องบ่อยที่สุด</h3>
-          </div>
-          <div>
-            <section>
-              <div class="split-container">
-                <p3>นาย คำมี สาเก</p3>
-                <p4>5 ครั้ง</p4>
-              </div>
-              <br>
-              <div class="split-container">
-                <p3>นางสาว อุ้งอิ้ง องค์กร</p3>
-                <p4>3 ครั้ง</p4>
-              </div>
-              <br>
-              <div class="split-container">
-                <p3>นาย ธีรพงษ์ พาสุข</p3>
-                <p4>2 ครั้ง</p4>
-              </div>
-            </section>
-            <button onclick="window.location.href='student.html';" style="border-radius: 5px;">Details</button>
-          </div>
-        </section>
+      <section class="moststuden-container">
+        <div>
+          <h3 class="moststuden-header">นิสิตที่จองใช้งานห้องบ่อยที่สุด</h3>
+        </div>
+        <div>
+          <section id="userList">
+          </section>
+          <button onclick="window.location.href='student.html';" style="border-radius: 5px;">Details</button>
+        </div>
+      </section>
 
-        <section class="moststuden-container">
-          <div>
-            <h3 class="moststuden-header">นิสิตที่แจ้งซ่อมอุปกรณ์บ่อยที่สุด</h3>
-          </div>
-          <div>
-            <section>
-              <div class="split-container">
-                <p3>นาย คำมี สาเก</p3>
-                <p4>3 ครั้ง</p4>
-              </div>
-              <br>
-              <div class="split-container">
-                <p3>นางสาว อุ้งอิ้ง องค์กร</p3>
-                <p4>2 ครั้ง</p4>
-              </div>
-              <br>
-              <div class="split-container">
-                <p3>นาย ธีรพงษ์ พาสุข</p3>
-                <p4>1 ครั้ง</p4>
-              </div>
-            </section>
-            <button onclick="window.location.href='student.html';" style="border-radius: 5px;">Details</button>
-          </div>
-        </section>
+      <section class="moststuden-container">
+        <div>
+          <h3 class="moststuden-header">นิสิตที่แจ้งซ่อมอุปกรณ์บ่อยที่สุด</h3>
+        </div>
+        <div>
+          <section>
+            <div class="split-container">
+              <p3>นาย คำมี สาเก</p3>
+              <p4>3 ครั้ง</p4>
+            </div>
+            <br>
+            <div class="split-container">
+              <p3>นางสาว อุ้งอิ้ง องค์กร</p3>
+              <p4>2 ครั้ง</p4>
+            </div>
+            <br>
+            <div class="split-container">
+              <p3>นาย ธีรพงษ์ พาสุข</p3>
+              <p4>1 ครั้ง</p4>
+            </div>
+          </section>
+          <button onclick="window.location.href='student.html';" style="border-radius: 5px;">Details</button>
+        </div>
+      </section>
 
       </section>
-    </div> 
+    </div>
   </div>
   <script>
     // fetch sidebar
     fetch("sidebar.html")
-        .then((resp) => resp.text())
-        .then((html) => {
-          // แทรก Sidebar เข้ามา
-          document.getElementById("sidebar-container").innerHTML = html;
-        })
-        .then(() => {
-          // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
-          // ให้ Highlight ปุ่มสถิติ
-          const btnStats = document.getElementById("btnStatistic");
-          btnStats.classList.add("btn-sidebar-active");
-        })
-        .catch((err) => console.error("Failed to load sidebar:", err));
-      // end of fetch sidebar
+      .then((resp) => resp.text())
+      .then((html) => {
+        // แทรก Sidebar เข้ามา
+        document.getElementById("sidebar-container").innerHTML = html;
+      })
+      .then(() => {
+        // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
+        // ให้ Highlight ปุ่มสถิติ
+        const btnStats = document.getElementById("btnStatistic");
+        btnStats.classList.add("btn-sidebar-active");
+      })
+      .catch((err) => console.error("Failed to load sidebar:", err));
+    // end of fetch sidebar
     // Bar Chart Data
     fetch('http://localhost:3000/mostroomalldata')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
 
-          const barCtx = document.getElementById('barChart').getContext('2d');
-          if (!barCtx) {
-            console.error("Canvas element not found!");
-            return;
-          }
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        if (!barCtx) {
+          console.error("Canvas element not found!");
+          return;
+        }
 
-          // Prepare data for the Chart.js chart after fetching
-          const labels = data.map(item => `Room ${item.room}`);
-          const totalCount = data.map(item => item.count);
-          const csCount = data.map(item => item.cs  );
-          const itCount = data.map(item => item.it );
+        // Prepare data for the Chart.js chart after fetching
+        const labels = data.map(item => `SC2-${item.Room}`);
+        const totalCount = data.map(item => item.total);
+        const csCount = data.map(item => item.cs);
+        const itCount = data.map(item => item.it);
 
-          new Chart(barCtx, {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: [
-                {
-                  label: 'จำนวนนิสิตรวม',
-                  data: totalCount,
-                  backgroundColor: '#E5D2BA'
-                },
-                {
-                  label: 'จำนวนนิสิต สาขา วิทยาการคอมฯ',
-                  data: csCount,
-                  backgroundColor: '#E54715'
-                },
-                {
-                  label: 'จำนวนนิสิต สาขาเทคโนโลยีฯ',
-                  data: itCount,
-                  backgroundColor: '#622BBE'
+        new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'จำนวนนิสิตรวม',
+                data: totalCount,
+                backgroundColor: '#E5D2BA'
+              },
+              {
+                label: 'จำนวนนิสิต สาขา วิทยาการคอมฯ',
+                data: csCount,
+                backgroundColor: '#E54715'
+              },
+              {
+                label: 'จำนวนนิสิต สาขาเทคโนโลยีฯ',
+                data: itCount,
+                backgroundColor: '#622BBE',
+                padding: {
+                  top: 10,
+                  bottom: 30
                 }
-              ]
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'bottom' // Position legend at the bottom
-                },
-                title: {
-                  display: true,
-                  text: 'ข้อมูลจำนวนนิสิต'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'bottom', // Position legend at the bottom
+                labels: {
+                  font: {
+                    size: 16 // 🔥 ปรับขนาดฟอนต์ของ legend
+                  }
                 }
               },
-              scales: {
-                y: {
-                  beginAtZero: true
+              title: {
+                display: true,
+                text: 'ข้อมูลจำนวนนิสิต',
+                font: {
+                  size: 14 // 🔥 ปรับขนาดฟอนต์ของ title
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน X
+                  }
+                }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return Math.floor(value); // 🔥 ปัดค่าทศนิยมออก
+                  },
+                  font: {
+                    size: 14 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน Y
+                  }
                 }
               }
             }
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
+          }
         });
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
     // Doughnut Chart 1 Data
-  fetch('http://localhost:3000/brokendEquipment')
-    .then(response => {
+    fetch('http://localhost:3000/brokendEquipment')
+      .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
-    })
-    .then(data => {
+      })
+      .then(data => {
         console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
-        
+
         const doughnutCtx1 = document.getElementById('doughnutChart1');
 
 
         if (!doughnutCtx1) {
-            console.error("Canvas element donut not found!");
-            return;
+          console.error("Canvas element donut not found!");
+          return;
         }
 
         new Chart(doughnutCtx1.getContext('2d'), {  // ✅ ใช้ .getContext('2d') ตรงนี้
-            type: 'doughnut',
-            data: {
-                labels: data.map(item => item.Equipments_name), // ✅ ใช้คีย์ที่ถูกต้อง
-                datasets: [{
-                    data: data.map(item => item.count),
-                    backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: 'จำนวนอุปกรณ์ที่เสีย' }
-                }
+          type: 'doughnut',
+          data: {
+            labels: data.map(item => item.Equipments_name), // ✅ ใช้คีย์ที่ถูกต้อง
+            datasets: [{
+              data: data.map(item => item.count),
+              backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              title: { display: true, text: 'จำนวนอุปกรณ์ที่เสีย' }
             }
+          }
         });
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         console.error("❌ Error fetching data:", error);
-    });
-    
+      });
+
 
 
 
 
     // Doughnut Chart 2 Data
     fetch('http://localhost:3000/borrowEquipment')
-    .then(response => {
+      .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
-    })
-    .then(data => {
+      })
+      .then(data => {
         console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
-        
+
         const doughnutCtx2 = document.getElementById('doughnutChart2');
 
 
         if (!doughnutCtx2) {
-            console.error("Canvas element donut not found!");
-            return;
+          console.error("Canvas element donut not found!");
+          return;
         }
 
         new Chart(doughnutCtx2.getContext('2d'), {  // ✅ ใช้ .getContext('2d') ตรงนี้
-            type: 'doughnut',
-            data: {
-                labels: data.map(item => item.Equipments_name), // ✅ ใช้คีย์ที่ถูกต้อง
-                datasets: [{
-                    data: data.map(item => item.count),
-                    backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: 'จำนวนอุปกรณ์ที่เสีย' }
-                }
+          type: 'doughnut',
+          data: {
+            labels: data.map(item => item.Equipments_name), // ✅ ใช้คีย์ที่ถูกต้อง
+            datasets: [{
+              data: data.map(item => item.count),
+              backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              title: { display: true, text: 'จำนวนอุปกรณ์ที่เสีย' }
             }
+          }
         });
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         console.error("❌ Error fetching data:", error);
-    });
-    
+      });
+
+
+    // สร้างข้อมูลที่ต้องการแสดงในกราฟ
+    fetch('http://localhost:3000/daysroom')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
+
+        const barCtx2 = document.getElementById('barChart2').getContext('2d');
+        if (!barCtx2) {
+          console.error("Canvas element not found!");
+          return;
+        }
+
+        // Prepare data for the Chart.js chart after fetching
+        const labels2 = data.map(item => item.DayName);
+        const totalCount2 = data.map(item => item.TotalCount);
+        const csCount2 = data.map(item => item.Cs);
+        const itCount2 = data.map(item => item.It);
+
+        new Chart(barCtx2, {
+          type: 'bar',
+          data: {
+            labels: labels2,
+            datasets: [
+              {
+                label: 'จำนวนนิสิต สาขา วิทยาการคอมฯ',
+                data: csCount2,
+                backgroundColor: '#E54715'
+              },
+              {
+                label: 'จำนวนนิสิต สาขาเทคโนโลยีฯ',
+                data: itCount2,
+                backgroundColor: '#622BBE'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'bottom', // Position legend at the bottom
+                labels: {
+                  font: {
+                    size: 20 // 🔥 ปรับขนาดฟอนต์ของ legend
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'ข้อมูลจำนวนนิสิต',
+                font: {
+                  size: 16 // 🔥 ปรับขนาดฟอนต์ของ title
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน X
+                  }
+                }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return Math.floor(value); // 🔥 ปัดค่าทศนิยมออก
+                  },
+                  font: {
+                    size: 16 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน Y
+                  }
+                }
+              }
+            }
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+
+    // ดึงข้อมูลจาก API
+    fetch("http://localhost:3000/useralldata")
+      .then(response => response.json()) // แปลงเป็น JSON
+      .then(data => {
+        const userList = document.getElementById("userList");
+        userList.innerHTML = "";  // ล้างข้อความเดิม
+
+        data.forEach(user => {
+          const div = document.createElement("div");
+          div.className = "split-container";
+          div.innerHTML = `<p>${user.Name}</p> <p>${user.Status} ครั้ง</p>`;
+          userList.appendChild(div);
+        });
+      })
+      .catch(error => {
+        console.error("เกิดข้อผิดพลาด:", error);
+        document.getElementById("userList").innerHTML = "ไม่สามารถโหลดข้อมูลได้";
+      });
+
   </script>
 </body>
 

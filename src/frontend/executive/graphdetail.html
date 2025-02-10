@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> borrow equipment</title>
-    <link rel="stylesheet" href="detailstyle.css">
-    <!-- Bootstrap CSS -->
-    <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous"
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>garph details</title>
+  <link rel="stylesheet" href="detailstyle.css">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -66,105 +67,83 @@
 </head>
 
 <body>
-  <div class="sidebar">
-    <!-- เนื้อหา Sidebar -->
-    <div class="sidebar d-flex flex-column">
-      <div class="d-grid gap-4">
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px; width: auto; height: auto;">
-          คำขออนุมัติการจองห้อง
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style="font-size: 12px;">10</span>
-        </button>
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          รายการอุปกรณ์ชำรุด
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-            style="font-size: 12px;">3</span>
-        </button>
-        <button class="btn btn-secondary p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          ข้อมูลสถิติ
-        </button>
-      </div>
-      <button class="btn w-100 p-3 text-white mt-auto"
-        style="font-weight: bold; font-size: 20px; background-color: orangered;width: auto; height: auto;">
-        ออกจากระบบ
-      </button>
-    </div>
-  </div>
+  <div id="sidebar-container"></div>
+
 
   <div class="content-area">
-</head>
-<div class="container">
-  <header>
+    <div class="container">
+      <header>
 
-  </header>
-  <body>
-    <div>
+        <button id="openPopup" style="margin-left: 80%;">ทั้งหมด</button>
+
+      </header>
+
+      <body>
+        <div id="popup" class="popup">
+          <div class="popup-content">
+            <span id="closePopup" class="close-btn">&times;</span>
+            <h2>เลือกตัวกรอง</h2>
+            <ul>
+              <li><button class="filter-option" data-filter="all">ทั้งหมด</button></li>
+              <li><button class="filter-option" data-filter="today">วันนี้</button></li>
+              <li><button class="filter-option" data-filter="yesterday">เมื่อวานนี้</button></li>
+              <li><button class="filter-option" data-filter="this-week">สัปดาห์นี้</button></li>
+              <li><button class="filter-option" data-filter="last-week">สัปดาห์ที่แล้ว</button></li>
+              <li><button class="filter-option" data-filter="this-month">เดือนนี้</button></li>
+              <li><button class="filter-option" data-filter="last-month">เดือนที่แล้ว</button></li>
+              <li><button class="filter-option" data-filter="this-year">ปีนี้</button></li>
+              <li><button class="filter-option" data-filter="last-year">ปีที่แล้ว</button></li>
+
+              <!-- วันเริ่มต้น -->
+              <label for="startDate">เลือกวันเริ่มต้น:</label>
+              <input type="date" id="startDate">
+
+              <!-- วันสิ้นสุด -->
+              <label for="endDate">เลือกวันสิ้นสุด:</label>
+              <input type="date" id="endDate" style="display:none;"> <!-- ซ่อนวันสิ้นสุดจนกว่าจะเลือกวันเริ่มต้น -->
+            </ul>
+          </div>
+        </div>
         <table>
-            <tr>
-              <td>
-                <select>
-                    <option value="days">วันที่</option>
-                    <option value="months">เดือน</option>
-                    <option value="years">ปี</option>
-                </select>
+          <tr>
+            <td>
+              <select>
+                <option value="days">วันที่</option>
+                <option value="months">เดือน</option>
+                <option value="years">ปี</option>
+              </select>
             </td>
-                <td>เวลา</td>
-                <td><select>
-                    <option value="room">ห้อง</option>
-                    <option value="room1">SC2-211</option>
-                    <option value="room2">SC2-212</option>
-                    <option value="room3">SC2-307</option>
-                    <option value="room4">SC2-407</option>
-                    <option value="room5">SC2-414</option>
-                </select></td>
-                <td>ชื่อ-นามสุกล</td>
-                <td>อีเมลล์</td>
-                
-                <td><select>
-                    <option value="teacher">อาจารย์</option>
-                    <option value="student">นิสิต</option>
-                </select></td>
-            </tr>
+            <td>เวลา</td>
+            <td>
+              <select>
+                <option value="room">ห้อง</option>
+                <option value="room1">SC2-211</option>
+                <option value="room2">SC2-212</option>
+                <option value="room3">SC2-307</option>
+                <option value="room4">SC2-407</option>
+                <option value="room5">SC2-414</option>
+              </select>
+            </td>
+            <td>ชื่อ-นามสกุล</td>
+            <td>อีเมลล์</td>
+            <td>
+              <select>
+                <option value="teacher">อาจารย์</option>
+                <option value="student">นิสิต</option>
+              </select>
+            </td>
+          </tr>
         </table>
         <hr>
-        <table>
-            <tr>
-                <td>2567-11-09</td>
-                <td>16:00-21:00</td>
-                <td>SC2-414</td>
-                <td>นายสายฝน คุณเกียรติ</td>
-                <td>saifon@nu.ac.th</td>
-                <td>อาจารย์</td>
-                
-            </tr>
-            <tr>
-              <td>2567-11-09</td>
-              <td>15:00-19:00</td>
-                <td>SC2-414</td>
-                <td>นายคำมี สาเก</td>
-                <td>kammee@nu.ac.th</td>
-                <td>นิสิต</td>
-            </tr>
-            <tr>
-              <td>2567-11-09</td>
-              <td>16.00-19.00</td>
-                <td>SC2-307</td>
-                <td>นางสาวอุ้งอิ้ง องค์กร</td>
-                <td>unging67@nu.ac.th</td>
-                <td>นิสิต</td>
-            </tr>
-            <tr>
-                <td>2567-11-09</td>
-                <td>17.00-21.00</td>
-                <td>SC2-407</td>
-                <td>นายธีรพงษ์ พาสุข</td>
-                <td>theerapong66@nu.ac.th</td>
-                <td>นิสิต</td>
-              </tr>
-            
+        <table id="room-table">
+          <!-- ตารางจะถูกเติมข้อมูลจาก API ที่นี่ -->
         </table>
         <button onclick="window.location.href='grap.html'">BACK</button>
     </div>
+
+
+  </div>
+  </div>
 </body>
 <script>
   // เปิดและปิด Popup
@@ -173,43 +152,43 @@
   const closePopupBtn = document.getElementById("closePopup");
   const startDateInput = document.getElementById("startDate");
   const endDateInput = document.getElementById("endDate");
-  
+
   openPopupBtn.addEventListener("click", () => {
     popup.style.display = "flex"; // เปิด Popup
   });
-  
+
   closePopupBtn.addEventListener("click", () => {
     popup.style.display = "none"; // ปิด Popup
   });
-  
+
   window.addEventListener("click", (e) => {
     if (e.target === popup) {
       popup.style.display = "none"; // ปิด Popup เมื่อคลิกนอก Popup
     }
   });
-  
+
   // เมื่อเลือกวันเริ่มต้น
   startDateInput.addEventListener("change", () => {
     const startDate = startDateInput.value;
     if (startDate) {
       // แสดงปฏิทินสำหรับเลือกวันสิ้นสุด
       endDateInput.style.display = "inline-block";
-      
+
       // ตั้งค่าวันสิ้นสุดเป็นวันถัดไปจากวันเริ่มต้น
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 1); // เพิ่ม 1 วันให้กับวันเริ่มต้น
-  
+
       // แปลงเป็นรูปแบบที่สามารถแสดงใน input[type="date"]
       const endDateString = endDate.toISOString().split("T")[0];
-      
+
       // ตั้งค่าวันสิ้นสุด
       endDateInput.value = endDateString;
-  
+
       // แสดงผลข้อความในปุ่ม #openPopup
       openPopupBtn.textContent = `เลือกช่วงเวลา: ${startDate} ถึง ${endDateString}`;
     }
   });
-  
+
   // เมื่อเลือกวันสิ้นสุด
   endDateInput.addEventListener("change", () => {
     const startDate = startDateInput.value;
@@ -220,10 +199,10 @@
       popup.style.display = "none"; // ปิด Popup หลังจากเลือกช่วงเวลา
     }
   });
-  
+
   // ให้ปุ่มอื่นๆ ใน popup คลิกได้
   const filterOptions = document.querySelectorAll(".filter-option");
-  
+
   filterOptions.forEach((option) => {
     option.addEventListener("click", (e) => {
       const selectedFilter = e.target.dataset.filter;
@@ -232,6 +211,36 @@
       popup.style.display = "none"; // ปิด Popup หลังจากเลือกตัวกรอง
     });
   });
-  
-  </script>
+  // fetch sidebar
+  fetch("sidebar.html")
+    .then((resp) => resp.text())
+    .then((html) => {
+      // แทรก Sidebar เข้ามา
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .then(() => {
+      // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
+      // ให้ Highlight ปุ่มสถิติ
+      const btnStats = document.getElementById("btnStatistic");
+      btnStats.classList.add("btn-sidebar-active");
+    })
+    .catch((err) => console.error("Failed to load sidebar:", err));
+  // end of fetch sidebar
+  fetch('http://localhost:3000/TableRoomListRequest')
+      .then(response => response.json())
+      .then(data => {
+        const table = document.getElementById('room-table');
+        data.forEach(item => {
+          const row = table.insertRow();
+          row.insertCell(0).textContent = item.Date;           // วันที่
+          row.insertCell(1).textContent = item.Time;           // เวลา
+          row.insertCell(2).textContent = item.ห้อง;           // ห้อง
+          row.insertCell(3).textContent = item.Name;           // ชื่อ-นามสกุล
+          row.insertCell(4).textContent = item.Email;          // อีเมลล์
+          row.insertCell(5).textContent = item.Status;         // สถานะ
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+</script>
+
 </html>

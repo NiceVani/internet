@@ -428,7 +428,7 @@
                       <li><a class="dropdown-item" href="#">SC2-308</a></li>
                       <li><a class="dropdown-item" href="#">SC2-311</a></li>
                       <li><a class="dropdown-item" href="#">SC2-313</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-313</a></li>
+                      <li><a class="dropdown-item" href="#">SC2-313-1</a></li>
                       <li><a class="dropdown-item" href="#">SC2-314</a></li>
                       <li><a class="dropdown-item" href="#">SC2-407</a></li>
                       <li><a class="dropdown-item" href="#">SC2-408</a></li>
@@ -437,7 +437,7 @@
                       <li><a class="dropdown-item" href="#">SC2-414</a></li>
                       <li><a class="dropdown-item" href="#">SC2-415</a></li>
                     </ul>
-                  </div>
+                  </div>   
                 </th>
                 <th style="color: #929292">เวลาจอง</th>
                 <th style="color: #929292">เอกสาร</th>
@@ -445,198 +445,113 @@
               </tr>
             </thead>
 
-            <tbody>
+            <tbody id="reservation-table">
               <!-- ตัวอย่างรายการ -->
-              <tr>
-                <td>2567-12-18</td>
-                <td>นายชัยวัฒน์ วรชัย</td>
-                <td>chaiwat@nu.ac.th</td>
-                <td>อาจารย์</td>
-                <td>sc2-414</td>
-                <td>จ. 16:00 - 21:00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-16</td>
-                <td>นายสุรชัย สายคำ</td>
-                <td>surachai65@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-307</td>
-                <td>พ. 16.00 - 22.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-15</td>
-                <td>นางสาววิสา วัฒนานันท์</td>
-                <td>wisa67@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-308</td>
-                <td>ศ. 18.00 - 21.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-12</td>
-                <td>นายธีรศักดิ์ พงษ์สุข</td>
-                <td>theerasak66@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-313</td>
-                <td>จ. 18.00 - 20.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-10</td>
-                <td>นางสาวศิรินทิพย์ นาคะ</td>
-                <td>sirinthip@nu.ac.th</td>
-                <td>อาจารย์</td>
-                <td>sc2-407</td>
-                <td>อ. 17.00 - 21.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-9</td>
-                <td>นายณัฐพล ชูชัย</td>
-                <td>natthapol65@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-407</td>
-                <td>พ. 18.00 - 20.30</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-8</td>
-                <td>นายทรงชัย ธรรมะ</td>
-                <td>songchai67@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-414</td>
-                <td>ศ. 19.00 - 20.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-5</td>
-                <td>นางสาวพรรณี สัมปุญญา</td>
-                <td>phannee@nu.ac.th</td>
-                <td>อาจารย์</td>
-                <td>sc2-307</td>
-                <td>อ. 19.30 - 21.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-3</td>
-                <td>นายประเสริฐ สุขวิทยา</td>
-                <td>prasert65@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-307</td>
-                <td>อ. 19.30 - 21.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2567-12-1</td>
-                <td>นายธนภัทร สุรินทร์</td>
-                <td>thanaphat67@nu.ac.th</td>
-                <td>นิสิต</td>
-                <td>sc2-414</td>
-                <td>พฤ. 17.00 - 22.00</td>
-                <td class="text-center">
-                  <i class="bi bi-file-earmark-pdf"></i>
-                </td>
-                <td class="actions receive">
-                  <button class="reject icon-button">
-                    <i class="bi bi-x-circle"></i> ไม่อนุมัติ
-                  </button>
-                  <button class="approve icon-button">
-                    <i class="bi bi-check-circle"></i> อนุมัติ
-                  </button>
-                </td>
-              </tr>
+              <script>
+
+                
+              
+                async function fetchData() {
+                try {
+                    // ดึงข้อมูลจาก 2 API พร้อมกัน
+                    const [roomsResponse, studentsResponse ,TeacherResponse] = await Promise.all([
+                        fetch('http://localhost:3000/Rooms_list_requests'),
+                        fetch('http://localhost:3000/data/Student_information'),
+                        fetch('http://localhost:3000/data/Teacher_information'),
+                        
+                    ])
+            
+                    const roomsData = await roomsResponse.json();
+                    const studentsData = await studentsResponse.json();
+                    const TeacherData = await TeacherResponse.json();
+                    //console.log(TeacherData);
+                    // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
+                    const filteredData = roomsData.filter(row => row.Requests_status === 'รออนุมัติ' );
+                    
+                    
+                
+                    
+                    const mergedData = filteredData.map(room => {
+                       
+                        const student = studentsData.find(s => s.Student_ID === room.Identify_ID) || {};
+                        const Teacher = TeacherData.find(T => T.Teacher_ID === room.Identify_ID) || {};
+                        const students = studentsData.find(s => s.Student_ID === room.Status) || {};
+                        console.log(Teacher);
+                        return {
+                            ...room,
+                            email: student.email || Teacher.email,
+                            Name: student.Name || Teacher.Name,
+                            Status: student.Status || Teacher.Status
+                        };
+
+                    });
+
+                    
+                    
+
+                    console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
+            
+                    const tableBody = document.getElementById('reservation-table');
+                    tableBody.innerHTML = '';
+            
+                    mergedData.forEach(row => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td class="text-center">${new Date(row.Used_date).toLocaleDateString()}</td>
+                                <td class="text-center">${row.Name}</td>
+                                <td class="text-center">${row.email}</td>
+                                <td class="text-center">${row.Status}</td>
+                                <td class="text-center">${row.Rooms_ID}</td>
+                                <td class="text-center">${row.Start_time+"-"+row.End_time}</td>
+                                <td class="text-center">${row.document || "ไม่มีเอกสาร"}</td>
+                                <td><button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
+                                <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
+                            </tr>
+                        `;
+                    });
+            
+                } catch (error) {
+                    console.error('❌ Error fetching data:', error);
+                }
+            }
+            
+             async function updateStatus(requestId, newStatus) {
+                try {
+                  const response = await fetch('http://localhost:3000/updateStatus ', {
+                      method: "POST",
+                      headers: {
+                          "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({ requestId, status: newStatus }),
+                  });
+          
+                  if (response.ok) {
+                      
+                      fetchData(); // โหลดข้อมูลใหม่หลังอัปเดตสถานะ
+                  } else {
+                      const error = await response.json();
+                      
+                      alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+                  }
+              } catch (error) {
+                  console.error("❌ Error updating status:", error);
+                  alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+              }
+          }
+
+            document.addEventListener("DOMContentLoaded", fetchData);
+                document.getElementById('detailModal').addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    document.getElementById('modal-date').textContent = button.getAttribute('data-date');
+                    document.getElementById('modal-name').textContent = button.getAttribute('data-name');
+                    document.getElementById('modal-email').textContent = button.getAttribute('data-email');
+                    document.getElementById('modal-room').textContent = button.getAttribute('data-room');
+                    document.getElementById('modal-time').textContent = button.getAttribute('data-time');
+                    document.getElementById('modal-reason').textContent = button.getAttribute('data-reason');
+                });
+            
+               
+              </script>
 
               <!-- เพิ่มได้ตามต้องการ -->
             </tbody>

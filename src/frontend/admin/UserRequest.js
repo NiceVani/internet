@@ -27,9 +27,8 @@ async function fetchRoom() {
                 const equipment = equipmentsData.find(e => e.Equipments_ID === row.Equipments_ID) || {};
                 return {
                     ...row,
-                    email: student.email || '-',
+                    email: student.Email || '-',
                     studentName: student.Name || '-',
-                    Status: student.Status || '-',
                 };
             });
 
@@ -58,6 +57,7 @@ async function fetchRoom() {
         console.error('❌ Error fetching data:', error);
     }
 }
+
 
 function getDayOfWeek(dateString) {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

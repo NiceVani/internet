@@ -118,22 +118,6 @@
     cursor: pointer;
 }
 
-.graph-container img {
-    display: block;
-    /* ทำให้ภาพเป็น block-level element */
-    margin-left: auto;
-    /* จัดให้อยู่ตรงกลาง */
-    margin-right: auto;
-    /* จัดให้อยู่ตรงกลาง */
-    padding: 20px;
-    /* ระยะห่างระหว่างภาพกับกรอบ */
-    max-width: 100%;
-    /* ให้ภาพขยายเต็มความกว้าง */
-    height: auto;
-    /* รักษาสัดส่วนของภาพ */
-    
-}
-
 .graph-container p {
     font-size: 16px;
     /* ขนาดตัวอักษร */
@@ -149,31 +133,6 @@
     /* ลบ margin-top ที่อาจทำให้เกิดระยะห่าง */
 }
 
-.container-two .box-it {
-    display: inline-block;
-    border: 1px solid #000000;
-    width: 10px;
-    height: 10px;
-    background-color: #622b86;
-    color: #622b86;
-    vertical-align: middle;
-    /* จัดแนวตั้งให้อยู่ในแนวเดียวกัน */
-    margin-top: 0;
-    /* ลบ margin-top ที่อาจทำให้เกิดระยะห่าง */
-}
-
-.container-two .box-com {
-    display: inline-block;
-    border: 1px solid #000000;
-    width: 10px;
-    height: 10px;
-    background-color: #E54715;
-    color: #E54715;
-    vertical-align: middle;
-    /* จัดแนวตั้งให้อยู่ในแนวเดียวกัน */
-    margin-top: 0;
-    /* ลบ margin-top ที่อาจทำให้เกิดระยะห่าง */
-}
 
 .monthly-container {
     width: 80%;

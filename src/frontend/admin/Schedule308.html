@@ -52,20 +52,60 @@
 
         table th,
         table td {
-            border: 1px solid #ddd;
+            border: 2px solid #333;
+            /* เส้นขอบหนาและสีเข้ม */
             text-align: center;
             padding: 10px;
+        }
+
+        table td {
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
         }
 
         table th {
             background-color: #673ab7;
             color: white;
+            font-weight: bold;
+            border-bottom: 3px solid #4527a0;
         }
 
-        table tr.highlight {
-            background-color: #ffeb3b;
+        table td:hover {
+            background-color: #ffe0b2;
+            /* สีเปลี่ยนเมื่อ hover */
+            border-color: #ff5722;
+            /* เส้นขอบเปลี่ยนสีเมื่อ hover */
         }
 
+        .status-cell {
+            cursor: pointer;
+            border: 2px solid #888;
+            /* เพิ่มเส้นขอบให้ชัดเจน */
+        }
+
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #5cb85c;
+        }
+
+        .status-occupied {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .status-unavailable {
+            background-color: #f5c6cb;
+            color: #721c24;
+            border-color: #e0a800;
+        }
+
+        .status-maintenance {
+            background-color: #ffeeba;
+            color: #856404;
+            border-color: #ffc107;
+        }
         .btn-confirm {
             display: block;
             margin: 20px auto;
@@ -81,16 +121,6 @@
         .btn-confirm:hover {
             background-color: #e64a19;
         }
-
-        table tr.highlight {
-            background-color: rgb(233, 212, 253);
-        }
-
-        table td.checked {
-            background-color: #ffee00;
-            color: black;
-            font-weight: bold;
-        }
     </style>
 </head>
 
@@ -105,7 +135,7 @@
             <div class="filters">
                 <label for="room">ห้อง:</label>
                 <div class="room-option">
-                    SC2-308 - ห้องปฏิบัติการคอมพิวเตอร์ (ความจุ 80 คน)
+                    SC2-307 - ห้องปฏิบัติการคอมพิวเตอร์ (ความจุ 80 คน)
                 </div>
 
                 <label for="date-range">ระหว่างวันที่-วันที่:</label>
@@ -140,7 +170,7 @@
             <tbody>
                 <tr>
                     <td>วันจันทร์</td>
-                    <td>วันครบ</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -257,69 +287,7 @@
         <button class="btn-confirm" type="button" onclick="window.location.href='floor3.html'">ยืนยัน</button>
     </div>
 
-    <script>
-        // ฟังก์ชันสำหรับบันทึกสถานะลงใน localStorage
-        function saveStatusToLocalStorage() {
-            const tableData = [];
-            document.querySelectorAll('table tbody tr').forEach((row, rowIndex) => {
-                row.querySelectorAll('td').forEach((cell, cellIndex) => {
-                    if (cell.cellIndex > 0) { // ข้ามคอลัมน์ชื่อวัน
-                        tableData.push({
-                            row: rowIndex,
-                            col: cellIndex,
-                            status: cell.classList.contains('checked') ? 'ซ่อมบำรุง' : ''
-                        });
-                    }
-                });
-            });
-            localStorage.setItem('tableStatus', JSON.stringify(tableData));
-        }
-    
-        // ฟังก์ชันสำหรับโหลดสถานะจาก localStorage
-        function loadStatusFromLocalStorage() {
-            const tableData = JSON.parse(localStorage.getItem('tableStatus')) || [];
-            tableData.forEach(data => {
-                const row = document.querySelectorAll('table tbody tr')[data.row];
-                if (row) {
-                    const cell = row.querySelectorAll('td')[data.col];
-                    if (cell && cell.cellIndex > 0) { // ข้ามคอลัมน์ชื่อวัน
-                        if (data.status === 'ซ่อมบำรุง') {
-                            cell.classList.add('checked');
-                            cell.textContent = 'ซ่อมบำรุง';
-                        } else {
-                            cell.classList.remove('checked');
-                            cell.textContent = '';
-                        }
-                    }
-                }
-            });
-        }
-    
-        // เพิ่ม event listener ให้กับแต่ละเซลล์
-        document.querySelectorAll('table td').forEach(cell => {
-            if (cell.cellIndex > 0) { // ข้ามคอลัมน์ชื่อวัน
-                cell.addEventListener('click', () => {
-                    if (cell.classList.contains('checked')) {
-                        // ลบสถานะ "ซ่อมบำรุง"
-                        cell.classList.remove('checked');
-                        cell.textContent = ''; // รีเซ็ตข้อความ
-                    } else {
-                        // เพิ่มสถานะ "ซ่อมบำรุง"
-                        cell.classList.add('checked');
-                        cell.textContent = 'ซ่อมบำรุง'; // แสดงข้อความ "ซ่อมบำรุง"
-                    }
-                    saveStatusToLocalStorage(); // บันทึกสถานะทุกครั้งที่คลิก
-                });
-            }
-        });
-    
-        // โหลดสถานะเมื่อหน้าเพจโหลด
-        window.addEventListener('load', () => {
-            loadStatusFromLocalStorage();
-        });
-    </script>
-    
-
+    <script src="Schedule.js"></script>
 </body>
 
 </html>
