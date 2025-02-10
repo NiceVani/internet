@@ -428,7 +428,7 @@
                       <li><a class="dropdown-item" href="#">SC2-308</a></li>
                       <li><a class="dropdown-item" href="#">SC2-311</a></li>
                       <li><a class="dropdown-item" href="#">SC2-313</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-313</a></li>
+                      <li><a class="dropdown-item" href="#">SC2-313-1</a></li>
                       <li><a class="dropdown-item" href="#">SC2-314</a></li>
                       <li><a class="dropdown-item" href="#">SC2-407</a></li>
                       <li><a class="dropdown-item" href="#">SC2-408</a></li>
@@ -437,7 +437,7 @@
                       <li><a class="dropdown-item" href="#">SC2-414</a></li>
                       <li><a class="dropdown-item" href="#">SC2-415</a></li>
                     </ul>
-                  </div>
+                  </div>   
                 </th>
                 <th style="color: #929292">เวลาจอง</th>
                 <th style="color: #929292">เอกสาร</th>
@@ -448,6 +448,9 @@
             <tbody id="reservation-table">
               <!-- ตัวอย่างรายการ -->
               <script>
+
+                
+              
                 async function fetchData() {
                 try {
                     // ดึงข้อมูลจาก 2 API พร้อมกัน
@@ -463,8 +466,10 @@
                     const TeacherData = await TeacherResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.Requests_status === 'รออนุมัติ' 
-                );
+                    const filteredData = roomsData.filter(row => row.Requests_status === 'รออนุมัติ' );
+                    
+                    
+                
                     
                     const mergedData = filteredData.map(room => {
                        

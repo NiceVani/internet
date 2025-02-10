@@ -59,25 +59,51 @@ app.post('/updateStatus', (req, res) => {
 
 app.post('/updateScheduleStatus', (req, res) => {
     const { scheduleId, status } = req.body;
-    console.log('Incoming request:', req.body); // Debugging log
+    console.log('📢 Incoming request:', req.body); // เช็กข้อมูลที่ได้รับจาก Client
 
-    if (!scheduleId) {
-        return res.status(400).json({ message: 'Missing schedule ID' });
+    if (!scheduleId || !status) {
+        return res.status(400).json({ message: 'Missing scheduleId or status' });
     }
 
     const query = 'UPDATE Rooms_schedule_time SET Rooms_status = ? WHERE Schedule_time_ID = ?';
 
     connection.query(query, [status, scheduleId], (err, result) => {
         if (err) {
-            console.error(err);
+            console.error('❌ Database error:', err);
             return res.status(500).json({ message: 'Failed to update status', error: err.message });
         }
-        res.status(200).json({ message: 'Status updated successfully' });
+
+        if (result.affectedRows > 0) {
+            console.log(`✅ Status updated for Schedule_time_ID ${scheduleId}: ${status}`);
+            res.status(200).json({ message: 'Status updated successfully' });
+        } else {
+            console.warn(`⚠️ No rows updated for Schedule_time_ID ${scheduleId}`);
+            res.status(404).json({ message: 'Schedule ID not found' });
+        }
     });
 });
 
+app.post('/insertSchedule', (req, res) => {
+    const { roomId, day, startTime, endTime, status } = req.body;
 
+    if (!roomId || !day || !startTime || !endTime || !status) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
 
+    const query = `
+        INSERT INTO Rooms_schedule_time (Rooms_ID, Week_days, Start_time, End_time, Rooms_status)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    connection.query(query, [roomId, day, startTime, endTime, status], (err, result) => {
+        if (err) {
+            console.error('❌ Error inserting new schedule:', err);
+            return res.status(500).json({ message: 'Failed to insert new schedule' });
+        }
+
+        res.status(200).json({ message: 'New schedule inserted', newScheduleId: result.insertId });
+    });
+});
 
 // 📌 Start Server
 const PORT = process.env.PORT || 3000;

@@ -66,31 +66,8 @@
 </head>
 
 <body>
-  <div class="sidebar">
+  <div id="sidebar-container"></div>
     <!-- เนื้อหา Sidebar -->
-    <div class="sidebar d-flex flex-column">
-      <div class="d-grid gap-4">
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px; width: auto; height: auto;">
-          คำขออนุมัติการจองห้อง
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style="font-size: 12px;">10</span>
-        </button>
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          รายการอุปกรณ์ชำรุด
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-            style="font-size: 12px;">3</span>
-        </button>
-        <button class="btn btn-secondary p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          ข้อมูลสถิติ
-        </button>
-      </div>
-      <button class="btn w-100 p-3 text-white mt-auto"
-        style="font-weight: bold; font-size: 20px; background-color: orangered;width: auto; height: auto;">
-        ออกจากระบบ
-      </button>
-    </div>
-  </div>
-
   <div class="content-area">
 </head>
 <div class="container">
@@ -126,48 +103,55 @@
       </ul>
     </div>
   </div>
-        <table>
-            <tr>
-                <td><select>
-                  <option value="eqiup">Eqiup</option>
-                  <option value="projector">โปรเจกเตอร์</option>
-                  <option value="monitor">จอคอมพิวเตอร์</option>
-                  <option value="TV">TV</option>
-                </select></td>
-                <td>จำนวนอุปกรณ์</td>
-                <td>จำนวนอุปกรณ์ที่เสีย</td>
-                <td>จำนวนอุปกรณ์สุทธิ</td>
-                <td>จำนวนการยืมสุทธิ</td>
-            </tr>
-        </table>
-        <hr>
-        <table>
-            <tr>
-                <td>โปรเจกเตอร์</td>
-                <td>40</td>
-                <td>10</td>
-                <td>30</td>
-                <td>50</td>
-            </tr>
-            <tr>
-                <td>จอคอมพิวเตอร์</td>
-                <td>20</td>
-                <td>5</td>
-                <td>15</td>
-                <td>20</td>
-            </tr>
-            <tr>
-                <td>TV</td>
-                <td>5</td>
-                <td>0</td>
-                <td>5</td>
-                <td>30</td>
-            </tr>
-        </table>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Equipment Data</title>
+  </head>
+  <body>
+      <table>
+          <tr>
+              <td>
+                  <select id="equipmentFilter" onchange="filterEquipment()">
+                      <option value="all">All</option>
+                      <option value="โปรเจคเตอร์">โปรเจคเตอร์</option>
+                      <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
+                      <option value="TV">TV</option>
+                  </select>
+              </td>
+              <td>ชื่อห้อง</td>
+              <td>จำนวนอุปกรณ์</td>
+              <td>จำนวนอุปกรณ์ที่เสีย</td>
+              <td>จำนวนอุปกรณ์สุทธิ</td>
+              <td>จำนวนการยืมสุทธิ</td>
+          </tr>
+      </table>
+      <hr>
+      <table id="equipmentTable">
+          <!-- Data will be inserted here -->
+      </table>
         <button onclick="window.location.href='alldata.html'">BACK</button>
     </div>
 </body>
 <script>
+
+fetch("sidebar.html")
+      .then((resp) => resp.text())
+      .then((html) => {
+        // แทรก Sidebar เข้ามา
+        document.getElementById("sidebar-container").innerHTML = html;
+      })
+      .then(() => {
+        // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
+        // ให้ Highlight ปุ่มสถิติ
+        const btnStats = document.getElementById("btnStatistic");
+        btnStats.classList.add("btn-sidebar-active");
+      })
+      .catch((err) => console.error("Failed to load sidebar:", err));
+    // end of fetch sidebar
+    
   // เปิดและปิด Popup
   const openPopupBtn = document.getElementById("openPopup");
   const popup = document.getElementById("popup");
@@ -233,6 +217,44 @@
       popup.style.display = "none"; // ปิด Popup หลังจากเลือกตัวกรอง
     });
   });
-  
+  async function fetchEquipmentData() {
+            try {
+                const response = await fetch('http://localhost:3000/DataEquipment');
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function renderTable(data) {
+            const table = document.getElementById("equipmentTable");
+            table.innerHTML = ""; // Clear old data
+            
+            data.forEach(item => {
+                const row = `<tr>
+                    <td>${item.EquipmentName}</td>
+                    <td>${item.Room}</td>
+                    <td>${item.Equipments_amount}</td>
+                    <td>${item.BrokenedEquipment}</td>
+                    <td>${item.Balance}</td>
+                    <td>${item.BorrowAmount}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        function filterEquipment() {
+            const filterValue = document.getElementById("equipmentFilter").value;
+            fetchEquipmentData().then(() => {
+                const rows = document.querySelectorAll("#equipmentTable tr");
+                rows.forEach(row => {
+                    const equipmentName = row.cells[0]?.textContent || "";
+                    row.style.display = (filterValue === "all" || equipmentName === filterValue) ? "" : "none";
+                });
+            });
+        }
+
+        fetchEquipmentData();
   </script>
 </html>

@@ -484,8 +484,8 @@
                                 <td class="text-center">${row.Status}</td>
                                 <td class="text-center">${row.Rooms_ID}</td>
                                 <td class="text-center">${row.Start_time+"-"+row.End_time}</td>
-                                <td class="text-center">${row.document}</td>
-                                <td>ไม่อนุมัติ</td>
+                                <td class="text-center">${row.document || "ไม่มีเอกสาร"}</td>
+                                <td style="color: #929292">ไม่อนุมัติ</td>
                                
                             </tr>
                         `;
