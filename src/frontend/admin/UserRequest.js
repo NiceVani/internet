@@ -1,9 +1,9 @@
 async function fetchRoom() {
     try {
         const [rooms, studentResponse, equipmentsResponse] = await Promise.all([
-            fetch('http://localhost:3000/data/Rooms_list_requests'),
-            fetch('http://localhost:3000/data/Student_information'),
-            fetch('http://localhost:3000/data/Equipments_list_information')
+            fetch('http://localhost:3001/data/Rooms_list_requests'),
+            fetch('http://localhost:3001/data/Student_information'),
+            fetch('http://localhost:3001/data/Equipments_list_information')
         ]);
 
         const roomsData = await rooms.json();
@@ -47,6 +47,9 @@ async function fetchRoom() {
                     ${getDayOfWeek(row.Used_date) + ', ' + new Date(row.Used_date).toLocaleDateString()}<br>
                     ${row.Start_time.slice(0, 5) + ' - ' + row.End_time.slice(0, 5) || '-'}<br>
                     ${'(' + row.Requests_types + ')' || '-'}
+                  </td>
+                  <td class="text-center">
+                        <a href="../../shared/booking_documents/booking_document.pdf" target="_blank">เปิดเอกสาร</a>
                   </td>
                   <td class="text-center">${row.Reason || '-'}</td>
                   <td class="text-center">${row.Requests_status || '-'}</td>
