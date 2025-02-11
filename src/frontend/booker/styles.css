@@ -1,0 +1,292 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    line-height: 1.6;
+}
+
+.main-content {
+    margin-left: 0%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    flex: 1;
+    padding: 20px;
+    padding-top: 2px;
+    background-color: #E8E8E8;
+    border-radius: 10px;
+}
+
+.tab-bar {
+    display: flex;
+    padding: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.tab {
+    padding: 15px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+    text-align: center;
+}
+
+.tab.active {
+    color: #000;
+    border-bottom: 2px solid #000;
+}
+
+.tab-bar button.active {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    vertical-align: middle; 
+    text-align: center; 
+    padding: 10px;
+    height: 69px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* tr:nth-child(even) {
+    background-color: #f44336;
+} */
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.actions button:hover {
+    opacity: 0.9;
+    transform: scale(1.04);
+}
+
+.actions2 {
+    text-align: center;
+    gap: 10px;
+}
+
+.actions2 button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.approve {
+    background-color: #4caf50;
+    color: white;
+}
+
+.reject {
+    background-color: #FF0606;
+    color: white;
+}
+
+.icon-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.receive {
+    justify-content: center;
+}
+
+.tab a {
+    text-decoration: none; 
+    color: inherit; 
+}
+
+/* Drop-Downเรียงข้อมูล */
+.dropdown-container {
+    display: inline-block;
+    position: relative;
+    font-family: Arial, sans-serif;
+    margin-left: auto;
+}
+select {
+    width: 135px;
+    padding: 10px;
+    font-size: 14px;
+    color: #7E7E7E;
+    border: 1px solid #E7E7E7;
+    border-radius: 8px;
+    background-color: #F9FBFF;
+    outline: none;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: #aaa;
+}
+
+/* Drop-Downวันที่ */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+ 
+.dropdown-symbol {
+    font-size: 16px;
+    color: gray;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+ 
+.dropdown-symbol span {
+    margin-right: 5px;
+}
+ 
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 10;
+}
+ 
+.dropdown-menu.active {
+    display: block;
+}
+
+header {
+    background-color: #d9c1ab;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #000;
+  }
+  
+  .floor-buttons {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .report-buttons {
+    display: flex;
+    gap: 15px;
+    margin-left: auto; /* Push this container to the right */
+  }
+  
+  .logout-button {
+    margin-left: 15px; /* Add some spacing between the report buttons and the logout button */
+  }
+  
+  .floor-buttons button {
+    background-color: #6c34a3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .floor-buttons button:hover {
+    background-color: #563080;
+  }
+  
+  .floor-buttons button:active {
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.4);
+  }
+  
+  .report-buttons button {
+    background-color: rgb(37, 196, 37);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .report-buttons button:hover {
+    background-color: rgb(30, 170, 30);
+  }
+  
+  .report-buttons button:active {
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.4);
+  }
+  
+  .logout-button button {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .logout-button button:hover {
+    background-color: rgb(179, 117, 0);
+  }
+  
+  .logout-button button:active {
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.4);
+  }
+table td.checked {
+    background-color: #c8e6c9;  /* สีเขียวสำหรับห้องที่มีเรียน */
+    font-weight: bold;
+    color: green;
+}
+
+table td.highlight {
+    background-color: #ffeb3b;  /* สีเหลืองสำหรับห้องที่ไม่ว่าง */
+    font-weight: bold;
+    color: black;
+}
+/* 🔹 สไตล์ dropdown */
+.dropdown-list {
+    position: absolute;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+/* 🔹 สไตล์ตัวเลือก */
+/* 🔹 ปรับขนาดตัวอักษรของ dropdown-item */
+.dropdown-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 18px; /* ✅ ทำให้ตัวหนังสือใหญ่ขึ้น */
+    font-weight: bold; /* ✅ ทำให้ตัวหนังสือหนาขึ้น */
+    transition: background 0.2s;
+    border-bottom: 1px solid #eee;
+}
+
+/* 🔹 เมื่อเอาเมาส์ไปชี้จะมี Highlight */
+.dropdown-item:hover,
+.dropdown-item.active {
+    background-color: #b3e5fc; /* ✅ เปลี่ยนสีให้ชัดขึ้น */
+    color: #000;
+    border-radius: 3px;
+}

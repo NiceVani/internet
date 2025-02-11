@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - EasyRoom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .title {
+            color: #e67e22;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: #6c3483;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #512e5f;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">ระบบจองห้อง EasyRoom</div>
+    <div class="container">
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">รหัสผู้ใช้</label>
+                <input type="text" id="username" placeholder="รหัสผู้ใช้" required>
+            </div>
+            <div class="form-group">
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" id="password" placeholder="******" required>
+            </div>
+            <div id="errorMessage" class="error"></div>
+            <button type="submit" class="btn">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+        
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+        
+            if (!username || !password) {
+                errorMessage.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
+                return;
+            }
+        
+            try {
+                const response = await fetch("http://localhost:3000/login", {
+                    method: "POST",
+                    credentials: "include", // ✅ ส่ง Cookie ไปด้วย
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+        
+                const result = await response.json();
+                console.log("📌 ผลลัพธ์ Login:", result);
+        
+                if (response.ok && result.success) {
+                    // ✅ ล็อกอินสำเร็จ → Redirect ตาม Role
+                    if (result.role === "นิสิต") {
+                        window.location.href = "home.html";
+                    } else if (result.role === "อาจารย์") {
+                        window.location.href = "home.html";
+                    }
+                } else {
+                    errorMessage.textContent = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+                }
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาด:", error);
+                errorMessage.textContent = "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้";
+            }
+        });
+        
+    </script>
+
+</body>
+</html>
