@@ -65,7 +65,12 @@
         }
 
         table tr.highlight {
-            background-color: #ffeb3b;
+            background-color: #fff8d6;
+        }
+
+        td.after-hours {
+            background-color: #ffcccc !important;
+            /* สีอ่อนกว่าสำหรับเวลานอกเวลาราชการ */
         }
 
         .btn-confirm {
@@ -90,17 +95,50 @@
             font-weight: bold;
         }
 
-        .checked {
-            background-color: #c8e6c9 !important;
-            /* สีเขียวเมื่อเลือก */
-            font-weight: bold;
+        .disabled {
+            pointer-events: none;
+            background-color: #f0f0f0;
+            /* สีพื้นหลังเมื่อไม่สามารถคลิกได้ */
         }
 
-        .disabled {
-            background-color: #ffcccb !important;
-            /* สีแดงอ่อนสำหรับที่ถูกจองแล้ว */
-            pointer-events: none;
+        .checked {
+            background-color: #4caf50;
+            /* สีพื้นหลังเมื่อมีการติ้ก */
         }
+
+        .purple {
+            background-color: #800080;
+            color: white;
+        }
+
+        .lightPurple {
+            background-color: #D8BFD8;
+            color: black;
+        }
+
+        td.disabled {
+            background-color: #cdcccd;
+            /* สีพื้นหลังเมื่อมีเรียน */
+            color: #ffffff;
+            /* สีข้อความ */
+            cursor: not-allowed;
+            /* ปิดการคลิก */
+            text-align: center;
+        }
+
+        td.class-time {
+            background-color: #ffcccc !important; /* สีแดงอ่อน */
+            color: black;
+            cursor: not-allowed; /* ไม่ให้คลิก */
+        }
+
+        td.booked-time {
+            background-color: #87cefa !important; /* สีฟ้าอ่อน */
+            color: black;
+            cursor: not-allowed; /* ไม่ให้คลิก */
+        }
+
+        
     </style>
 </head>
 
@@ -113,25 +151,19 @@
     <div class="container">
         <form method="GET" action="">
             <div class="filters">
-                <label for="room">ห้อง:</label>
-                <div class="room-option">
-                    SC2-308 - ห้องปฏิบัติการคอมพิวเตอร์ (ความจุ 80 คน)
-                </div>
-
-                <label for="start_date">ระหว่างวันที่:</label>
-                <input type="date" id="start_date" name="start_date">
+                <h3 id="room-name">ห้อง: </h3>
+                <!-- <label for="start_date">ระหว่างวันที่:</label> -->
+                <!-- <input type="date" id="start_date" name="start_date">
 
                 <label for="end_date">ถึง:</label>
-                <input type="date" id="end_date" name="end_date">
+                <input type="date" id="end_date" name="end_date"> -->
 
-                <label for="search_date">เลือกวันที่:</label>
-                <input type="date" id="search_date" name="search_date">
+                <label for="datePicker">เลือกวันที่:</label>
+                <input type="date" id="date-picker" onchange="highlightDay(this.value)">
 
-                <button type="submit">ค้นหา</button>
             </div>
         </form>
-
-        <table>
+        <table id="schedule-table">
             <thead>
                 <tr>
                     <th>วัน</th>
@@ -153,125 +185,127 @@
             <tbody>
                 <tr>
                     <td>จันทร์ </td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>อังคาร</td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>พุธ</td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>พฤหัสบดี</td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>ศุกร์</td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
-                    <td class="time-slot" onclick="toggleSelection(this)"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>เสาร์</td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
                 <tr>
                     <td>อาทิตย์</td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
-                    <td class="time-slot"></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
+                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
                 </tr>
 
             </tbody>
         </table>
 
         <button class="btn-confirm" type="button" onclick="confirmBooking()">ยืนยัน</button>
-        <button>ยกเลิก</button>
-    </div>
 
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
     <script src="Schedule.js"></script>
+
+
 
 </body>
 

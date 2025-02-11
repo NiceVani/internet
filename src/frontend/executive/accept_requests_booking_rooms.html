@@ -147,6 +147,7 @@
         font-family: Arial, sans-serif;
         margin-left: auto;
       }
+       
       select {
         width: 135px;
         padding: 10px;
@@ -485,8 +486,8 @@
                                 <td class="text-center">${row.Status}</td>
                                 <td class="text-center">${row.Rooms_ID}</td>
                                 <td class="text-center">${row.Start_time+"-"+row.End_time}</td>
-                                <td class="text-center">${row.document}</td>
-                                <td>อนุมัติแล้ว</td>
+                                <td class="text-center">${row.document || "ไม่มีเอกสาร"}</td>
+                                <td style="color: #929292">อนุมัติแล้ว</td>
                                 <td><button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ยกเลิก</button></td>
                             </tr>
                         `;

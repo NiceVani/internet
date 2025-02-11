@@ -66,32 +66,11 @@
 </head>
 
 <body>
-  <div class="sidebar">
-    <!-- เนื้อหา Sidebar -->
-    <div class="sidebar d-flex flex-column">
-      <div class="d-grid gap-4">
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px; width: auto; height: auto;">
-          คำขออนุมัติการจองห้อง
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style="font-size: 12px;">10</span>
-        </button>
-        <button class="btn btn-secondary position-relative p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          รายการอุปกรณ์ชำรุด
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-            style="font-size: 12px;">3</span>
-        </button>
-        <button class="btn btn-secondary p-3 text-start" style="font-weight: bold; font-size: 14px;width: auto; height: auto;">
-          ข้อมูลสถิติ
-        </button>
-      </div>
-      <button class="btn w-100 p-3 text-white mt-auto"
-        style="font-weight: bold; font-size: 20px; background-color: orangered;width: auto; height: auto;">
-        ออกจากระบบ
-      </button>
-    </div>
-  </div>
-
-  <div class="content-area">
+  <body>
+    <div id="sidebar-container"></div>
+  
+  
+    <div class="content-area">
 </head>
 <div class="container">
   <header>
@@ -238,6 +217,20 @@
                 console.error("เกิดข้อผิดพลาด:", error);
                 document.getElementById("userTable").innerHTML = "<tr><td colspan='5'>ไม่สามารถโหลดข้อมูลได้</td></tr>";
             });
-  
+  // fetch sidebar
+  fetch("sidebar.html")
+    .then((resp) => resp.text())
+    .then((html) => {
+      // แทรก Sidebar เข้ามา
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .then(() => {
+      // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
+      // ให้ Highlight ปุ่มสถิติ
+      const btnStats = document.getElementById("btnStatistic");
+      btnStats.classList.add("btn-sidebar-active");
+    })
+    .catch((err) => console.error("Failed to load sidebar:", err));
+  // end of fetch sidebar
   </script>
 </html>

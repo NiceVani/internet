@@ -114,59 +114,29 @@
               </select>
             </td>
             <td>เวลา</td>
-            <td><select>
+            <td>
+              <select>
                 <option value="room">ห้อง</option>
                 <option value="room1">SC2-211</option>
                 <option value="room2">SC2-212</option>
                 <option value="room3">SC2-307</option>
                 <option value="room4">SC2-407</option>
                 <option value="room5">SC2-414</option>
-              </select></td>
-            <td>ชื่อ-นามสุกล</td>
+              </select>
+            </td>
+            <td>ชื่อ-นามสกุล</td>
             <td>อีเมลล์</td>
-
-            <td><select>
+            <td>
+              <select>
                 <option value="teacher">อาจารย์</option>
                 <option value="student">นิสิต</option>
-              </select></td>
+              </select>
+            </td>
           </tr>
         </table>
         <hr>
-        <table>
-          <tr>
-            <td>2567-11-09</td>
-            <td>16:00-21:00</td>
-            <td>SC2-414</td>
-            <td>นายสายฝน คุณเกียรติ</td>
-            <td>saifon@nu.ac.th</td>
-            <td>อาจารย์</td>
-
-          </tr>
-          <tr>
-            <td>2567-11-09</td>
-            <td>15:00-19:00</td>
-            <td>SC2-414</td>
-            <td>นายคำมี สาเก</td>
-            <td>kammee@nu.ac.th</td>
-            <td>นิสิต</td>
-          </tr>
-          <tr>
-            <td>2567-11-09</td>
-            <td>16.00-19.00</td>
-            <td>SC2-307</td>
-            <td>นางสาวอุ้งอิ้ง องค์กร</td>
-            <td>unging67@nu.ac.th</td>
-            <td>นิสิต</td>
-          </tr>
-          <tr>
-            <td>2567-11-09</td>
-            <td>17.00-21.00</td>
-            <td>SC2-407</td>
-            <td>นายธีรพงษ์ พาสุข</td>
-            <td>theerapong66@nu.ac.th</td>
-            <td>นิสิต</td>
-          </tr>
-
+        <table id="room-table">
+          <!-- ตารางจะถูกเติมข้อมูลจาก API ที่นี่ -->
         </table>
         <button onclick="window.location.href='grap.html'">BACK</button>
     </div>
@@ -256,6 +226,21 @@
     })
     .catch((err) => console.error("Failed to load sidebar:", err));
   // end of fetch sidebar
+  fetch('http://localhost:3000/TableRoomListRequest')
+      .then(response => response.json())
+      .then(data => {
+        const table = document.getElementById('room-table');
+        data.forEach(item => {
+          const row = table.insertRow();
+          row.insertCell(0).textContent = item.Date;           // วันที่
+          row.insertCell(1).textContent = item.Time;           // เวลา
+          row.insertCell(2).textContent = item.ห้อง;           // ห้อง
+          row.insertCell(3).textContent = item.Name;           // ชื่อ-นามสกุล
+          row.insertCell(4).textContent = item.Email;          // อีเมลล์
+          row.insertCell(5).textContent = item.Status;         // สถานะ
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
 </script>
 
 </html>
