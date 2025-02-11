@@ -209,18 +209,6 @@
                     <label for="phone-number">เบอร์โทร</label>
                     <input type="text" class="form-control" id="phone-number" value="กำลังโหลด..." readonly>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">วัน</label>
-                    <select class="form-select" name="day"> <!-- เพิ่ม name สำหรับการส่งข้อมูลxxxxx<select class="form-select">xxxxxxxxxxx -->
-                        <option selected>จันทร์</option>
-                        <option value="อังคาร">อังคาร</option>
-                        <option value="พุธ">พุธ</option>
-                        <option value="พฤหัสบดี">พฤหัสบดี</option>
-                        <option value="ศุกร์">ศุกร์</option>
-                        <option value="เสาร์">เสาร์</option>
-                        <option value="อาทิตย์">อาทิตย์</option>
-                    </select>
-                </div>
             </div>
         </div>
 
@@ -457,8 +445,48 @@
         document.addEventListener("DOMContentLoaded", async function () {
             await fetchStudentData(); // ✅ ดึงข้อมูลนิสิตเมื่อหน้าโหลด
             document.querySelectorAll(".student-id-input").forEach(initializeStudentIDInput);
-        });
+                });
+                
 
+        // ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
+        document.addEventListener("DOMContentLoaded", showDayFromDate);
+        async function fetchUserInfo() {
+            try {
+                console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
+                const response = await fetch("http://localhost:3000/session", {
+                    method: "GET",
+                    credentials: "include"
+                });
+        
+                if (!response.ok) {
+                    console.warn("⚠️ เซสชันหมดอายุ หรือไม่ได้ล็อกอิน");
+                    document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
+                    return;
+                }
+        
+                const userSession = await response.json();
+                console.log("✅ ข้อมูลผู้ใช้:", userSession);
+        
+                if (!userSession.data) {
+                    console.warn("⚠️ ไม่พบข้อมูลผู้ใช้ในเซสชัน");
+                    document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
+                    return;
+                }
+        
+                // ✅ แสดงข้อมูลผู้ใช้ในหน้าเว็บ
+                document.getElementById("student-name").value = userSession.data.Name || "ไม่พบข้อมูล";
+                document.getElementById("student-id").value = userSession.data.Student_ID || "ไม่พบข้อมูล";
+                document.getElementById("stud-year").value = userSession.data.Study_year || "ไม่พบข้อมูล";
+                document.getElementById("phone-number").value = userSession.data.Phone_number || "ไม่พบข้อมูล";
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาดในการโหลดเซสชัน:", error);
+                document.getElementById("student-name").value = "เกิดข้อผิดพลาด";
+            }
+        }
+        
+        // ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
+        window.onload = fetchUserInfo;
+        
 
     </script>
 </body>
