@@ -10,7 +10,6 @@
         margin: 0;
         padding: 0;
         background-color: #f8f9fa;
-        position: relative;
         min-height: 100vh;
       }
 
@@ -26,11 +25,7 @@
         align-items: center;
       }
 
-      .header h1 {
-        margin: 10px;
-        font-size: 30px;
-      }
-
+      .header h1,
       .header h2 {
         margin: 10px;
         font-size: 30px;
@@ -68,8 +63,10 @@
 
       .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 1fr 1fr 1fr; /* กำหนดขนาดคอลัมน์ */
-        grid-template-rows: repeat(8, auto); /* 8 แถว */
+        grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 1fr 1fr 1fr;
+        /* กำหนดขนาดคอลัมน์ */
+        grid-template-rows: repeat(8, auto);
+        /* 8 แถว */
         gap: 10px;
         flex-wrap: wrap;
       }
@@ -84,13 +81,16 @@
       .group-1 {
         grid-template-columns: repeat(3, 1fr);
       }
+
       .group-2 {
         grid-template-columns: repeat(4, 1fr);
       }
+
       .group-3 {
         grid-template-columns: repeat(3, 1fr);
       }
 
+      /* สไตล์ของโต๊ะ */
       .desk {
         width: 70px;
         height: 70px;
@@ -103,17 +103,17 @@
         background-color: green;
         font-size: 13px;
         text-align: center;
+        border: 2px solid transparent;
+        transition: 0.2s;
       }
 
       .usable {
         background-color: green !important;
       }
+
       .damaged {
         background-color: red;
         cursor: not-allowed;
-      }
-      .checked {
-        background-color: rgb(0, 255, 26);
       }
 
       .borrow-section {
@@ -158,8 +158,14 @@
       .confirm-button:hover {
         background-color: #bf3c12;
       }
+
+      .desk.selected {
+        background-color: #fde361 !important;
+        /* สีพื้นหลังเป็นสีส้ม */
+      }
     </style>
   </head>
+
   <body>
     <div class="header">
       <h2>ห้อง SC2-307</h2>

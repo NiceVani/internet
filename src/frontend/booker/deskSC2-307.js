@@ -49,20 +49,13 @@ async function loadDesks() {
  ********************************/
 function toggleDesk(desk) {
   if (!desk.classList.contains("damaged")) {
-    desk.classList.toggle("checked");
+    desk.classList.toggle("selected"); // ใช้คลาส .selected แทนการเปลี่ยนสีโดยตรง
     const deskId = desk.dataset.id;
 
-    // เมื่อ desk ถูกเลือก
-    if (desk.classList.contains("checked")) {
-      // เปลี่ยนสีขอบและพื้นหลังของ desk
-      desk.style.border = "5px solid #003CFFFF"; // สีขอบ
-      desk.style.backgroundColor = "#28A328FF"; // สีพื้นหลัง
-      selectedDesks.add(deskId); // เพิ่มเก้าอี้ที่เลือกใน Set
+    if (desk.classList.contains("selected")) {
+      selectedDesks.add(deskId); // เพิ่มโต๊ะที่ถูกเลือก
     } else {
-      // ถ้ายกเลิกการเลือก
-      desk.style.border = "none"; // ลบขอบ
-      desk.style.backgroundColor = ""; // ลบสีพื้นหลัง
-      selectedDesks.delete(deskId); // ลบเก้าอี้ที่ยกเลิกการเลือกจาก Set
+      selectedDesks.delete(deskId); // ลบโต๊ะที่ยกเลิกการเลือก
     }
   }
 }

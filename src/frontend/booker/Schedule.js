@@ -32,11 +32,16 @@ const timeSlots = [
  *    - หา "วันจันทร์" ของสัปดาห์
  ********************************/
 function getStartOfWeek(date) {
-  let startOfWeek = new Date(date);
-  let dayOfWeek = startOfWeek.getDay(); // 0=อาทิตย์,1=จันทร์,...6=เสาร์
-  let diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-  startOfWeek.setDate(diff);
-  return startOfWeek;
+  const selectedDate = new Date(date);
+  const dayOfWeek = selectedDate.getDay(); // ค่าของวัน (0 = อาทิตย์, 1 = จันทร์, ..., 6 = เสาร์)
+
+  // ถ้าวันอาทิตย์ (0) ต้องเลื่อนกลับไปวันจันทร์ของสัปดาห์ก่อนหน้า
+  const startOfWeek = new Date(selectedDate);
+  startOfWeek.setDate(
+    selectedDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+  );
+
+  return startOfWeek; // คืนค่าวันจันทร์ของสัปดาห์ที่เลือก
 }
 
 /********************************
@@ -95,19 +100,19 @@ function showAlert(message) {
  *    - ดึงข้อมูลการเรียน + การจอง
  *    - แสดงผลใน <tbody>
  ********************************/
-async function fetchSchedule() {
+async function fetchSchedule(selectedDate) {
   try {
-    // ดึงข้อมูล "มีเรียน" จาก /getSchedule
+    // หาวันจันทร์ของสัปดาห์ที่เลือก
+    const startOfWeek = getStartOfWeek(new Date(selectedDate));
+
+    // ดึงข้อมูล "มีเรียน" และ "จองแล้ว"
     const response = await fetch("http://localhost:3000/getSchedule");
     const data = await response.json();
 
-    // ดึงข้อมูลการจอง (อนุมัติแล้ว)
     const bookingResponse = await fetch(
       "http://localhost:3000/Rooms_list_requests"
     );
     let bookings = await bookingResponse.json();
-
-    // กรองเฉพาะการจองที่อนุมัติ
     bookings = bookings.filter((b) => b.Requests_status === "อนุมัติ");
 
     console.log("Schedule Data:", data);
@@ -120,12 +125,7 @@ async function fetchSchedule() {
       return;
     }
 
-    // getStartOfWeek(วันนี้)
-    const startOfWeek = getStartOfWeek(new Date());
-
-    /********************************
-     * สร้างตาราง (days x timeSlots)
-     ********************************/
+    // **สร้างตารางให้ตรงกับสัปดาห์ที่เลือก**
     tbody.innerHTML = days
       .map((day, index) => {
         let currentDate = new Date(startOfWeek);
@@ -139,23 +139,17 @@ async function fetchSchedule() {
               </td>
               ${timeSlots
                 .map((startSlot, i) => {
-                  // สิ้นสุดของช่อง
                   const endSlot = timeSlots[i + 1] || addOneHour(startSlot);
-
-                  // หาใน data ว่าเป็น "มีเรียน" ไหม
                   const isClass = data.some(
                     (d) =>
                       d.Week_days?.trim() === day && d.Start_time === startSlot
                   );
 
-                  // หาใน bookings ว่าเป็น "จองแล้ว" ไหม
                   const isBooked = bookings.some((b) => {
-                    // เช็ควัน
-                    // แปลง b.Used_date => dd/mm/yyyy
                     const bookingDate = new Date(b.Used_date);
                     const bookingFormatted = getFormattedDate(bookingDate);
                     if (bookingFormatted !== formattedDate) return false;
-                    // เช็คว่า slot นี้ (startSlot-endSlot) ซ้อนกับ b.Start_time-b.End_time ไหม
+
                     const slotStartTime = parseInt(
                       startSlot.replace(":", ""),
                       10
@@ -176,15 +170,12 @@ async function fetchSchedule() {
                     );
                   });
 
-                  // จัดสี + ข้อความ
                   if (isClass) {
                     return `<td class="class-time">มีเรียน</td>`;
                   } else if (isBooked) {
                     return `<td class="booked-time">จองแล้ว</td>`;
                   } else {
-                    return `<td class="available" onclick="toggleSelection(this)">
-                              <!-- ช่องว่าง (เลือกได้) -->
-                            </td>`;
+                    return `<td class="available" onclick="toggleSelection(this)"></td>`;
                   }
                 })
                 .join("")}
@@ -208,34 +199,36 @@ async function updateTableForSelectedDate(date) {
   const tbody = document.querySelector("tbody");
   if (!tbody) return;
 
-  // สร้างโครงตารางอย่างง่าย (days x timeSlots)
+  // **สร้างโครงสร้างของตารางให้ตรงกับสัปดาห์ที่เลือก**
   tbody.innerHTML = days
     .map((day, index) => {
       const currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + index);
-
       const formattedDate = getFormattedDate(currentDate);
       const isWeekend = index === 5 || index === 6;
 
       return `
-          <tr>
-            <td data-day="${index}" class="${isWeekend ? "disabled" : ""}">
-              ${day} (${formattedDate})
-            </td>
-            ${timeSlots
-              .map(() => {
-                return `<td class="available" ${
-                  isWeekend ? "disabled" : ""
-                }></td>`;
-              })
-              .join("")}
-          </tr>
-        `;
+        <tr class="${
+          formattedDate === getFormattedDate(selectedDate) ? "highlight" : ""
+        }">
+          <td data-day="${index}" class="${isWeekend ? "disabled" : ""}">
+            ${day} (${formattedDate})  
+          </td>
+          ${timeSlots
+            .map(
+              () => `<td class="available" ${isWeekend ? "disabled" : ""}></td>`
+            )
+            .join("")}
+        </tr>
+      `;
     })
     .join("");
 
-  // เรียก fetchSchedule() เพื่อแทนค่าที่เป็น "มีเรียน" หรือ "จองแล้ว"
-  await fetchSchedule();
+  // โหลดข้อมูลของสัปดาห์ที่เลือก
+  await fetchSchedule(date);
+
+  // ไฮไลต์วันปัจจุบันที่เลือก
+  highlightDay(date);
 }
 
 /********************************
@@ -288,20 +281,20 @@ function toggleSelection(cell) {
  ********************************/
 function highlightDay(date) {
   const selectedDate = new Date(date);
-  const startOfWeek = getStartOfWeek(selectedDate);
+  const formattedSelectedDate = getFormattedDate(selectedDate);
 
-  const tableRows = document.querySelectorAll("#schedule-table tbody tr");
-  tableRows.forEach((row) => {
+  document.querySelectorAll("#schedule-table tbody tr").forEach((row) => {
     const dayCell = row.querySelector("td");
     if (!dayCell) return;
 
     const dayIndex = parseInt(dayCell.dataset.day);
     if (isNaN(dayIndex)) return;
 
+    const startOfWeek = getStartOfWeek(selectedDate);
     const dateInRow = new Date(startOfWeek);
     dateInRow.setDate(startOfWeek.getDate() + dayIndex);
 
-    if (getFormattedDate(dateInRow) === getFormattedDate(selectedDate)) {
+    if (getFormattedDate(dateInRow) === formattedSelectedDate) {
       row.classList.add("highlight");
     } else {
       row.classList.remove("highlight");
@@ -381,7 +374,7 @@ function confirmBooking() {
   console.log("Query Parameters to Send:", queryParams.toString());
 
   // ไปหน้า nextPage.html
-  window.location.href = `nextPage.html?${queryParams.toString()}`;
+  window.location.href = `deskSC2-307.html?${queryParams.toString()}`;
 }
 
 /********************************
@@ -421,6 +414,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log(`Loading schedule for ${roomName}`);
   }
   // หรือปรับใช้ roomName ใน fetchSchedule() ถ้าต้องการแยกห้อง
+
+  // ✅ เพิ่ม Event Listener ให้ date-picker เมื่อมีการเปลี่ยนแปลง
+  document
+    .getElementById("date-picker")
+    .addEventListener("change", async (event) => {
+      const selectedDate = event.target.value;
+      await updateTableForSelectedDate(selectedDate);
+    });
 });
 
 function toggleSelection(cell) {
