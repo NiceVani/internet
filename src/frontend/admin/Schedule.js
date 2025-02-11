@@ -1,6 +1,6 @@
 async function fetchSchedule() {
     try {
-        const response = await fetch(`http://localhost:3000/data/Rooms_schedule_time`);
+        const response = await fetch(`http://localhost:3001/data/Rooms_schedule_time`);
         const scheduleData = await response.json();
 
         const dayMapping = {
@@ -75,7 +75,7 @@ async function changeStatus(cell) {
         if (!scheduleId || scheduleId === 'none') {
             // 📌 Insert ข้อมูลใหม่
             console.log('📝 Inserting new schedule record...');
-            const response = await fetch('http://localhost:3000/insertSchedule', {
+            const response = await fetch('http://localhost:3001/insertSchedule', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ async function changeStatus(cell) {
         }
 
         // 📌 Update ข้อมูลที่มีอยู่
-        const updateResponse = await fetch('http://localhost:3000/updateScheduleStatus', {
+        const updateResponse = await fetch('http://localhost:3001/updateScheduleStatus', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
