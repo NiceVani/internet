@@ -1,7 +1,4 @@
-<?php
-// ตั้งค่าการเชื่อมต่อฐานข้อมูล
-include('db_connect.php');
-?>
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -233,22 +230,7 @@ include('db_connect.php');
             </label>
         </div>
     </div>
-    <script>
-        // ฟังก์ชันเปลี่ยนหน้า
-        document.getElementById('outOfTime').addEventListener('change', function() {
-            if (this.checked) {
-                // เปลี่ยนหน้าไปยังไฟล์อื่น
-                window.location.href = 'TimeOut3.php'; // ชื่อไฟล์หรือ URL ที่ต้องการ
-            }
-        });
 
-        document.getElementById('inTime').addEventListener('change', function() {
-            if (this.checked) {
-                // กลับไปหน้าเดิมหรือหน้าที่เกี่ยวข้อง
-                window.location.href = 'in_time_booking.html'; // ชื่อไฟล์หรือ URL ที่ต้องการ
-            }
-        });
-    </script>
 
 
 
@@ -257,34 +239,29 @@ include('db_connect.php');
 
     <div class="container mt-4">
         <h4 class="form-title">แบบบันทึกขอใช้ห้องในเวลา</h4>
-        <form>
+        <form method="GET" action="submit_booking.php"> <!-- กำหนด action เป็นที่ที่ข้อมูลจะถูกส่งไปxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">ชื่อ-นามสกุล</label>
-                    <input type="text" class="form-control" placeholder="นาย ปัญญากร ทิมจันทึก" value="นาย ปัญญากร ทิมจันทึก" readonly>
+                    <input type="text" class="form-control" id="student-name" value="กำลังโหลด..." readonly>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">รหัสนิสิต</label>
-                    <input type="text" class="form-control" placeholder="65312993" value="65312993" readonly>
+                    <input type="text" class="form-control" id="student-id" value="กำลังโหลด..." readonly>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label class="form-label">ชั้นปี</label>
-                    <select class="form-select">
-                        <option selected>1</option>
-                        <option value="1">2</option>
-                        <option value="2">3</option>
-                        <option value="4">4</option>
-                    </select>
+                    <label for="stud-year">ชั้นปี</label>
+                    <input type="text" class="form-control" id="stud-year" value="กำลังโหลด..." readonly>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">เบอร์โทร</label>
-                    <input type="text" class="form-control" placeholder="0967543321" value="0967543321" readonly>
+                    <label for="phone-number">เบอร์โทร</label>
+                    <input type="text" class="form-control" id="phone-number" value="กำลังโหลด..." readonly>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">วัน</label>
-                    <select class="form-select">
+                    <select class="form-select" name="day"> <!-- เพิ่ม name สำหรับการส่งข้อมูลxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
                         <option selected>จันทร์</option>
                         <option value="อังคาร">อังคาร</option>
                         <option value="พุธ">พุธ</option>
@@ -342,8 +319,21 @@ include('db_connect.php');
             <div class="textarea-container">
                 <label class="form-label">ความประสงค์การใช้ห้อง</label>
                 <div class="textarea-row">
-                    <textarea class="form-control" rows="3"></textarea>
-                    <button class="btn-confirm" type="button" onclick="window.location.href='home.php'">ยืนยัน</button>
+                    <select class="form-select" name="usage"> <!-- เพิ่ม name สำหรับการส่งข้อมูลxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+                        <option value="ติวหนังสือ">ขอใช้ห้องเพื่อติวหนังสือ/เตรียมสอบ</option>
+                        <option value="ประชุมงานกลุ่ม">ขอใช้ห้องเพื่อประชุมงานกลุ่ม</option>
+                        <option value="จัดกิจกรรมเสริมความรู้">ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้</option>
+                        <option value="ถ่ายทำงานโปรเจกต์">ขอใช้ห้องเพื่อถ่ายทำงานโปรเจกต์</option>
+                        <option value="จัดเวิร์กชอป">ขอใช้ห้องเพื่อจัดเวิร์กชอปหรืออบรม</option>
+                        <option value="ดำเนินการวิจัย">ขอใช้ห้องเพื่อดำเนินการวิจัย</option>
+                        <option value="ทำโปรเจกต์วิชาการ">ขอใช้ห้องเพื่อทำโปรเจกต์วิชาการ</option>
+                        <option value="ประชุมออนไลน์">ขอใช้ห้องเพื่อจัดการประชุมออนไลน์</option>
+                        <option value="ฝึกปฏิบัติการทดลอง">ขอใช้ห้องเพื่อฝึกปฏิบัติการทดลองหรือแล็บ</option>
+                    </select>
+                </div>
+                
+                <!-- ปุ่มส่งข้อมูล -->
+                <button class="btn-confirm" type="button" style="margin-left: auto; display: block;" onclick="window.location.href='home.html'">ยืนยัน</button>
                 </div>
             </div>
             <p class="note">หมายเหตุ: การจองขอใช้ห้องภายใต้การดูแลของภาควิชาวิทยาการคอมพิวเตอร์ฯ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร วันจันทร์ ถึง ศุกร์ เวลา 8.00 - 17.00 น. ยกเว้นวันหยุดนักขัตฤกษ์</p>
@@ -351,15 +341,37 @@ include('db_connect.php');
     </div>
 
     <script>
+        async function fetchUserInfo() {
+            try {
+                const response = await fetch("http://localhost:3000/user");
+                const data = await response.json();
+        
+                if (data.length > 0) {
+                    const user = data[0]; // ใช้ข้อมูลคนแรกจาก API
+                    console.log("✅ ดึงข้อมูลสำเร็จ:", user); // ✅ ตรวจสอบข้อมูลที่ API ส่งมา
+        
+                    // ✅ อัปเดตข้อมูลลงใน input
+                    document.getElementById("student-name").value = user.Name || "ไม่พบข้อมูล";
+                    document.getElementById("student-id").value = user.Student_ID || "ไม่พบข้อมูล";
+                    document.getElementById("stud-year").value = user.Study_year || "ไม่พบข้อมูล"; // ✅ อัปเดตชั้นปี
+                    document.getElementById("phone-number").value = user.Phone_number || "ไม่พบข้อมูล"; // ✅ อัปเดตเบอร์โทร
+                } else {
+                    console.warn("⚠️ API /user ส่งกลับมาเป็น Array ว่าง");
+                }
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+            }
+        }
+        window.onload = fetchUserInfo;
         // ตรวจจับการเปลี่ยนสถานะของ Radio Button
         document.querySelectorAll('input[name="booking-type"]').forEach(function(radio) {
             radio.addEventListener('change', function() {
                 if (this.value === 'นอกเวลา') {
-                    // เมื่อเลือก "นอกเวลา" ให้ไปที่ TimeOut2.html
-                    window.location.href = './TimeOut2Teacher.php';
+                    // เมื่อเลือก "นอกเวลา" ให้ไปที่ TimeOut3.html
+                    window.location.href = './TimeOut3.html';
                 } else if (this.value === 'ในเวลา') {
                     // เมื่อเลือก "ในเวลา" ให้ไปที่ TimeIn.html
-                    window.location.href = './TimeIn.php';
+                    window.location.href = './TimeIn.html';
                 }
             });
         });
@@ -371,7 +383,5 @@ include('db_connect.php');
             overlay.classList.toggle('active');
         }
     </script>
-
 </body>
-
 </html>

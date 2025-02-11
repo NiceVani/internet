@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyRoom Reservation System - หน้าหลัก</title>
+    <!-- Bootstrap 5 Bundle CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+      }
+
+      .header {
+        background-color: #e54715;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .nav a {
+        color: white;
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 16px;
+      }
+
+      .nav a:hover {
+        text-decoration: underline;
+      }
+
+      .nav a.active {
+        font-weight: bold;
+        text-decoration: underline;
+      }
+
+      .user-info {
+        background-color: #ffffff;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        display: flex;
+        align-items: center;
+      }
+
+      .user-avatar {
+        font-size: 50px;
+        margin-right: 20px;
+      }
+
+      .user-details div {
+        margin-bottom: 8px;
+      }
+
+      .booking-section {
+        background-color: #8e44ad;
+        color: white;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 800px;
+      }
+
+      .booking-section h3 {
+        margin-top: 0;
+        font-size: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        color: black;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      table th,
+      table td {
+        text-align: left;
+        padding: 10px;
+      }
+
+      table th {
+        background-color: #dcdde1;
+        color: #2c3e50;
+      }
+
+      table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .status {
+        color: green;
+        font-weight: bold;
+      }
+
+      .cancel-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .cancel-btn:hover {
+        background-color: darkred;
+      }
+
+      /* Modal Styling */
+      #detailsModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        width: 50%;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        z-index: 1000;
+      }
+
+      #modalOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      /* 📌 พื้นหลังมืดเล็กน้อย */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* 📌 Modal ที่ดูดีขึ้น */
+/* ✅ ปรับ Modal ให้เป็นสี่เหลี่ยมกลางจอ */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
+  text-align: left;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* ปรับปุ่มปิดให้ดูดี */
+.close {
+  color: white;
+  background: red;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 18px;
+  font-weight: bold;
+  float: right;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: darkred;
+}
+
+  /* ✅ ปรับการแสดงข้อมูลใน Modal */
+  .details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.details-row {
+    display: flex;
+    justify-content: space-between;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.details-row strong {
+    color: #333;
+}
+    </style>
+</head>
+<body>
+
+    <!-- Tab ด้านบน -->
+    <header class="header">
+      <div class="header-title">EasyRoom Reservation System</div>
+      <nav class="nav">
+          <a href="#" class="active">หน้าหลัก</a>
+          <a href="booking.html">จองห้อง</a>
+          <a href="repost.html">รายงาน</a>
+          <button class="logout-btn" onclick="logout()">ออกจากระบบ</button> <!-- ✅ ปุ่ม Logout -->
+      </nav>
+  </header>
+  
+
+
+    <!-- User Information Section -->
+    <div class="user-info">
+    <div class="user-avatar">😊</div>
+    <div class="user-details">
+      <div>ชื่อ นามสกุล: <span id="student-name">กำลังโหลด...</span></div>
+      <div>รหัสนิสิต: <span id="student-id">กำลังโหลด...</span></div>
+      <div>ชั้นปี: <span id="stud-year">กำลังโหลด...</span></div>
+      <div>คณะ: <span id="faculty">กำลังโหลด...</span></div>
+      <div>สาขา: <span id="department">กำลังโหลด...</span></div>
+    </div>
+    </div>
+
+    <!--รายละเอียดการจอง-->
+    <section class="booking-section">
+      <h3>รายละเอียดการจอง</h3>
+      <table>
+          <thead>
+              <tr>
+                  <th>ประเภท</th>
+                  <th>ห้องที่จอง</th>
+                  <th>วันที่ใช้</th>
+                  <th>เวลาเริ่ม</th>
+                  <th>เวลาสิ้นสุด</th>
+                  <th>สถานะ</th>
+                  <th></th>
+              </tr>
+          </thead>
+          <tbody id="booking-table-body">
+            <!-- ✅ ข้อมูลจะถูกเพิ่มโดย JavaScript -->
+        </tbody>
+      </table>
+  </section>
+
+    <!--รายงานปัญหา-->
+    <section class="booking-section">
+        <h3>รายงานปัญหา</h3>
+        <table>
+            <tr>
+                <th>เวลาที่แจ้งซ่อม</th>
+                <th>ชื่ออุปกรณ์</th>
+                <th>รายละเอียด</th>
+                <th>ห้อง</th>
+                <th>ผู้รับแจ้งซ่อม</th>
+                <th>สถานะ</th>
+                <th>เพิ่มเติม</th>
+                <th></th>
+            </tr>
+            <tbody id="repair-table-body">
+              <!-- ✅ ข้อมูลจะถูกเพิ่มโดย JavaScript -->
+          </tbody>
+          
+        </table>
+    </section>
+
+    <!-- Modal สำหรับแสดงรายละเอียดการจอง -->
+    <div id="modalOverlay"></div>
+    <div id="detailsModal">
+        <h3>รายละเอียดการจอง</h3>
+        <p>รายละเอียดของการจองจะถูกแสดงที่นี่...</p>
+        <button onclick="closeDetailsModal()">ปิด</button>
+    </div>
+    <!-- 📌 Modal รายละเอียด -->
+    <div id="modalOverlay" class="modal-overlay" onclick="closeDetailsModal()"></div>
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+           <span class="close" onclick="closeDetailsModal()">&times;</span>
+            <h3>รายละเอียดการแจ้งซ่อม</h3>
+            <div id="detailsContainer">
+               <!-- ✅ ข้อมูลจะถูกเติมที่นี่ -->
+           </div>
+        </div>
+    </div>
+    <script>
+      async function fetchUserInfo() {
+        try {
+            const response = await fetch("http://localhost:3000/session", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error("Session expired");
+            }
+
+            const userSession = await response.json();
+            console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
+
+            if (!userSession.data) {
+                alert("กรุณาเข้าสู่ระบบใหม่");
+                window.location.href = "login.html";
+                return;
+            }
+
+            // ✅ แสดงข้อมูลผู้ใช้
+            document.getElementById("student-name").textContent = userSession.data.Name;
+            document.getElementById("student-id").textContent = userSession.data.Student_ID;
+            document.getElementById("stud-year").textContent = userSession.data.Study_year;
+            document.getElementById("faculty").textContent = userSession.data.Faculty;
+            document.getElementById("department").textContent = userSession.data.Department;
+        } catch (error) {
+            console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+            alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+            window.location.href = "login.html";
+        }
+    }
+
+    async function logout() {
+        try {
+            const response = await fetch("http://localhost:3000/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                alert("ออกจากระบบสำเร็จ");
+                window.location.href = "login.html";
+            } else {
+                alert("เกิดข้อผิดพลาดในการออกจากระบบ");
+            }
+        } catch (error) {
+            console.error("❌ ไม่สามารถออกจากระบบได้:", error);
+            alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        }
+    }
+    async function fetchUserBookingData() {
+      try {
+          console.log("🔍 กำลังโหลดข้อมูลการจอง...");
+  
+          // ✅ ดึงข้อมูลเซสชันของผู้ใช้
+          const sessionResponse = await fetch("http://localhost:3000/session", { credentials: "include" });
+          if (!sessionResponse.ok) throw new Error("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+  
+          const userSession = await sessionResponse.json();
+          console.log("✅ ข้อมูลเซสชันที่ได้:", userSession);
+          
+          const studentId = userSession.data.Student_ID;
+          console.log("🎯 studentId ที่ใช้เรียก API:", studentId);
+  
+          // ✅ ดึงข้อมูลการจองของผู้ใช้
+          const response = await fetch(`http://localhost:3000/userBookings/${studentId}`);
+          if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลการจองได้");
+  
+          const bookings = await response.json();
+          console.log("✅ ข้อมูลการจองที่ดึงมา:", bookings);
+  
+          const tableBody = document.getElementById("booking-table-body");
+          tableBody.innerHTML = ""; // ✅ ล้างข้อมูลเก่าออก
+  
+          if (bookings.length === 0) {
+              console.log("❌ ไม่มีข้อมูลการจอง");
+              tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">ไม่มีข้อมูลการจอง</td></tr>`;
+              return;
+          }
+  
+          // ✅ แสดงข้อมูลในตาราง
+          bookings.forEach(booking => {
+            console.log(`📌 กำลังเพิ่มข้อมูลลงตาราง: ห้อง ${booking.Rooms_name}, วันที่ใช้ ${booking.Used_date}`);
+            
+            const row = document.createElement("tr");
+            row.setAttribute("data-id", booking.Rooms_requests_ID); // ✅ เพิ่ม data-id เพื่อระบุแถว
+        
+            row.innerHTML = `
+                <td>${booking.Requests_types || "-"}</td>
+                <td>${booking.Rooms_name || "-"}</td>
+                <td>${booking.Used_date.split("T")[0] || "-"}</td>
+                <td>${booking.Start_time || "-"}</td>
+                <td>${booking.End_time || "-"}</td>
+                <td class="status">${booking.Requests_status || "-"}</td>
+                <td><button class="cancel-btn" onclick="cancelBooking(${booking.Rooms_requests_ID})">ยกเลิก</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+  
+          console.log("✅ ตารางอัปเดตเรียบร้อย!");
+      } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+      }
+  }
+  
+  
+  
+  
+  
+  
+  // ✅ ฟังก์ชันยกเลิกการจอง
+  async function cancelBooking(requestId) {
+    const row = document.querySelector(`tr[data-id="${requestId}"]`);  // ค้นหาแถวที่เกี่ยวข้อง
+    if (!row) return;  // ถ้าไม่พบแถวให้หยุด
+
+    const statusCell = row.querySelector(".status");  // ค้นหาสถานะของการจอง
+    const statusText = statusCell.textContent.trim();
+
+    // เช็คว่าเป็น "รอดำเนินการ" หรือ "รออนุมัติ" ก่อนที่จะลบ
+    if (!["รอดำเนินการ", "รออนุมัติ"].includes(statusText)) {
+        alert("❌ ไม่สามารถยกเลิกการจองที่อนุมัติแล้วได้");
+        return;
+    }
+
+    // ถามผู้ใช้ก่อนยกเลิก
+    if (!confirm("คุณต้องการยกเลิกการจองนี้ใช่หรือไม่?")) return;
+
+    try {
+        // ส่งคำขอลบไปที่เซิร์ฟเวอร์
+        const response = await fetch(`http://localhost:3000/cancelBooking/${requestId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },  // ตรวจสอบว่าใช้ headers ที่ถูกต้อง
+        });
+
+        // ถ้า response ไม่สำเร็จให้แสดงข้อผิดพลาด
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "ลบไม่สำเร็จ");
+
+        // ลบแถวจากหน้าจอ
+        row.remove();
+        alert("✅ ยกเลิกการจองสำเร็จ!");
+    } catch (error) {
+        console.error("❌ ไม่สามารถยกเลิกได้:", error);
+        alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+}
+
+
+
+  
+  
+
+  window.onload = function () {
+    console.log("📌 กำลังเรียก fetchUserInfo() และ fetchUserBookingData();");
+    fetchUserInfo();
+    fetchUserBookingData();
+};
+  </script>
+  <script>
+    async function fetchBrokenEquipments() {
+      try {
+          const response = await fetch("http://localhost:3000/getBrokenEquipments", {
+              method: "GET",
+              credentials: "include"
+          });
+  
+          if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลอุปกรณ์ที่เสียได้");
+  
+          const brokenEquipments = await response.json();
+          console.log("✅ ข้อมูลอุปกรณ์ที่เสีย:", brokenEquipments);
+  
+          // ✅ เก็บข้อมูลทั้งหมดไว้ในตัวแปร window
+          window.brokenEquipmentsData = brokenEquipments;
+  
+          const tableBody = document.getElementById("repair-table-body");
+          tableBody.innerHTML = "";
+  
+          if (brokenEquipments.length === 0) {
+              tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">ไม่มีข้อมูลการแจ้งซ่อมของคุณ</td></tr>`;
+              return;
+          }
+  
+          brokenEquipments.forEach((item, index) => {
+              const repairDate = new Date(item.Repair_date).toLocaleString("th-TH", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit"
+              });
+  
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                  <td>${repairDate}</td>
+                  <td>${item.Equipments_name}</td>
+                  <td>${item.Damaged_details}</td>
+                  <td>SC2-${item.Rooms_ID}</td>
+                  <td>${item.Admin_Name}</td>
+                  <td class="status">${item.Repair_status}</td>
+                  <td><button class="details-btn" onclick="openDetailsModal(${index})">รายละเอียด</button></td>
+              `;
+  
+              tableBody.appendChild(row);
+          });
+  
+          console.log("✅ ตารางแสดงข้อมูลแจ้งซ่อมเรียบร้อย!");
+      } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+      }
+  }
+  
+  function openDetailsModal(index) {
+    console.log("📌 เปิด Modal สำหรับ index:", index);
+
+    if (!window.brokenEquipmentsData || !window.brokenEquipmentsData[index]) {
+        console.error("❌ ไม่มีข้อมูลสำหรับ index:", index);
+        return;
+    }
+
+    const item = window.brokenEquipmentsData[index];
+
+    console.log("📌 ข้อมูลที่ดึงมา:", item);
+
+    const repairDate = new Date(item.Repair_date).toLocaleString("th-TH", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+
+    const detailsContainer = document.getElementById("detailsContainer");
+    detailsContainer.innerHTML = `
+        <div class="details-container">
+            <div class="details-row"><strong>ผู้แจ้ง:</strong> ${item.Admin_Name}</div>
+            <div class="details-row"><strong>เวลาที่แจ้งซ่อม:</strong> ${repairDate}</div>
+            <div class="details-row"><strong>ชื่ออุปกรณ์:</strong> ${item.Equipments_name}</div>
+            <div class="details-row"><strong>รายละเอียด:</strong> ${item.Damaged_details}</div>
+            <div class="details-row"><strong>ห้อง:</strong> SC2-${item.Rooms_ID}</div>
+            <div class="details-row"><strong>ผู้รับแจ้งซ่อม:</strong> ${item.Admin_Name}</div>
+            <div class="details-row"><strong>สถานะ:</strong> ${item.Repair_status}</div>
+        </div>
+    `;
+
+    console.log("📌 HTML ที่จะถูกแสดงใน Modal:", detailsContainer.innerHTML);
+
+    document.getElementById("modalOverlay").style.display = "block";
+    document.getElementById("detailsModal").style.display = "block";
+}
+
+  
+function closeDetailsModal() {
+  console.log("📌 ปิด Modal"); // Debugging Log
+  document.getElementById("modalOverlay").style.display = "none";
+  document.getElementById("detailsModal").style.display = "none";
+} 
+  
+    window.onload = function () {
+        fetchUserInfo();
+        fetchUserBookingData();
+        fetchBrokenEquipments();
+    };
+    console.log("📌 HTML ที่จะถูกแสดงใน Modal:", detailsContainer.innerHTML);
+    
+  </script>
+  
+  
+</body>
+</html>

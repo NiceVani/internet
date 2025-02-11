@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองห้อง EasyRoom - เข้าสู่ระบบ</title>
+    <title>เข้าสู่ระบบ - EasyRoom</title>
     <style>
-        /* [CSS เดิมของคุณ] */
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
@@ -18,13 +16,6 @@
             flex-direction: column;
         }
 
-        .title {
-            color: #e67e22;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
         .container {
             background-color: #ffffff;
             padding: 30px;
@@ -32,6 +23,14 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             width: 100%;
+        }
+
+        .title {
+            color: #e67e22;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .form-group {
@@ -73,27 +72,69 @@
             font-size: 14px;
             margin-top: -10px;
             margin-bottom: 20px;
+            text-align: center;
         }
     </style>
 </head>
-
 <body>
+
     <div class="title">ระบบจองห้อง EasyRoom</div>
     <div class="container">
-        <form method="POST" action="">
+        <form id="loginForm">
             <div class="form-group">
-                <label for="idNumber">รหัสประจำตัว</label>
-                <input type="text" name="idNumber" id="idNumber" placeholder="รหัสประจำตัว" required>
+                <label for="username">รหัสผู้ใช้</label>
+                <input type="text" id="username" placeholder="รหัสผู้ใช้" required>
             </div>
             <div class="form-group">
                 <label for="password">รหัสผ่าน</label>
-                <input type="password" name="password" id="password" placeholder="******" required>
+                <input type="password" id="password" placeholder="******" required>
             </div>
-
-            <button type="submit" class="btn">ยืนยัน</button>
+            <div id="errorMessage" class="error"></div>
+            <button type="submit" class="btn">เข้าสู่ระบบ</button>
         </form>
     </div>
-    <script>scr="scriptLog.js"</script>
-</body>
 
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+        
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+        
+            if (!username || !password) {
+                errorMessage.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
+                return;
+            }
+        
+            try {
+                const response = await fetch("http://localhost:3000/login", {
+                    method: "POST",
+                    credentials: "include", // ✅ ส่ง Cookie ไปด้วย
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+        
+                const result = await response.json();
+                console.log("📌 ผลลัพธ์ Login:", result);
+        
+                if (response.ok && result.success) {
+                    // ✅ ล็อกอินสำเร็จ → Redirect ตาม Role
+                    if (result.role === "นิสิต") {
+                        window.location.href = "home.html";
+                    } else if (result.role === "อาจารย์") {
+                        window.location.href = "home.html";
+                    }
+                } else {
+                    errorMessage.textContent = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+                }
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาด:", error);
+                errorMessage.textContent = "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้";
+            }
+        });
+        
+    </script>
+
+</body>
 </html>
