@@ -44,7 +44,6 @@ localhost:8080/admin/index.html
 easyroom-reservation/
 ├── docker-compose.yml
 ├── Dockerfile
-├── index.html
 ├── logo.png
 ├── easyroom.sql
 ├── mysql-init/
