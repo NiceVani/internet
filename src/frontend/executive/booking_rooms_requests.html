@@ -15,6 +15,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
 
     <!-- แทนที่ executive.css ด้วย <style> -->
     <style>
@@ -479,7 +483,7 @@
                         console.log(Teacher);
                         return {
                             ...room,
-                            email: student.email || Teacher.email,
+                            Email: student.Email || Teacher.Email,
                             Name: student.Name || Teacher.Name,
                             Status: student.Status || Teacher.Status
                         };
@@ -499,11 +503,15 @@
                             <tr>
                                 <td class="text-center">${new Date(row.Used_date).toLocaleDateString()}</td>
                                 <td class="text-center">${row.Name}</td>
-                                <td class="text-center">${row.email}</td>
+                                <td class="text-center">${row.Email}</td>
                                 <td class="text-center">${row.Status}</td>
                                 <td class="text-center">${row.Rooms_ID}</td>
                                 <td class="text-center">${row.Start_time+"-"+row.End_time}</td>
-                                <td class="text-center">${row.document || "ไม่มีเอกสาร"}</td>
+                                <td class="text-center">
+                                  <a href="../../shared/booking_documents/booking_document.pdf" target="_blank" title="เปิดเอกสาร">
+                                    <i class="fas fa-file-pdf" style="font-size: 20px; color: #E40345;"></i>
+                                  </a>
+                                </td>
                                 <td><button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
                                 <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
                             </tr>
