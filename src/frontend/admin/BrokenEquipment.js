@@ -1,10 +1,10 @@
 async function fetchData() {
     try {
         const [brokenResponse, studentResponse, equipmentsResponse, adminResponse] = await Promise.all([
-            fetch('http://localhost:3000/data/Equipments_list_brokened'),
-            fetch('http://localhost:3000/data/Student_information'),
-            fetch('http://localhost:3000/data/Equipments_list_information'),
-            fetch('http://localhost:3000/data/Admin_information')
+            fetch('http://localhost:3001/data/Equipments_list_brokened'),
+            fetch('http://localhost:3001/data/Student_information'),
+            fetch('http://localhost:3001/data/Equipments_list_information'),
+            fetch('http://localhost:3001/data/Admin_information')
         ]);
 
         const brokenData = await brokenResponse.json();

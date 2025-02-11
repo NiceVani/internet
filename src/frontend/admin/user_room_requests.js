@@ -2,17 +2,21 @@ async function fetchData() {
     try {
         // Fetch room requests and student data
         const [roomsResponse, studentsResponse] = await Promise.all([
-            fetch('http://localhost:3000/data/Rooms_list_requests'),
-            fetch('http://localhost:3000/data/Student_information')
+            fetch('http://localhost:3001/data/Rooms_list_requests'),
+            fetch('http://localhost:3001/data/Student_information')
         ]);
 
         const roomsData = await roomsResponse.json();
         const studentsData = await studentsResponse.json();
 
-        const filteredData = roomsData.filter(row => 
+        // Debugging the data received
+        console.log("Rooms Data:", roomsData);
+        console.log("Students Data:", studentsData);
+
+        const filteredData = roomsData.filter(row =>
             row.Requests_status === 'รออนุมัติ' || row.Requests_status === 'รอดำเนินการ'
         );
-        
+
         const mergedData = filteredData.map(room => {
             const student = studentsData.find(s => s.Student_ID === room.Identify_ID) || {};
             return {
@@ -39,22 +43,21 @@ async function fetchData() {
                         ${row.Start_time.slice(0, 5) + ' - ' + row.End_time.slice(0, 5)}<br>
                         ${'(' + row.Requests_types + ')'}
                     </td>
-                    <td class="text-center">${row.Document}</td>
+                    <td class="text-center">
+                        <a href="../../shared/booking_documents/booking_document.pdf" target="_blank">เปิดเอกสาร</a>
+                    </td>
                     <td class="text-center">${row.Reason}</td>
                     <td class="text-center">
-                        ${
-                            row.Requests_status === 'รออนุมัติ'
-                                ? '<span class="badge bg-warning">รออนุมัติ</span>'
-                                : `
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'รออนุมัติ')">✅ อนุมัติ</button>
-                                    <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">❌ ไม่อนุมัติ</button>
-                                  `
-                        }
+                        ${row.Requests_status === 'รออนุมัติ'
+                    ? '<span class="badge bg-warning">รออนุมัติ</span>'
+                    : `
+                        <button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'รออนุมัติ')">✅ อนุมัติ</button>
+                        <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">❌ ไม่อนุมัติ</button>
+                    `}
                     </td>
                 </tr>
             `;
         });
-        
 
     } catch (error) {
         console.error('❌ Error fetching data:', error);
@@ -64,7 +67,7 @@ async function fetchData() {
 // Function to update status
 async function updateStatus(requestId, newStatus) {
     try {
-        const response = await fetch('http://localhost:3000/updateStatus', {
+        const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
