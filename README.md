@@ -55,9 +55,11 @@ easyroom-reservation/
     │   └── admin/
     │   └── executive/
     └── backend/
-        └── booker/
-        └── admin/
-        └── executive/
+    │   └── booker/
+    │   └── admin/
+    │   └── executive/
+    └── shared/
+        └── booking_documents/
 ```
 
 ### Configuration
