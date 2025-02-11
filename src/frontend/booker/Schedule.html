@@ -28,6 +28,7 @@
             font-size: 1.5em;
             margin: 0;
         }
+        
 
         .container {
             padding: 20px;
@@ -115,6 +116,7 @@
             background-color: #D8BFD8;
             color: black;
         }
+        
 
         td.disabled {
             background-color: #cdcccd;
@@ -137,6 +139,16 @@
             color: black;
             cursor: not-allowed; /* ไม่ให้คลิก */
         }
+        .logout-btn {
+            background-color: #ff6347;
+            border: none;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-left: auto; /* ✅ ทำให้ปุ่มอยู่ขวาสุด */
+        }
 
         
     </style>
@@ -144,8 +156,9 @@
 
 <body>
     <div class="header">
-        <a href="booking.php" style="text-decoration: none; color: white;">&#8592;</a>
+        <a href="booking.html" style="text-decoration: none; color: white;">&#8592;</a>
         <h1>ตารางการใช้ห้อง</h1>
+        <button id="logout-btn" class="logout-btn">ออกจากระบบ</button> <!-- ✅ ปุ่ม Logout -->
     </div>
 
     <div class="container">
@@ -304,7 +317,60 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
     <script src="Schedule.js"></script>
+    <script>
+        // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
+        async function fetchUserInfo() {
+            try {
+                const response = await fetch("http://localhost:3000/session", {
+                    method: "GET",
+                    credentials: "include"
+                });
 
+                if (!response.ok) {
+                    throw new Error("Session expired");
+                }
+
+                const userSession = await response.json();
+                console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
+
+                if (!userSession.data) {
+                    alert("กรุณาเข้าสู่ระบบใหม่");
+                    window.location.href = "login.html";
+                    return;
+                }
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+                alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+                window.location.href = "login.html";
+            }
+        }
+
+        // ✅ ฟังก์ชันออกจากระบบ
+        async function logout() {
+            try {
+                const response = await fetch("http://localhost:3000/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+
+                if (response.ok) {
+                    alert("ออกจากระบบสำเร็จ");
+                    window.location.href = "login.html";
+                } else {
+                    alert("เกิดข้อผิดพลาดในการออกจากระบบ");
+                }
+            } catch (error) {
+                console.error("❌ ไม่สามารถออกจากระบบได้:", error);
+                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+            }
+        }
+
+        // ✅ เพิ่ม Event Listener ให้ปุ่ม Logout ทำงานได้
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        // ✅ โหลดข้อมูลเซสชันเมื่อหน้าเว็บโหลด
+        window.onload = fetchUserInfo;
+    </script>
 
 
 </body>
