@@ -384,29 +384,33 @@
   
           // ✅ แสดงข้อมูลในตาราง
           bookings.forEach(booking => {
-            console.log(`📌 กำลังเพิ่มข้อมูลลงตาราง: ห้อง ${booking.Rooms_name}, วันที่ใช้ ${booking.Used_date}`);
-            
-            const row = document.createElement("tr");
-            row.setAttribute("data-id", booking.Rooms_requests_ID); // ✅ เพิ่ม data-id เพื่อระบุแถว
-        
-            row.innerHTML = `
-                <td>${booking.Requests_types || "-"}</td>
-                <td>${booking.Rooms_name || "-"}</td>
-                <td>${booking.Used_date.split("T")[0] || "-"}</td>
-                <td>${booking.Start_time || "-"}</td>
-                <td>${booking.End_time || "-"}</td>
-                <td class="status">${booking.Requests_status || "-"}</td>
-                <td><button class="cancel-btn" onclick="cancelBooking(${booking.Rooms_requests_ID})">ยกเลิก</button></td>
-            `;
-            tableBody.appendChild(row);
-        });
-        
+              console.log(`📌 กำลังเพิ่มข้อมูลลงตาราง: ห้อง ${booking.Rooms_name}, วันที่ใช้ ${booking.Used_date}`);
+              
+              const row = document.createElement("tr");
+              row.setAttribute("data-id", booking.Rooms_requests_ID); // ✅ เพิ่ม data-id เพื่อระบุแถว
+          
+              row.innerHTML = `
+                  <td>${booking.Requests_types || "-"}</td>
+                  <td>${booking.Rooms_name || "-"}</td>
+                  <td>${booking.Used_date.split("T")[0] || "-"}</td>
+                  <td>${booking.Start_time || "-"}</td>
+                  <td>${booking.End_time || "-"}</td>
+                  <td class="status">${booking.Requests_status || "-"}</td>
+                  <td>
+                      ${["รอดำเนินการ", "รออนุมัติ"].includes(booking.Requests_status) 
+                          ? `<button class="cancel-btn" onclick="cancelBooking(${booking.Rooms_requests_ID})">ยกเลิก</button>`
+                          : ""}
+                  </td>
+              `;
+              tableBody.appendChild(row);
+          });
   
           console.log("✅ ตารางอัปเดตเรียบร้อย!");
       } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
       }
   }
+  
   
   
   
