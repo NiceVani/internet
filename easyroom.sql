@@ -4,6 +4,11 @@ SET time_zone = "+00:00";
 SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
 
 USE easyroom;
+
+--
+-- Database: `easyroom`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -517,7 +522,7 @@ INSERT INTO `Rooms_list_information` (`Rooms_ID`, `Rooms_name`, `Floors`, `Room_
 
 CREATE TABLE `Rooms_list_requests` (
   `Rooms_requests_ID` int NOT NULL,
-  `Submitted_time` datetime NOT NULL,
+  `Submitted_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Rooms_ID` varchar(6) NOT NULL,
   `Used_date` date NOT NULL,
   `Identify_ID` varchar(8) NOT NULL,
@@ -564,7 +569,7 @@ INSERT INTO `Rooms_list_requests` (`Rooms_requests_ID`, `Submitted_time`, `Rooms
 (29, '2025-02-10 09:00:00', '307', '2025-02-10', '65312994', '17:00:00', '22:00:00', 'ขอใช้ห้องเพื่อติวหนังสือ', 'รอดำเนินการ', 'นอกเวลา'),
 (30, '2025-02-10 10:30:00', '307', '2025-02-11', '64312995', '18:00:00', '20:00:00', 'ขอใช้ห้องเพื่อประชุมงานกลุ่ม', 'รอดำเนินการ', 'นอกเวลา'),
 (31, '2025-02-11 10:35:00', '307', '2025-02-12', '65312997', '17:00:00', '21:00:00', 'ขอใช้ห้องเพื่อประชุมงานกลุ่ม', 'รอดำเนินการ', 'นอกเวลา'),
-(32, '2025-02-11 09:35:00', '307', '2025-02-14', '65312997', '19:00:00', '22:00:00', 'ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้', 'รอดำเนินการ', 'นอกเวลา');
+(32, '2025-02-11 00:22:00', '307', '2025-02-14', '65312997', '19:00:00', '22:00:00', 'ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้', 'รอดำเนินการ', 'นอกเวลา');
 
 -- --------------------------------------------------------
 
@@ -578,7 +583,7 @@ CREATE TABLE `Rooms_schedule_time` (
   `Week_days` enum('จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์','อาทิตย์') DEFAULT NULL,
   `Start_time` time NOT NULL,
   `End_time` time NOT NULL,
-  `Rooms_status` enum('มีเรียน') NOT NULL
+  `Rooms_status` enum('มีเรียน','ว่าง','ไม่ว่าง','กำลังปรับปรุง') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -839,7 +844,7 @@ ALTER TABLE `Equipments_list_information`
 -- AUTO_INCREMENT for table `Rooms_list_requests`
 --
 ALTER TABLE `Rooms_list_requests`
-  MODIFY `Rooms_requests_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `Rooms_requests_ID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `Rooms_schedule_time`
@@ -901,9 +906,8 @@ ALTER TABLE `Rooms_list_requests`
 --
 -- Constraints for table `Rooms_schedule_time`
 --
-ALTER TABLE Rooms_schedule_time
-  MODIFY Rooms_status ENUM('มีเรียน', 'ว่าง', 'ไม่ว่าง', 'กำลังปรับปรุง'),
-  ADD CONSTRAINT Rooms_schedule_time_ibfk_1 FOREIGN KEY (Rooms_ID) REFERENCES Rooms_list_information (Rooms_ID);
+ALTER TABLE `Rooms_schedule_time`
+  ADD CONSTRAINT `Rooms_schedule_time_ibfk_1` FOREIGN KEY (`Rooms_ID`) REFERENCES `Rooms_list_information` (`Rooms_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
