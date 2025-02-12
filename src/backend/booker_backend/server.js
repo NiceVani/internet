@@ -290,12 +290,16 @@ app.get("/userBookings/:studentId", async (req, res) => {
   const { studentId } = req.params;
   console.log("🎯 studentId ที่รับมา:", studentId);
   try {
+    // ตั้งค่า time_zone ให้เป็น Asia/Bangkok
+    await connection.promise().query("SET time_zone = 'Asia/Bangkok'");
+
+    // คำสั่ง SELECT ที่ใช้ CONVERT_TZ เพื่อแปลงเวลาจาก UTC เป็นเวลาของประเทศไทย
     const [results] = await connection.promise().query(
       `SELECT 
          rlr.Rooms_requests_ID, 
          rlr.Rooms_ID, 
          rli.Rooms_name, 
-         rlr.Used_date, 
+         CONVERT_TZ(rlr.Used_date, '+00:00', '+07:00') AS Used_date, 
          rlr.Start_time, 
          rlr.End_time, 
          rlr.Requests_status, 
