@@ -547,49 +547,65 @@
       async function submitBooking() {
         const studentId = document.getElementById("student-id").value;
         const roomId = new URLSearchParams(window.location.search).get("room");
-        const usedDate = new URLSearchParams(window.location.search).get("date");
-        const startTime = new URLSearchParams(window.location.search).get("startTime");
-        const endTime = new URLSearchParams(window.location.search).get("endTime");
+        const usedDate = new URLSearchParams(window.location.search).get(
+          "date"
+        );
+        const startTime = new URLSearchParams(window.location.search).get(
+          "startTime"
+        );
+        const endTime = new URLSearchParams(window.location.search).get(
+          "endTime"
+        );
         const reason = document.querySelector("select[name='usage']").value;
-        const requestType = document.querySelector("input[name='booking-type']:checked").value;
-    
-        if (!studentId || !roomId || !usedDate || !startTime || !endTime || !reason || !requestType) {
-            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-            return;
+        const requestType = document.querySelector(
+          "input[name='booking-type']:checked"
+        ).value;
+
+        if (
+          !studentId ||
+          !roomId ||
+          !usedDate ||
+          !startTime ||
+          !endTime ||
+          !reason ||
+          !requestType
+        ) {
+          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+          return;
         }
-    
+
         const bookingData = {
-            room_id: roomId,
-            used_date: usedDate,
-            student_id: studentId,
-            start_time: startTime,
-            end_time: endTime,
-            reason: reason,
-            request_type: requestType
+          room_id: roomId,
+          used_date: usedDate,
+          student_id: studentId,
+          start_time: startTime,
+          end_time: endTime,
+          reason: reason,
+          request_type: requestType,
         };
-    
+
         try {
-            const response = await fetch("http://localhost:3000/bookRoom", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bookingData),
-                credentials: "include"
-            });
-    
-            const result = await response.json();
-            if (response.ok) {
-                alert("✅ การจองสำเร็จ!");
-                window.location.href = "home.html"; // กลับไปหน้าแรก
-            } else {
-                alert("❌ " + result.error);
-            }
+          const response = await fetch("http://localhost:3000/bookRoom", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookingData),
+            credentials: "include",
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("✅ การจองสำเร็จ!");
+            window.location.href = "home.html"; // กลับไปหน้าแรก
+          } else {
+            alert("❌ " + result.error);
+          }
         } catch (err) {
-            console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
-            alert("เกิดข้อผิดพลาดในการจอง");
+          console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
+          alert("เกิดข้อผิดพลาดในการจอง");
         }
-    }
-    
-    // ผูกฟังก์ชันกับปุ่มกดยืนยัน
+      }
+
+      // ผูกฟังก์ชันกับปุ่มกดยืนยัน
     </script>
   </body>
 </html>
