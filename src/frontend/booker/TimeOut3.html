@@ -313,12 +313,12 @@
             </select>
           </div>
           <button
-              class="btn-confirm"
-              type="button"
-              style="margin-left: auto; display: block"
-              onclick="submitBookingOut()"
+            class="btn-confirm"
+            type="button"
+            style="margin-left: auto; display: block"
+            onclick="submitBookingOut()"
           >
-              ยืนยัน
+            ยืนยัน
           </button>
         </div>
 
@@ -599,59 +599,70 @@
           });
         });
 
-        async function submitBookingOut() {
-          const studentId = document.getElementById("student-id").value;
-          const roomId = new URLSearchParams(window.location.search).get("room");
-          const usedDate = new URLSearchParams(window.location.search).get("date");
-          const startTime = new URLSearchParams(window.location.search).get("startTime");
-          const endTime = new URLSearchParams(window.location.search).get("endTime");
-          const reason = document.querySelector("select[name='usage']").value;
-          const requestType = "นอกเวลา"; // ตั้งค่าเป็น "นอกเวลา" เสมอ
-      
-          // ✅ ดึงข้อมูลสมาชิกที่เข้าร่วม
-          const memberInputs = document.querySelectorAll(".student-id-input");
-          const members = Array.from(memberInputs)
-              .map(input => input.value.trim())
-              .filter(id => id !== "");
-      
-          if (!studentId || !roomId || !usedDate || !startTime || !endTime || !reason) {
-              alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-              return;
-          }
-      
-          const bookingData = {
-              room_id: roomId,
-              used_date: usedDate,
-              student_id: studentId,
-              start_time: startTime,
-              end_time: endTime,
-              reason: reason,
-              request_type: requestType,
-              members: members // ✅ ส่งข้อมูลสมาชิกไปที่ backend
-          };
-      
-          try {
-              const response = await fetch("http://localhost:3000/bookRoomOut", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(bookingData),
-                  credentials: "include"
-              });
-      
-              const result = await response.json();
-              if (response.ok) {
-                  alert("✅ การจองสำเร็จ!");
-                  window.location.href = "home.html"; // กลับไปหน้าแรก
-              } else {
-                  alert("❌ " + result.error);
-              }
-          } catch (err) {
-              console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
-              alert("เกิดข้อผิดพลาดในการจอง");
-          }
-      }
-      
+      async function submitBookingOut() {
+        const studentId = document.getElementById("student-id").value;
+        const roomId = new URLSearchParams(window.location.search).get("room");
+        const usedDate = new URLSearchParams(window.location.search).get(
+          "date"
+        );
+        const startTime = new URLSearchParams(window.location.search).get(
+          "startTime"
+        );
+        const endTime = new URLSearchParams(window.location.search).get(
+          "endTime"
+        );
+        const reason = document.querySelector("select[name='usage']").value;
+        const requestType = "นอกเวลา"; // ตั้งค่าเป็น "นอกเวลา" เสมอ
 
+        // ✅ ดึงข้อมูลสมาชิกที่เข้าร่วม
+        const memberInputs = document.querySelectorAll(".student-id-input");
+        const members = Array.from(memberInputs)
+          .map((input) => input.value.trim())
+          .filter((id) => id !== "");
+
+        if (
+          !studentId ||
+          !roomId ||
+          !usedDate ||
+          !startTime ||
+          !endTime ||
+          !reason
+        ) {
+          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+          return;
+        }
+
+        const bookingData = {
+          room_id: roomId,
+          used_date: usedDate,
+          student_id: studentId,
+          start_time: startTime,
+          end_time: endTime,
+          reason: reason,
+          request_type: requestType,
+          members: members, // ✅ ส่งข้อมูลสมาชิกไปที่ backend
+        };
+
+        try {
+          const response = await fetch("http://localhost:3000/bookRoomOut", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookingData),
+            credentials: "include",
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("✅ การจองสำเร็จ!");
+            window.location.href = "home.html"; // กลับไปหน้าแรก
+          } else {
+            alert("❌ " + result.error);
+          }
+        } catch (err) {
+          console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
+          alert("เกิดข้อผิดพลาดในการจอง");
+        }
+      }
     </script>
   </body>
 </html>
