@@ -1,444 +1,595 @@
-
 <!DOCTYPE html>
 <html lang="th">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แบบบันทึกขอใช้ห้องในเวลา</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>แบบบันทึกขอใช้ห้องในเวลา (TimeIn)</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: "TH SarabunPSK", sans-serif;
-            font-size: 16px;
-            /* ลดขนาดฟอนต์ */
-            background-color: #f9f9f9;
-        }
-
-        .form-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 20px;
-            /* ลดขนาดหัวข้อ */
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            font-weight: bold;
-            font-size: 16px;
-            /* ลดขนาด label */
-        }
-
-        input[readonly],
-        select {
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-            /* ลดขนาดฟอนต์ใน input และ select */
-            padding: 5px;
-            /* ลด padding */
-            height: auto;
-            /* ลดความสูง */
-        }
-
-        .table {
-            margin-top: 5px;
-            /* ลดระยะห่าง */
-        }
-
-        .table th {
-            background-color: #f2f2f2;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 14px;
-            /* ลดขนาดฟอนต์ใน header */
-            border: 1px solid #dee2e6;
-            padding: 5px;
-            /* ลด padding */
-        }
-
-        .table td {
-            padding: 5px;
-            /* ลด padding ในเซลล์ */
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-            height: 30px;
-            /* ลดความสูงของแถว */
-            font-size: 14px;
-            /* ลดขนาดตัวอักษร */
-        }
-
-        .table td span {
-            display: inline-block;
-            width: 100%;
-            background-color: transparent;
-            text-align: center;
-        }
-
-        .row-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            /* ลดระยะห่าง */
-        }
-
-        h5 {
-            font-weight: bold;
-            font-size: 16px;
-            /* ลดขนาด h5 */
-            margin: 0;
-        }
-
-        .btn-add {
-            font-size: 20px;
-            /* ลดขนาดไอคอนปุ่ม */
-            color: #6a1b9a;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-add:hover {
-            color: #ff5722;
-        }
-
-        .menu-icon {
-            cursor: pointer;
-            color: #6a1b9a;
-            font-size: 20px;
-            /* ลดขนาดเมนูไอคอน */
-            position: absolute;
-            top: 15px;
-            left: 15px;
-        }
-
-        .btn-confirm {
-            background-color: #ff5722;
-            color: white;
-            font-size: 16px;
-            /* ลดขนาดปุ่ม */
-            border: none;
-            padding: 8px 15px;
-            /* ลด padding */
-        }
-
-        .btn-confirm:hover {
-            background-color: #e64a19;
-        }
-
-        .textarea-container {
-            margin-top: 15px;
-            /* ลดระยะห่าง */
-        }
-
-        .textarea-container label {
-            font-size: 16px;
-            /* ลดขนาด label */
-        }
-
-        .textarea-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .textarea-row textarea {
-            flex: 1;
-            /* ให้ textarea ใช้พื้นที่ที่เหลืออยู่ */
-            max-width: calc(100% - 120px);
-            /* ลดขนาดเพื่อให้เหลือที่สำหรับปุ่ม */
-            height: 50px;
-            /* ลดความสูง */
-        }
-
-        .textarea-row .btn-confirm {
-            flex-shrink: 0;
-            margin-top: 0;
-            margin-left: auto;
-        }
-
-        .note {
-            font-size: 14px;
-            /* ลดขนาดหมายเหตุ */
-            color: gray;
-            margin-top: 10px;
-            /* ลดระยะห่าง */
-            text-align: center;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100%;
-            background-color: #ff5722;
-            color: white;
-            padding: 15px;
-            /* ลด padding ใน sidebar */
-            transition: left 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .sidebar h4 {
-            color: white;
-            font-size: 18px;
-            /* ลดขนาดฟอนต์ใน sidebar */
-            margin-bottom: 15px;
-            /* ลดระยะห่าง */
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
+      body {
+        font-family: "TH SarabunPSK", sans-serif;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+      .form-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+      .form-label {
+        font-weight: bold;
+        font-size: 16px;
+      }
+      input[readonly],
+      select {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        padding: 5px;
+        height: auto;
+      }
+      .table {
+        margin-top: 5px;
+      }
+      .table th {
+        background-color: #f2f2f2;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 14px;
+        border: 1px solid #dee2e6;
+        padding: 5px;
+      }
+      .table td {
+        padding: 5px;
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+        height: 30px;
+        font-size: 14px;
+      }
+      .table td span {
+        display: inline-block;
+        width: 100%;
+        background-color: transparent;
+        text-align: center;
+      }
+      .row-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+      }
+      h5 {
+        font-weight: bold;
+        font-size: 16px;
+        margin: 0;
+      }
+      .btn-add {
+        font-size: 20px;
+        color: #6a1b9a;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-add:hover {
+        color: #ff5722;
+      }
+      .menu-icon {
+        cursor: pointer;
+        color: #6a1b9a;
+        font-size: 20px;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+      }
+      .btn-confirm {
+        background-color: #ff5722;
+        color: white;
+        font-size: 16px;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-confirm:hover {
+        background-color: #e64a19;
+      }
+      .textarea-container {
+        margin-top: 15px;
+      }
+      .textarea-container label {
+        font-size: 16px;
+      }
+      .textarea-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .textarea-row textarea {
+        flex: 1;
+        max-width: calc(100% - 120px);
+        height: 50px;
+      }
+      .textarea-row .btn-confirm {
+        flex-shrink: 0;
+        margin-top: 0;
+        margin-left: auto;
+      }
+      .note {
+        font-size: 14px;
+        color: gray;
+        margin-top: 10px;
+        text-align: center;
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background-color: #ff5722;
+        color: white;
+        padding: 15px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+      }
+      .sidebar.active {
+        left: 0;
+      }
+      .sidebar h4 {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      .overlay.active {
+        display: block;
+      }
+      /* Element สำหรับแสดงชื่อวัน */
+      #day-name {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
     </style>
-</head>
-
-<body>
+  </head>
+  <body>
     <!-- ปุ่มสามขีด -->
     <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
-
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="radio-container">
-            <h4>ประเภทการจอง</h4>
-            <label>
-                <input type="radio" name="booking-type" value="นอกเวลา">
-                นอกเวลา
-            </label><br>
-            <label>
-                <input type="radio" name="booking-type" value="ในเวลา" checked>
-                ในเวลา
-            </label>
-        </div>
+      <div class="radio-container">
+        <h4>ประเภทการจอง</h4>
+        <label>
+          <input type="radio" name="booking-type" value="นอกเวลา" />
+          นอกเวลา
+        </label>
+        <br />
+        <label>
+          <input type="radio" name="booking-type" value="ในเวลา" checked />
+          ในเวลา
+        </label>
+      </div>
     </div>
-
-
-
-
     <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <div class="container mt-4">
-        <h4 class="form-title">แบบบันทึกขอใช้ห้องในเวลา</h4>
-        <form method="GET" action="submit_booking.php"> <!-- กำหนด action เป็นที่ที่ข้อมูลจะถูกส่งไปxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">ชื่อ-นามสกุล</label>
-                    <input type="text" class="form-control" id="student-name" value="กำลังโหลด..." readonly>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">รหัสนิสิต</label>
-                    <input type="text" class="form-control" id="student-id" value="กำลังโหลด..." readonly>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="stud-year">ชั้นปี</label>
-                    <input type="text" class="form-control" id="stud-year" value="กำลังโหลด..." readonly>
-                </div>
-                <div class="col-md-4">
-                    <label for="phone-number">เบอร์โทร</label>
-                    <input type="text" class="form-control" id="phone-number" value="กำลังโหลด..." readonly>
-                </div>
-            </div>
-            <div class="row-header">
-                <h5>รายละเอียดการจอง</h5>
-            </div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ประเภทห้อง</th>
-                        <th>ห้องที่จอง</th>
-                        <th>เวลาที่จอง</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span>ห้องปฏิบัติการ</span></td>
-                        <td><span>SC2-308</span></td>
-                        <td><span>8.00-17.00 น.</span></td>
-                    </tr>
-                </tbody>
-            </table>
-            <h5 class="mt-4">รายละเอียดการยืม</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ชื่ออุปกรณ์</th>
-                        <th>ห้องที่จอง</th>
-                        <th>จำนวน</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>พอยเตอร์</td>
-                        <td>SC2-308</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="textarea-container">
-                <label class="form-label">ความประสงค์การใช้ห้อง</label>
-                <div class="textarea-row">
-                    <select class="form-select" name="usage"> <!-- เพิ่ม name สำหรับการส่งข้อมูลxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
-                        <option value="ติวหนังสือ">ขอใช้ห้องเพื่อติวหนังสือ/เตรียมสอบ</option>
-                        <option value="ประชุมงานกลุ่ม">ขอใช้ห้องเพื่อประชุมงานกลุ่ม</option>
-                        <option value="จัดกิจกรรมเสริมความรู้">ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้</option>
-                        <option value="ถ่ายทำงานโปรเจกต์">ขอใช้ห้องเพื่อถ่ายทำงานโปรเจกต์</option>
-                        <option value="จัดเวิร์กชอป">ขอใช้ห้องเพื่อจัดเวิร์กชอปหรืออบรม</option>
-                        <option value="ดำเนินการวิจัย">ขอใช้ห้องเพื่อดำเนินการวิจัย</option>
-                        <option value="ทำโปรเจกต์วิชาการ">ขอใช้ห้องเพื่อทำโปรเจกต์วิชาการ</option>
-                        <option value="ประชุมออนไลน์">ขอใช้ห้องเพื่อจัดการประชุมออนไลน์</option>
-                        <option value="ฝึกปฏิบัติการทดลอง">ขอใช้ห้องเพื่อฝึกปฏิบัติการทดลองหรือแล็บ</option>
-                    </select>
-                </div>
-                
-                <!-- ปุ่มส่งข้อมูล -->
-                <button class="btn-confirm" type="button" style="margin-left: auto; display: block;" onclick="window.location.href='home.html'">ยืนยัน</button>
-                </div>
-            </div>
-            <p class="note">หมายเหตุ: การจองขอใช้ห้องภายใต้การดูแลของภาควิชาวิทยาการคอมพิวเตอร์ฯ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร วันจันทร์ ถึง ศุกร์ เวลา 8.00 - 17.00 น. ยกเว้นวันหยุดนักขัตฤกษ์</p>
-        </form>
+      <!-- แสดงชื่อวันจาก URL -->
+      <!-- <div id="day-name">กำลังโหลด...</div> -->
+      <h4 class="form-title">แบบบันทึกขอใช้ห้องในเวลา</h4>
+      <form method="GET" action="submit_booking.php">
+        <!-- User Information -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">ชื่อ-นามสกุล</label>
+            <input
+              type="text"
+              class="form-control"
+              id="student-name"
+              value="กำลังโหลด..."
+              readonly
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">รหัสนิสิต</label>
+            <input
+              type="text"
+              class="form-control"
+              id="student-id"
+              value="กำลังโหลด..."
+              readonly
+            />
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="stud-year" class="form-label">ชั้นปี</label>
+            <input
+              type="text"
+              class="form-control"
+              id="stud-year"
+              value="กำลังโหลด..."
+              readonly
+            />
+          </div>
+          <div class="col-md-4">
+            <label for="phone-number" class="form-label">เบอร์โทร</label>
+            <input
+              type="text"
+              class="form-control"
+              id="phone-number"
+              value="กำลังโหลด..."
+              readonly
+            />
+          </div>
+        </div>
+        <!-- Booking Details -->
+        <div class="row-header">
+          <h5>รายละเอียดการจอง</h5>
+        </div>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ประเภทห้อง</th>
+              <th>ห้องที่จอง</th>
+              <th>เวลาที่จอง</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="room-type-info">กำลังโหลด...</td>
+              <td id="room-info">กำลังโหลด...</td>
+              <td id="time-range-info">กำลังโหลด...</td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Desk Selection Details -->
+        <!-- <div class="row-header">
+          <h5>รายละเอียดการยืม (โต๊ะที่เลือก)</h5>
+        </div> -->
+        <!-- <div class="mb-3">
+          <p id="desks-info">กำลังโหลด...</p>
+        </div> -->
+        <!-- Equipment Details -->
+        <h5>รายละเอียดการยืม (อุปกรณ์เพิ่มเติม)</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ชื่ออุปกรณ์</th>
+              <th>ห้องที่จอง</th>
+              <th>จำนวน</th>
+            </tr>
+          </thead>
+          <tbody id="equipment-table-body">
+            <!-- รายการอุปกรณ์จะแสดงที่นี่ -->
+          </tbody>
+        </table>
+        <!-- Usage Information -->
+        <div class="textarea-container">
+          <label class="form-label">ความประสงค์การใช้ห้อง</label>
+          <div class="textarea-row">
+            <select class="form-select" name="usage">
+              <option value="ขอใช้ห้องเพื่อติวหนังสือ">
+                ขอใช้ห้องเพื่อติวหนังสือ
+              </option>
+              <option value="ขอใช้ห้องเพื่อประชุมงานกลุ่ม">
+                ขอใช้ห้องเพื่อประชุมงานกลุ่ม
+              </option>
+              <option value="ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้">
+                ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้
+              </option>
+            </select>
+          </div>
+          <!-- <button
+            class="btn-confirm"
+            type="button"
+            style="margin-left: auto; display: block"
+            onclick="submitBooking(); window.location.href='home.html'"
+          >
+            ยืนยัน
+          </button> -->
+          <button
+            class="btn-confirm"
+            type="button"
+            style="margin-left: auto; display: block"
+            onclick="submitBooking()"
+          >
+            ยืนยัน
+          </button>
+        </div>
+        <p class="note">
+          หมายเหตุ: การจองขอใช้ห้องภายใต้การดูแลของภาควิชาวิทยาการคอมพิวเตอร์ฯ
+          คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร วันจันทร์ ถึง ศุกร์ เวลา 8.00 - 17.00
+          น. ยกเว้นวันหยุดนักขัตฤกษ์
+        </p>
+      </form>
     </div>
-
+    <div id="date-info" style="display: none"></div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Socket.io Client -->
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
     <script>
-        async function fetchUserInfo() {
-            try {
-                const response = await fetch("http://localhost:3000/user");
-                const data = await response.json();
-        
-                if (data.length > 0) {
-                    const user = data[0]; // ใช้ข้อมูลคนแรกจาก API
-                    console.log("✅ ดึงข้อมูลสำเร็จ:", user); // ✅ ตรวจสอบข้อมูลที่ API ส่งมา
-        
-                    // ✅ อัปเดตข้อมูลลงใน input
-                    document.getElementById("student-name").value = user.Name || "ไม่พบข้อมูล";
-                    document.getElementById("student-id").value = user.Student_ID || "ไม่พบข้อมูล";
-                    document.getElementById("stud-year").value = user.Study_year || "ไม่พบข้อมูล"; // ✅ อัปเดตชั้นปี
-                    document.getElementById("phone-number").value = user.Phone_number || "ไม่พบข้อมูล"; // ✅ อัปเดตเบอร์โทร
-                } else {
-                    console.warn("⚠️ API /user ส่งกลับมาเป็น Array ว่าง");
-                }
-            } catch (error) {
-                console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
-            }
+      // WebSocket connection
+      const socket = io("http://localhost:3000");
+      socket.on("connect", () => {
+        console.log("WebSocket connected on TimeIn.html");
+      });
+      socket.on("booking_update", (data) => {
+        console.log("Received booking update via WebSocket:", data);
+      });
+    </script>
+    <script>
+      // Utility function: Format time from "08:00:00" to "8.00"
+      function formatTimeForDisplay(timeStr) {
+        const parts = timeStr.split(":");
+        let hour = parts[0];
+        const minute = parts[1];
+        if (hour.startsWith("0")) {
+          hour = hour.substring(1);
         }
-        window.onload = fetchUserInfo;
-        // ตรวจจับการเปลี่ยนสถานะของ Radio Button
-        document.querySelectorAll('input[name="booking-type"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                if (this.value === 'นอกเวลา') {
-                    // เมื่อเลือก "นอกเวลา" ให้ไปที่ TimeOut3.html
-                    window.location.href = './TimeOut3.html';
-                } else if (this.value === 'ในเวลา') {
-                    // เมื่อเลือก "ในเวลา" ให้ไปที่ TimeIn.html
-                    window.location.href = './TimeIn.html';
-                }
-            });
-        });
+        return hour + "." + minute;
+      }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-        // ✅ ฟังก์ชันดึง `date` จาก URL แล้วแสดงชื่อวัน
-
-    async function fetchUserInfo() {
+      // Load room details from API /roomdetail
+      async function loadRoomDetails(roomId) {
         try {
-            console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
-            const response = await fetch("http://localhost:3000/session", {
-                method: "GET",
+          const response = await fetch("http://localhost:3000/roomdetail");
+          if (!response.ok) throw new Error("HTTP error " + response.status);
+          const rooms = await response.json();
+          // หา room ที่ Rooms_ID ตรงกับ roomId
+          const roomDetail = rooms.find((room) => room.Rooms_ID === roomId);
+          if (roomDetail) {
+            // ใช้ Room_types ถ้ามี ถ้าไม่มีให้แสดงเป็น "ชั้น " + Floors
+            const roomType = roomDetail.Room_types
+              ? roomDetail.Room_types
+              : "ชั้น " + roomDetail.Floors;
+            document.getElementById("room-info").textContent =
+              roomDetail.Name || "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent = roomType;
+          } else {
+            document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent =
+              "ไม่พบข้อมูล";
+          }
+        } catch (err) {
+          console.error("Error fetching room details:", err);
+          document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
+          document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
+        }
+      }
+
+      // Load equipment mapping from API /getEquipmentInformation
+      async function loadEquipmentMapping() {
+        let equipmentMapping = {};
+        try {
+          const response = await fetch(
+            "http://localhost:3000/getEquipmentInformation"
+          );
+          if (!response.ok) throw new Error("HTTP error " + response.status);
+          const equipData = await response.json();
+          equipData.forEach((item) => {
+            equipmentMapping[item.Equipments_ID] = item.Equipments_name;
+          });
+        } catch (err) {
+          console.error("Error fetching equipment information:", err);
+        }
+        return equipmentMapping;
+      }
+
+      // Main initialization
+      document.addEventListener("DOMContentLoaded", async () => {
+        // ดึง query parameters จาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateParam = urlParams.get("date"); // รูปแบบ: yyyy-mm-dd
+        const roomParam = urlParams.get("room"); // เช่น "307"
+        const startTimeParam = urlParams.get("startTime"); // เช่น "08:00:00"
+        const endTimeParam = urlParams.get("endTime"); // เช่น "17:00:00"
+        const desksParam = urlParams.get("desks"); // เช่น "27,26,16"
+        const equipmentsParam = urlParams.get("equipments"); // เช่น "12:1,13:1,14:1,15:1"
+
+        // แสดงข้อมูลพื้นฐาน
+        document.getElementById("date-info").textContent = dateParam;
+        await loadRoomDetails(roomParam);
+        const formattedStartTime = formatTimeForDisplay(startTimeParam);
+        const formattedEndTime = formatTimeForDisplay(endTimeParam);
+        document.getElementById(
+          "time-range-info"
+        ).textContent = `${formattedStartTime}-${formattedEndTime} น.`;
+        //document.getElementById("desks-info").textContent = desksParam;
+
+        // แสดงชื่อวันจากวันที่ใน URL
+        if (dateParam) {
+          const dateObj = new Date(dateParam);
+          const daysArr = [
+            "อาทิตย์",
+            "จันทร์",
+            "อังคาร",
+            "พุธ",
+            "พฤหัสบดี",
+            "ศุกร์",
+            "เสาร์",
+          ];
+          const dayName = daysArr[dateObj.getDay()];
+          // document.getElementById("day-name").textContent = dayName;
+        }
+
+        // ดึง equipment mapping จาก API
+        const equipmentMapping = await loadEquipmentMapping();
+        let equipmentTableRows = "";
+        if (equipmentsParam) {
+          const equipmentItems = equipmentsParam.split(",");
+          equipmentItems.forEach((item) => {
+            const [id, amount] = item.split(":");
+            const name = equipmentMapping[id] || id;
+            equipmentTableRows += `<tr>
+              <td>${name}</td>
+              <td>SC2-${roomParam}</td>
+              <td>${amount}</td>
+            </tr>`;
+          });
+        }
+        document.getElementById("equipment-table-body").innerHTML =
+          equipmentTableRows;
+
+        // Debug logging
+        console.log("Received parameters:");
+        console.log("Date:", dateParam);
+        console.log("Room:", roomParam);
+        console.log("Start Time:", startTimeParam);
+        console.log("End Time:", endTimeParam);
+        console.log("Desks:", desksParam);
+        console.log("Equipments (raw):", equipmentsParam);
+        console.log("Equipment mapping:", equipmentMapping);
+        console.log("Equipments (mapped HTML):", equipmentTableRows);
+      });
+
+      // Fetch user info from API /user and display in input fields
+      async function fetchUserInfo() {
+        try {
+          const response = await fetch("http://localhost:3000/user", {
+            credentials: "include",
+          });
+          const data = await response.json();
+          if (data.length > 0) {
+            const user = data[0];
+            console.log("✅ ดึงข้อมูลผู้ใช้สำเร็จ:", user);
+            document.getElementById("student-name").value =
+              user.Name || "ไม่พบข้อมูล";
+            document.getElementById("student-id").value =
+              user.Student_ID || "ไม่พบข้อมูล";
+            document.getElementById("stud-year").value =
+              user.Study_year || "ไม่พบข้อมูล";
+            document.getElementById("phone-number").value =
+              user.Phone_number || "ไม่พบข้อมูล";
+          } else {
+            console.warn("⚠️ API /user ส่งกลับมาเป็น Array ว่าง");
+          }
+        } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
+        }
+      }
+      window.onload = fetchUserInfo;
+
+      // ฟังก์ชันสำหรับ toggle sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+
+      // ฟังก์ชันสำหรับส่งข้อมูลการจองไปยัง backend
+      function submitBooking() {
+        // สมมุติว่าเรามีข้อมูล booking ตาม query ที่คุณทดสอบใน phpMyAdmin
+        const bookingData = {
+          Rooms_ID: roomParam,
+          Used_date: "2025-02-17",
+          Identify_ID: "64312995",
+          Start_time: "08:11:00",
+          End_time: "10:00:00",
+          Reason: "ขอใช้ห้องเพื่อติวหนังสือ",
+          Requests_status: "รอดำเนินการ",
+          Requests_types: "ในเวลา",
+        };
+        for (const key in bookingData) {
+          if (bookingData.hasOwnProperty(key)) {
+            // ตรวจสอบว่า key เป็นของอ็อบเจ็กต์จริงๆ
+            const value = bookingData[key];
+            console.log(`${key}: ${value}`);
+          }
+        }
+
+        /*fetch("http://localhost:3000/insertBooking", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookingData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              console.log(
+                "Booking inserted successfully. Booking id:",
+                data.bookingId
+              );
+              alert("การจองสำเร็จ! รหัสการจอง: " + data.bookingId);
+              // สามารถเปลี่ยนหน้า หรือรีเฟรชข้อมูลได้ที่นี่
+            } else {
+              console.error("Failed to insert booking:", data.error);
+              alert("ไม่สามารถจองห้องได้: " + data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("เกิดข้อผิดพลาดในการจองห้อง");
+          });*/
+      }
+      async function submitBooking() {
+        const studentId = document.getElementById("student-id").value;
+        const roomId = new URLSearchParams(window.location.search).get("room");
+        const usedDate = new URLSearchParams(window.location.search).get("date");
+        const startTime = new URLSearchParams(window.location.search).get("startTime");
+        const endTime = new URLSearchParams(window.location.search).get("endTime");
+        const reason = document.querySelector("select[name='usage']").value;
+        const requestType = document.querySelector("input[name='booking-type']:checked").value;
+    
+        if (!studentId || !roomId || !usedDate || !startTime || !endTime || !reason || !requestType) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+        }
+    
+        const bookingData = {
+            room_id: roomId,
+            used_date: usedDate,
+            student_id: studentId,
+            start_time: startTime,
+            end_time: endTime,
+            reason: reason,
+            request_type: requestType
+        };
+    
+        try {
+            const response = await fetch("http://localhost:3000/bookRoom", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(bookingData),
                 credentials: "include"
             });
     
-            if (!response.ok) {
-                console.warn("⚠️ เซสชันหมดอายุ หรือไม่ได้ล็อกอิน");
-                document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
-                return;
+            const result = await response.json();
+            if (response.ok) {
+                alert("✅ การจองสำเร็จ!");
+                window.location.href = "home.html"; // กลับไปหน้าแรก
+            } else {
+                alert("❌ " + result.error);
             }
-    
-            const userSession = await response.json();
-            console.log("✅ ข้อมูลผู้ใช้:", userSession);
-    
-            if (!userSession.data) {
-                console.warn("⚠️ ไม่พบข้อมูลผู้ใช้ในเซสชัน");
-                document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
-                return;
-            }
-    
-            // ✅ แสดงข้อมูลผู้ใช้ในหน้าเว็บ
-            document.getElementById("student-name").value = userSession.data.Name || "ไม่พบข้อมูล";
-            document.getElementById("student-id").value = userSession.data.Student_ID || "ไม่พบข้อมูล";
-            document.getElementById("stud-year").value = userSession.data.Study_year || "ไม่พบข้อมูล";
-            document.getElementById("phone-number").value = userSession.data.Phone_number || "ไม่พบข้อมูล";
-        } catch (error) {
-            console.error("❌ เกิดข้อผิดพลาดในการโหลดเซสชัน:", error);
-            document.getElementById("student-name").value = "เกิดข้อผิดพลาด";
+        } catch (err) {
+            console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
+            alert("เกิดข้อผิดพลาดในการจอง");
         }
     }
     
-    // ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
-    window.onload = fetchUserInfo;
-    // ✅ ฟังก์ชันแปลง `date` จาก URL เป็นชื่อวัน
-function showDayFromDate() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const dateStr = urlParams.get("date"); // ดึงค่า date=2025-02-14
-
-    if (!dateStr) {
-        console.warn("⚠️ ไม่พบวันที่ใน URL");
-        document.getElementById("day-name").textContent = "ไม่พบข้อมูล";
-        return;
-    }
-
-    // ✅ แปลงวันที่จาก `yyyy-mm-dd` เป็น `Date` object
-    const dateObj = new Date(dateStr);
-    if (isNaN(dateObj)) {
-        console.error("❌ วันที่ไม่ถูกต้อง:", dateStr);
-        document.getElementById("day-name").textContent = "รูปแบบวันที่ไม่ถูกต้อง";
-        return;
-    }
-
-    // ✅ แปลงวันเป็นชื่อภาษาไทย
-    const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
-    const dayName = days[dateObj.getDay()]; // ดึงค่าชื่อวันจาก array
-
-    // ✅ แสดงวันบนหน้าเว็บ
-    document.getElementById("day-name").textContent = dayName;
-}
-
-// ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
-document.addEventListener("DOMContentLoaded", showDayFromDate);
+    // ผูกฟังก์ชันกับปุ่มกดยืนยัน
     </script>
-</body>
+  </body>
 </html>

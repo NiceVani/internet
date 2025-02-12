@@ -381,7 +381,7 @@ function confirmBooking() {
   console.log("Query Parameters to Send:", urlParams.toString());
 
   // ส่งข้อมูลไปหน้า nextPage.html (ถ้าต้องการ)
-  // window.location.href = `nextPage.html?${urlParams.toString()}`;
+  window.location.href = `deskSC2-307.html?${urlParams.toString()}`;
 }
 
 /********************************
