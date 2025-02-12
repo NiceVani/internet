@@ -1,494 +1,657 @@
 <!DOCTYPE html>
 <html lang="th">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>แบบบันทึกขอใช้ห้องนอกเวลา</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: "TH SarabunPSK", sans-serif;
-            font-size: 16px;
-            background-color: #f9f9f9;
-        }
-
-        .form-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
-
-        .btn-simple {
-            font-size: 14px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 8px 15px;
-            margin-right: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-
-        .btn-simple:hover {
-            background-color: #e2e2e2;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .input-group input {
-            flex: 1;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 8px;
-        }
-
-        .btn-upload {
-            font-size: 14px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 8px 15px;
-            cursor: pointer;
-        }
-
-        .btn-upload:hover {
-            background-color: #e2e2e2;
-        }
-
-        .btn-confirm {
-            background-color: #ff5722;
-            color: white;
-            font-size: 16px;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-
-        .btn-confirm:hover {
-            background-color: #e64a19;
-        }
-
-        .menu-icon {
-            cursor: pointer;
-            color: #6a1b9a;
-            font-size: 24px;
-            position: absolute;
-            top: 15px;
-            left: 15px;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100%;
-            background-color: #ff5722;
-            color: white;
-            padding: 15px;
-            transition: left 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .sidebar h4 {
-            color: white;
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .table td {
-            font-size: 14px;
-        }
-
-        .form-container {
-            margin-top: 20px;
-        }
-
-        .textarea-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .textarea-container textarea {
-            width: 80%;
-            /* ช่องกรอกข้อความให้กว้างขึ้น */
-            margin-right: 10px;
-        }
-
-        /* สไตล์หมายเหตุ */
-        .note {
-            font-size: 14px;
-            color: gray;
-            text-align: center;
-            margin-top: 30px;
-        }
+      body {
+        font-family: "TH SarabunPSK", sans-serif;
+        font-size: 16px;
+        background-color: #f9f9f9;
+      }
+      .form-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+      .btn-simple {
+        font-size: 14px;
+        background-color: #f2f2f2;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 8px 15px;
+        margin-right: 10px;
+        margin-bottom: 15px;
+        cursor: pointer;
+      }
+      .btn-simple:hover {
+        background-color: #e2e2e2;
+      }
+      .input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .input-group input {
+        flex: 1;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 8px;
+      }
+      .btn-upload {
+        font-size: 14px;
+        background-color: #f2f2f2;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 8px 15px;
+        cursor: pointer;
+      }
+      .btn-upload:hover {
+        background-color: #e2e2e2;
+      }
+      .btn-confirm {
+        background-color: #ff5722;
+        color: white;
+        font-size: 16px;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+      .btn-confirm:hover {
+        background-color: #e64a19;
+      }
+      .menu-icon {
+        cursor: pointer;
+        color: #6a1b9a;
+        font-size: 24px;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background-color: #ff5722;
+        color: white;
+        padding: 15px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+      }
+      .sidebar.active {
+        left: 0;
+      }
+      .sidebar h4 {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      .overlay.active {
+        display: block;
+      }
+      .table th,
+      .table td {
+        text-align: center;
+        vertical-align: middle;
+      }
+      .table td {
+        font-size: 14px;
+      }
+      .form-container {
+        margin-top: 20px;
+      }
+      .textarea-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .textarea-container textarea {
+        width: 80%;
+        margin-right: 10px;
+      }
+      .note {
+        font-size: 14px;
+        color: gray;
+        text-align: center;
+        margin-top: 30px;
+      }
     </style>
-</head>
-
-<body>
+  </head>
+  <body>
     <!-- ปุ่มสามขีด -->
     <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="radio-container">
-            <h4>ประเภทการจอง</h4>
-            <label>
-                <input type="radio" name="booking-type" value="นอกเวลา" checked>
-                นอกเวลา
-            </label><br>
-            <label>
-                <input type="radio" name="booking-type" value="ในเวลา">
-                ในเวลา
-            </label>
-        </div>
+      <div class="radio-container">
+        <h4>ประเภทการจอง</h4>
+        <label>
+          <input type="radio" name="booking-type" value="นอกเวลา" checked />
+          นอกเวลา </label
+        ><br />
+        <label>
+          <input type="radio" name="booking-type" value="ในเวลา" />
+          ในเวลา
+        </label>
+      </div>
     </div>
-
 
     <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <!-- Content -->
     <div class="container mt-4">
-        <h4 class="form-title">แบบบันทึกขอใช้ห้องนอกเวลา</h4>
-        <form method="GET" action="submit_booking.php"> <!-- กำหนด action เป็นที่ที่ข้อมูลจะถูกส่งไปxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
-        <!-- ฟอร์มข้อมูลส่วนตัว -->
+      <h4 class="form-title">แบบบันทึกขอใช้ห้องนอกเวลา</h4>
+      <form method="GET" action="submit_booking.php">
+        <!-- ข้อมูลส่วนตัว -->
         <div class="form-container">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">ชื่อ-นามสกุล</label>
-                    <input type="text" class="form-control" id="student-name" value="กำลังโหลด..." readonly>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">รหัสนิสิต</label>
-                    <input type="text" class="form-control" id="student-id" value="กำลังโหลด..." readonly>
-                </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">ชื่อ-นามสกุล</label>
+              <input
+                type="text"
+                class="form-control"
+                id="student-name"
+                value="กำลังโหลด..."
+                readonly
+              />
             </div>
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="stud-year">ชั้นปี</label>
-                    <input type="text" class="form-control" id="stud-year" value="กำลังโหลด..." readonly>
-                </div>
-                <div class="col-md-4">
-                    <label for="phone-number">เบอร์โทร</label>
-                    <input type="text" class="form-control" id="phone-number" value="กำลังโหลด..." readonly>
-                </div>
+            <div class="col-md-6">
+              <label class="form-label">รหัสนิสิต</label>
+              <input
+                type="text"
+                class="form-control"
+                id="student-id"
+                value="กำลังโหลด..."
+                readonly
+              />
             </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="stud-year">ชั้นปี</label>
+              <input
+                type="text"
+                class="form-control"
+                id="stud-year"
+                value="กำลังโหลด..."
+                readonly
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="phone-number">เบอร์โทร</label>
+              <input
+                type="text"
+                class="form-control"
+                id="phone-number"
+                value="กำลังโหลด..."
+                readonly
+              />
+            </div>
+          </div>
         </div>
+
+        <!-- ตารางรายละเอียดการจอง -->
+        <h5 class="mt-4">รายละเอียดการจอง</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ประเภทห้อง</th>
+              <th>ห้องที่จอง</th>
+              <th>เวลาที่จอง</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="room-type-info">กำลังโหลด...</td>
+              <td id="room-info">กำลังโหลด...</td>
+              <td id="time-range-info">กำลังโหลด...</td>
+            </tr>
+          </tbody>
+        </table>
 
         <!-- ตารางรายชื่อสมาชิก -->
         <h5 class="mt-4">รายชื่อสมาชิก</h5>
         <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>รหัสนิสิต</th>
-                    <th>ชื่อ-นามสกุล</th>
-                    <th>
-                        <button type="button" class="btn-simple" onclick="addRow()">+</button>
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="members-table-body">
-                <tr>
-                    <td style="position: relative;">
-                        <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\d*" title="กรุณากรอกเฉพาะตัวเลข">
-                        <div class="dropdown-list"></div> <!-- ✅ เพิ่ม dropdown ตรงนี้ -->
-                    </td>
-                    <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
-                    <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
-                </tr>
-            </tbody>
+          <thead>
+            <tr>
+              <th>รหัสนิสิต</th>
+              <th>ชื่อ-นามสกุล</th>
+              <th>
+                <button type="button" class="btn-simple" onclick="addRow()">
+                  +
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="members-table-body">
+            <tr>
+              <td style="position: relative">
+                <input
+                  type="text"
+                  class="form-control student-id-input"
+                  placeholder="กรอกรหัสนิสิต"
+                  pattern="\d*"
+                  title="กรุณากรอกเฉพาะตัวเลข"
+                />
+                <div class="dropdown-list"></div>
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control student-name-input"
+                  placeholder="กรอกชื่อ-นามสกุล"
+                  readonly
+                />
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  onclick="deleteRow(this)"
+                >
+                  ลบ
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </table>
 
-        <h5 class="mt-4">รายละเอียดการยืม</h5>
+        <!-- ตารางรายละเอียดการยืม (อุปกรณ์เพิ่มเติม) -->
+        <h5 class="mt-4">รายละเอียดการยืม (อุปกรณ์เพิ่มเติม)</h5>
         <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ชื่ออุปกรณ์</th>
-                    <th>ห้องที่จอง</th>
-                    <th>จำนวน</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>พอยเตอร์</td>
-                    <td>SC2-308</td>
-                    <td>1</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
+          <thead>
+            <tr>
+              <th>ชื่ออุปกรณ์</th>
+              <th>ห้องที่จอง</th>
+              <th>จำนวน</th>
+            </tr>
+          </thead>
+          <tbody id="equipment-table-body">
+            <tr>
+              <td colspan="3">กำลังโหลด...</td>
+            </tr>
+          </tbody>
         </table>
 
-        <!-- ฟอร์มเวลา -->
-        <div class="form-group mb-3">
-            <label class="form-label">เวลา</label>
-            <div class="d-flex">
-                <input type="time" class="form-control" id="start-time" value="09:00">
-                <span class="mx-2">ถึง</span>
-                <input type="time" class="form-control" id="end-time" value="17:00">
-            </div>
+        <!-- ความประสงค์การใช้ห้อง -->
+        <div class="textarea-container">
+          <label class="form-label">ความประสงค์การใช้ห้อง</label>
+          <div class="textarea-row">
+            <select class="form-select" name="usage">
+              <option value="ขอใช้ห้องเพื่อติวหนังสือ">
+                ขอใช้ห้องเพื่อติวหนังสือ
+              </option>
+              <option value="ขอใช้ห้องเพื่อประชุมงานกลุ่ม">
+                ขอใช้ห้องเพื่อประชุมงานกลุ่ม
+              </option>
+              <option value="ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้">
+                ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้
+              </option>
+            </select>
+          </div>
+          <button
+              class="btn-confirm"
+              type="button"
+              style="margin-left: auto; display: block"
+              onclick="submitBookingOut()"
+          >
+              ยืนยัน
+          </button>
         </div>
 
-        <!-- ฟอร์มความคิดเห็น -->
-        <div class="textarea-container">
-            <label class="form-label">ความประสงค์การใช้ห้อง</label>
-                <div class="textarea-row">
-                    <select class="form-select" name="usage"> <!-- เพิ่ม name สำหรับการส่งข้อมูลxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
-                        <option value="ติวหนังสือ">ขอใช้ห้องเพื่อติวหนังสือ/เตรียมสอบ</option>
-                        <option value="ประชุมงานกลุ่ม">ขอใช้ห้องเพื่อประชุมงานกลุ่ม</option>
-                        <option value="จัดกิจกรรมเสริมความรู้">ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้</option>
-                        <option value="ถ่ายทำงานโปรเจกต์">ขอใช้ห้องเพื่อถ่ายทำงานโปรเจกต์</option>
-                        <option value="จัดเวิร์กชอป">ขอใช้ห้องเพื่อจัดเวิร์กชอปหรืออบรม</option>
-                        <option value="ดำเนินการวิจัย">ขอใช้ห้องเพื่อดำเนินการวิจัย</option>
-                        <option value="ทำโปรเจกต์วิชาการ">ขอใช้ห้องเพื่อทำโปรเจกต์วิชาการ</option>
-                        <option value="ประชุมออนไลน์">ขอใช้ห้องเพื่อจัดการประชุมออนไลน์</option>
-                        <option value="ฝึกปฏิบัติการทดลอง">ขอใช้ห้องเพื่อฝึกปฏิบัติการทดลองหรือแล็บ</option>
-                    </select>
-                </div>
-                <button class="btn-confirm" type="button" style="margin-left: auto; display: block;" onclick="window.location.href='home.html'">ยืนยัน</button>
-                </div>
-            </div>
-            </div>
-
-
         <!-- หมายเหตุ -->
-        <p class="note">การจองขอใช้ห้องภายใต้การดูแลของภาควิชาวิทยาการคอมพิวเตอร์ฯ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร วันเสาร์ ถึง อาทิตย์ เวลา 8.00-21.00 น.</p>
+        <p class="note">
+          การจองขอใช้ห้องภายใต้การดูแลของภาควิชาวิทยาการคอมพิวเตอร์ฯ
+          คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร วันเสาร์ ถึง อาทิตย์ เวลา 8.00-21.00
+          น.
+        </p>
+      </form>
     </div>
 
     <script>
-        async function fetchUserInfo() {
-            try {
-                const response = await fetch("http://localhost:3000/user");
-                const data = await response.json();
-        
-                if (data.length > 0) {
-                    const user = data[0]; // ใช้ข้อมูลคนแรกจาก API
-                    console.log("✅ ดึงข้อมูลสำเร็จ:", user); // ✅ ตรวจสอบข้อมูลที่ API ส่งมา
-        
-                    // ✅ อัปเดตข้อมูลลงใน input
-                    document.getElementById("student-name").value = user.Name || "ไม่พบข้อมูล";
-                    document.getElementById("student-id").value = user.Student_ID || "ไม่พบข้อมูล";
-                    document.getElementById("stud-year").value = user.Study_year || "ไม่พบข้อมูล"; // ✅ อัปเดตชั้นปี
-                    document.getElementById("phone-number").value = user.Phone_number || "ไม่พบข้อมูล"; // ✅ อัปเดตเบอร์โทร
-                    document.getElementById("student-id").value = user.Student_ID || "ไม่พบข้อมูล";
-                } else {
-                    console.warn("⚠️ API /user ส่งกลับมาเป็น Array ว่าง");
-                }
-            } catch (error) {
-                console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+      // ฟังก์ชัน toggle sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+
+      // ฟังก์ชันแปลงเวลา เช่น "08:00:00" -> "8.00"
+      function formatTimeForDisplay(timeStr) {
+        const parts = timeStr.split(":");
+        let hour = parts[0];
+        const minute = parts[1];
+        if (hour.startsWith("0")) {
+          hour = hour.substring(1);
+        }
+        return hour + "." + minute;
+      }
+
+      // ดึงรายละเอียดห้องจาก API /getRoomInfo
+      async function loadRoomDetails(roomId) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/getRoomInfo?room=${roomId}`
+          );
+          if (!response.ok) throw new Error("HTTP error " + response.status);
+          const roomData = await response.json();
+          if (roomData.length > 0) {
+            const roomDetail = roomData[0];
+            document.getElementById("room-info").textContent =
+              roomDetail.Rooms_name || "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent =
+              roomDetail.Room_types || "ไม่พบข้อมูล";
+          } else {
+            document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent =
+              "ไม่พบข้อมูล";
+          }
+        } catch (err) {
+          console.error("Error fetching room details:", err);
+          document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
+          document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
+        }
+      }
+
+      // ฟังก์ชันดึงข้อมูลผู้ใช้จากเซสชัน
+      async function fetchUserInfo() {
+        try {
+          const response = await fetch("http://localhost:3000/session", {
+            method: "GET",
+            credentials: "include",
+          });
+          if (!response.ok) {
+            console.warn("⚠️ เซสชันหมดอายุ หรือไม่ได้ล็อกอิน");
+            document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
+            return;
+          }
+          const userSession = await response.json();
+          if (!userSession.data) {
+            console.warn("⚠️ ไม่พบข้อมูลผู้ใช้ในเซสชัน");
+            document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
+            return;
+          }
+          document.getElementById("student-name").value =
+            userSession.data.Name || "ไม่พบข้อมูล";
+          document.getElementById("student-id").value =
+            userSession.data.Student_ID || "ไม่พบข้อมูล";
+          document.getElementById("stud-year").value =
+            userSession.data.Study_year || "ไม่พบข้อมูล";
+          document.getElementById("phone-number").value =
+            userSession.data.Phone_number || "ไม่พบข้อมูล";
+        } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการโหลดเซสชัน:", error);
+          document.getElementById("student-name").value = "เกิดข้อผิดพลาด";
+        }
+      }
+
+      // ฟังก์ชันเพิ่มแถวสมาชิก
+      function addRow() {
+        const tableBody = document.getElementById("members-table-body");
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+        <td style="position: relative;">
+          <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
+          <div class="dropdown-list"></div>
+        </td>
+        <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
+        <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
+      `;
+        tableBody.appendChild(newRow);
+        initializeStudentIDInput(newRow.querySelector(".student-id-input"));
+      }
+
+      function deleteRow(button) {
+        const row = button.closest("tr");
+        row.remove();
+      }
+
+      // ดึงข้อมูลนิสิตเพื่อใช้ใน dropdown
+      let studentData = [];
+      async function fetchStudentData() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/data/Student_information"
+          );
+          studentData = await response.json();
+          console.log("✅ ดึงข้อมูลนิสิตสำเร็จ:", studentData);
+        } catch (error) {
+          console.error("❌ ดึงข้อมูลล้มเหลว:", error);
+        }
+      }
+
+      // ฟังก์ชัน filter รายชื่อนิสิตใน dropdown
+      function filterStudentList(inputElement) {
+        let value = inputElement.value.trim();
+        let dropdown = inputElement.nextElementSibling;
+        let row = inputElement.closest("tr");
+        let nameInput = row.querySelector(".student-name-input");
+        dropdown.innerHTML = "";
+        dropdown.style.display = "none";
+        if (value === "") return;
+        let filtered = studentData.filter((student) =>
+          student.Student_ID.startsWith(value)
+        );
+        if (filtered.length === 0) return;
+        dropdown.style.display = "block";
+        filtered.forEach((student) => {
+          let option = document.createElement("div");
+          option.classList.add("dropdown-item");
+          option.innerHTML = `<span class="student-id" style="font-size: 22px; color: #333;">${student.Student_ID}</span>
+                            <span class="student-name" style="font-size: 20px; margin-left: 12px; color: #555;">${student.Name}</span>`;
+          option.addEventListener("mouseover", function () {
+            this.style.fontWeight = "bold";
+            this.style.fontSize = "24px";
+          });
+          option.addEventListener("mouseout", function () {
+            this.style.fontWeight = "normal";
+            this.style.fontSize = "22px";
+          });
+          option.addEventListener("mouseover", function () {
+            inputElement.value = student.Student_ID;
+            nameInput.value = student.Name;
+          });
+          option.addEventListener("click", function () {
+            inputElement.value = student.Student_ID;
+            nameInput.value = student.Name;
+            dropdown.style.display = "none";
+          });
+          dropdown.appendChild(option);
+        });
+      }
+
+      function initializeStudentIDInput(inputElement) {
+        let dropdown = inputElement.nextElementSibling;
+        inputElement.addEventListener("input", function () {
+          filterStudentList(inputElement);
+        });
+        inputElement.addEventListener("blur", function () {
+          setTimeout(() => (dropdown.style.display = "none"), 200);
+        });
+      }
+
+      // ดึงข้อมูลอุปกรณ์เพิ่มเติม
+      async function fetchEquipmentInfo() {
+        console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
+        const params = new URLSearchParams(window.location.search);
+        let equipmentData = params.get("equipments");
+        if (!equipmentData) {
+          console.warn("❌ ไม่พบค่า `equipments` ใน URL");
+          return;
+        }
+        const decodedEquipmentData = decodeURIComponent(equipmentData).replace(
+          /%2C/g,
+          ","
+        );
+        const equipmentDetails = decodedEquipmentData
+          .split(",")
+          .map((item) => {
+            const parts = item.split(":");
+            if (parts.length !== 2) return null;
+            return {
+              id: parts[0].trim(),
+              amount: parts[1].trim(),
+            };
+          })
+          .filter((item) => item !== null);
+        if (equipmentDetails.length === 0) {
+          console.warn("❌ รูปแบบข้อมูล `equipments` ไม่ถูกต้อง");
+          return;
+        }
+        const equipmentIds = [
+          ...new Set(equipmentDetails.map((item) => item.id)),
+        ];
+        try {
+          const response = await fetch(
+            `http://localhost:3000/getEquipmentsByIds?ids=${equipmentIds.join(
+              ","
+            )}`
+          );
+          const equipmentList = await response.json();
+          if (!Array.isArray(equipmentList) || equipmentList.length === 0) {
+            console.warn("❌ ไม่พบข้อมูลอุปกรณ์ในฐานข้อมูล");
+            return;
+          }
+          const tableBody = document.getElementById("equipment-table-body");
+          tableBody.innerHTML = "";
+          equipmentDetails.forEach((equip) => {
+            const equipmentInfo = equipmentList.find(
+              (e) => String(e.Equipments_ID) === equip.id
+            );
+            if (!equipmentInfo) return;
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${equipmentInfo.Equipments_name}</td>
+            <td>SC2-${params.get("room")}</td>
+            <td>${equip.amount}</td>
+          `;
+            tableBody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลอุปกรณ์:", error);
+        }
+      }
+
+      // เมื่อ DOM โหลดเสร็จ
+      document.addEventListener("DOMContentLoaded", async function () {
+        await fetchStudentData();
+        document
+          .querySelectorAll(".student-id-input")
+          .forEach(initializeStudentIDInput);
+        await fetchUserInfo();
+        await fetchEquipmentInfo();
+
+        // ดึงข้อมูลการจองจาก URL
+        const params = new URLSearchParams(window.location.search);
+        const roomParam = params.get("room");
+        const startTimeParam = params.get("startTime"); // ตัวอย่าง "10:00:00"
+        const endTimeParam = params.get("endTime"); // ตัวอย่าง "12:00:00"
+
+        if (roomParam) {
+          loadRoomDetails(roomParam);
+        }
+        if (startTimeParam && endTimeParam) {
+          const formattedStartTime = formatTimeForDisplay(startTimeParam);
+          const formattedEndTime = formatTimeForDisplay(endTimeParam);
+          document.getElementById(
+            "time-range-info"
+          ).textContent = `${formattedStartTime}-${formattedEndTime} น.`;
+        } else {
+          document.getElementById("time-range-info").textContent =
+            "ไม่พบข้อมูลเวลา";
+        }
+      });
+
+      // เปลี่ยนเส้นทางตาม Radio Button เมื่อเปลี่ยนสถานะ
+      document
+        .querySelectorAll('input[name="booking-type"]')
+        .forEach(function (radio) {
+          radio.addEventListener("change", function () {
+            if (this.value === "นอกเวลา") {
+              window.location.href = "./TimeOut.html";
+            } else if (this.value === "ในเวลา") {
+              window.location.href = "./TimeIn.html";
             }
-        }
-        window.onload = fetchUserInfo;
-        
-
-        function addRow() {
-            const tableBody = document.getElementById('members-table-body');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td style="position: relative;">
-                    <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
-                    <div class="dropdown-list"></div> <!-- ✅ เพิ่ม dropdown -->
-                </td>
-                <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
-                <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
-            `;
-            tableBody.appendChild(newRow);
-            // ✅ ผูก Event Listener ให้แถวที่เพิ่มใหม่
-            initializeStudentIDInput(newRow.querySelector(".student-id-input"));
-        }
-
-        function deleteRow(button) {
-            const row = button.closest('tr'); // หาตำแหน่งแถวที่กดปุ่ม
-            row.remove(); // ลบแถวนั้นออก
-        }
-        // ตรวจจับการเปลี่ยนสถานะของ Radio Button
-        document.querySelectorAll('input[name="booking-type"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                if (this.value === 'นอกเวลา') {
-                    // เมื่อเลือก "นอกเวลา" ให้ไปที่ TimeIn.html
-                    window.location.href = './TimeOut3.html';
-                } else if (this.value === 'ในเวลา') {
-                    // เมื่อเลือก "ในเวลา" ให้ไปที่ TimeIn.html
-                    window.location.href = './TimeIn.html';
-                }
-            });
+          });
         });
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-        let studentData = []; // เก็บข้อมูลนิสิตจาก API
-
-        // 🔹 ดึงข้อมูลนิสิตจาก API
-        async function fetchStudentData() {
-            try {
-             const response = await fetch("http://localhost:3000/data/Student_information");
-                studentData = await response.json();
-             console.log("✅ ดึงข้อมูลนิสิตสำเร็จ:", studentData);
-            } catch (error) {
-                console.error("❌ ดึงข้อมูลล้มเหลว:", error);
-            }
-        }
-
-        // 🔹 ฟังก์ชันแสดง dropdown ตามค่าที่พิมพ์
-        function filterStudentList(inputElement) {
-            let value = inputElement.value.trim();
-            let dropdown = inputElement.nextElementSibling;
-            let row = inputElement.closest("tr");
-            let nameInput = row.querySelector(".student-name-input"); // ช่องชื่อ-นามสกุล
-
-            dropdown.innerHTML = "";
-            dropdown.style.display = "none";
-            if (value === "") return;
-
-            let filtered = studentData.filter(student => student.Student_ID.startsWith(value));
-
-            console.log("🔍 ตัวเลือกที่ตรงกัน:", filtered);
-
-            if (filtered.length === 0) return;
-
-            dropdown.style.display = "block";
-
-            filtered.forEach(student => {
-                let option = document.createElement("div");
-                option.classList.add("dropdown-item");
-                option.textContent = `${student.Student_ID} - ${student.Name}`;
-
-                // ✅ แยกส่วน รหัสนิสิต กับ ชื่อ ออกเป็นสองช่อง (เพิ่มขนาดตัวอักษร)
-                option.innerHTML = `<span class="student-id" style="font-size: 22px; color: #333;">${student.Student_ID}</span>
-                                    <span class="student-name" style="font-size: 20px; margin-left: 12px; color: #555;">${student.Name}</span>`;
-
-                // ✅ เมื่อเอาเมาส์ไปชี้จะเป็น "ตัวหนา" และใหญ่ขึ้นอีกนิด
-                option.addEventListener("mouseover", function () {
-                this.style.fontWeight = "bold";
-                this.style.fontSize = "24px"; // ทำให้ใหญ่ขึ้นตอนชี้
-                });
-                option.addEventListener("mouseout", function () {
-                    this.style.fontWeight = "normal"; // กลับเป็นปกติเมื่อออกจากตัวเลือก
-                });
-
-                // ✅ เมื่อเอาเมาส์ไปชี้ให้แสดงผลที่ช่อง input
-                option.addEventListener("mouseover", function () {
-                   inputElement.value = student.Student_ID;
-                    nameInput.value = student.Name;
-                });
-
-                // ✅ เมื่อคลิกให้เลือกค่าลงไป
-                option.addEventListener("click", function () {
-                   inputElement.value = student.Student_ID;
-                    nameInput.value = student.Name;
-                    dropdown.style.display = "none";
-                });
-
-                dropdown.appendChild(option);
-            });
-        }
-
-        // 🔹 ฟังก์ชันผูก Event Listener ให้ input ที่เพิ่มใหม่
-        function initializeStudentIDInput(inputElement) {
-            let dropdown = inputElement.nextElementSibling;
-            inputElement.addEventListener("input", function () { filterStudentList(inputElement); });
-            inputElement.addEventListener("blur", function () { 
-                setTimeout(() => dropdown.style.display = "none", 200); 
-           });
-        }
-
-        // 🔹 โหลดข้อมูลเมื่อหน้าเว็บเปิด
-        document.addEventListener("DOMContentLoaded", async function () {
-            await fetchStudentData(); // ✅ ดึงข้อมูลนิสิตเมื่อหน้าโหลด
-            document.querySelectorAll(".student-id-input").forEach(initializeStudentIDInput);
-                });
-                
-
-        // ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
-        document.addEventListener("DOMContentLoaded", showDayFromDate);
-        async function fetchUserInfo() {
-            try {
-                console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
-                const response = await fetch("http://localhost:3000/session", {
-                    method: "GET",
-                    credentials: "include"
-                });
-        
-                if (!response.ok) {
-                    console.warn("⚠️ เซสชันหมดอายุ หรือไม่ได้ล็อกอิน");
-                    document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
-                    return;
-                }
-        
-                const userSession = await response.json();
-                console.log("✅ ข้อมูลผู้ใช้:", userSession);
-        
-                if (!userSession.data) {
-                    console.warn("⚠️ ไม่พบข้อมูลผู้ใช้ในเซสชัน");
-                    document.getElementById("student-name").value = "กรุณาเข้าสู่ระบบ";
-                    return;
-                }
-        
-                // ✅ แสดงข้อมูลผู้ใช้ในหน้าเว็บ
-                document.getElementById("student-name").value = userSession.data.Name || "ไม่พบข้อมูล";
-                document.getElementById("student-id").value = userSession.data.Student_ID || "ไม่พบข้อมูล";
-                document.getElementById("stud-year").value = userSession.data.Study_year || "ไม่พบข้อมูล";
-                document.getElementById("phone-number").value = userSession.data.Phone_number || "ไม่พบข้อมูล";
-            } catch (error) {
-                console.error("❌ เกิดข้อผิดพลาดในการโหลดเซสชัน:", error);
-                document.getElementById("student-name").value = "เกิดข้อผิดพลาด";
-            }
-        }
-        
-        // ✅ เรียกใช้ฟังก์ชันเมื่อโหลดหน้า
-        window.onload = fetchUserInfo;
-        
+        async function submitBookingOut() {
+          const studentId = document.getElementById("student-id").value;
+          const roomId = new URLSearchParams(window.location.search).get("room");
+          const usedDate = new URLSearchParams(window.location.search).get("date");
+          const startTime = new URLSearchParams(window.location.search).get("startTime");
+          const endTime = new URLSearchParams(window.location.search).get("endTime");
+          const reason = document.querySelector("select[name='usage']").value;
+          const requestType = "นอกเวลา"; // ตั้งค่าเป็น "นอกเวลา" เสมอ
+      
+          // ✅ ดึงข้อมูลสมาชิกที่เข้าร่วม
+          const memberInputs = document.querySelectorAll(".student-id-input");
+          const members = Array.from(memberInputs)
+              .map(input => input.value.trim())
+              .filter(id => id !== "");
+      
+          if (!studentId || !roomId || !usedDate || !startTime || !endTime || !reason) {
+              alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+              return;
+          }
+      
+          const bookingData = {
+              room_id: roomId,
+              used_date: usedDate,
+              student_id: studentId,
+              start_time: startTime,
+              end_time: endTime,
+              reason: reason,
+              request_type: requestType,
+              members: members // ✅ ส่งข้อมูลสมาชิกไปที่ backend
+          };
+      
+          try {
+              const response = await fetch("http://localhost:3000/bookRoomOut", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(bookingData),
+                  credentials: "include"
+              });
+      
+              const result = await response.json();
+              if (response.ok) {
+                  alert("✅ การจองสำเร็จ!");
+                  window.location.href = "home.html"; // กลับไปหน้าแรก
+              } else {
+                  alert("❌ " + result.error);
+              }
+          } catch (err) {
+              console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
+              alert("เกิดข้อผิดพลาดในการจอง");
+          }
+      }
+      
 
     </script>
-</body>
-
+  </body>
 </html>
