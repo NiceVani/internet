@@ -463,37 +463,81 @@ io.on("connection", (socket) => {
 
 // 📌 Endpoint: /bookRoom - เพิ่มข้อมูลการจองห้อง
 app.post("/bookRoom", async (req, res) => {
-  const { room_id, used_date, student_id, start_time, end_time, reason, request_type } = req.body;
+  const {
+    room_id,
+    used_date,
+    student_id,
+    start_time,
+    end_time,
+    reason,
+    request_type,
+  } = req.body;
 
-  if (!room_id || !used_date || !student_id || !start_time || !end_time || !reason || !request_type) {
-      return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  if (
+    !room_id ||
+    !used_date ||
+    !student_id ||
+    !start_time ||
+    !end_time ||
+    !reason ||
+    !request_type
+  ) {
+    return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
   try {
-      const query = `
+    const query = `
           INSERT INTO Rooms_list_requests 
           (Rooms_ID, Used_date, Identify_ID, Start_time, End_time, Reason, Requests_status, Requests_types) 
           VALUES (?, ?, ?, ?, ?, ?, 'รอดำเนินการ', ?);
       `;
-      await connection.promise().query(query, [room_id, used_date, student_id, start_time, end_time, reason, request_type]);
+    await connection
+      .promise()
+      .query(query, [
+        room_id,
+        used_date,
+        student_id,
+        start_time,
+        end_time,
+        reason,
+        request_type,
+      ]);
 
-      console.log(`✅ เพิ่มข้อมูลการจองห้องสำเร็จ: ห้อง ${room_id} โดย ${student_id}`);
-      res.json({ success: true, message: "จองห้องสำเร็จ" });
+    console.log(
+      `✅ เพิ่มข้อมูลการจองห้องสำเร็จ: ห้อง ${room_id} โดย ${student_id}`
+    );
+    res.json({ success: true, message: "จองห้องสำเร็จ" });
 
-      // แจ้งเตือนผ่าน WebSocket
-      io.emit("booking_update", { message: "มีการจองห้องใหม่" });
-
+    // แจ้งเตือนผ่าน WebSocket
+    io.emit("booking_update", { message: "มีการจองห้องใหม่" });
   } catch (err) {
-      console.error("❌ เกิดข้อผิดพลาดในการเพิ่มข้อมูล:", err);
-      res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
+    console.error("❌ เกิดข้อผิดพลาดในการเพิ่มข้อมูล:", err);
+    res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
   }
 });
 
 // 📌 Endpoint: /bookRoomOut - เพิ่มข้อมูลการจองห้องนอกเวลา
 app.post("/bookRoomOut", async (req, res) => {
-  const { room_id, used_date, student_id, start_time, end_time, reason, request_type, members } = req.body;
+  const {
+    room_id,
+    used_date,
+    student_id,
+    start_time,
+    end_time,
+    reason,
+    request_type,
+    members,
+  } = req.body;
 
-  if (!room_id || !used_date || !student_id || !start_time || !end_time || !reason || !request_type) {
+  if (
+    !room_id ||
+    !used_date ||
+    !student_id ||
+    !start_time ||
+    !end_time ||
+    !reason ||
+    !request_type
+  ) {
     return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
@@ -510,7 +554,13 @@ app.post("/bookRoomOut", async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, 'รอดำเนินการ', ?);
     `;
     const [result] = await connectionPromise.query(insertBookingQuery, [
-      room_id, used_date, student_id, start_time, end_time, reason, request_type
+      room_id,
+      used_date,
+      student_id,
+      start_time,
+      end_time,
+      reason,
+      request_type,
     ]);
 
     const bookingId = result.insertId; // ได้ `Rooms_requests_ID` ที่เพิ่มใหม่
@@ -522,7 +572,7 @@ app.post("/bookRoomOut", async (req, res) => {
         VALUES ?;
       `;
 
-      const memberValues = members.map(member => [bookingId, member]);
+      const memberValues = members.map((member) => [bookingId, member]);
 
       await connectionPromise.query(insertMembersQuery, [memberValues]);
     }
@@ -530,12 +580,13 @@ app.post("/bookRoomOut", async (req, res) => {
     // ✅ Commit Transaction
     await connectionPromise.commit();
 
-    console.log(`✅ เพิ่มข้อมูลการจองห้องนอกเวลาสำเร็จ: ห้อง ${room_id} โดย ${student_id}`);
+    console.log(
+      `✅ เพิ่มข้อมูลการจองห้องนอกเวลาสำเร็จ: ห้อง ${room_id} โดย ${student_id}`
+    );
     res.json({ success: true, message: "จองห้องสำเร็จ" });
 
     // แจ้งเตือนผ่าน WebSocket
     io.emit("booking_update", { message: "มีการจองห้องนอกเวลาใหม่" });
-
   } catch (err) {
     // ❌ Rollback Transaction ถ้าเกิดข้อผิดพลาด
     await connectionPromise.rollback();
@@ -543,7 +594,6 @@ app.post("/bookRoomOut", async (req, res) => {
     res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
   }
 });
-
 
 // ✅ เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
