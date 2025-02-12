@@ -10,6 +10,7 @@ services:
       - ./src/frontend/:/var/www/html/
     ports:
       - "8080:80"
+      - "5501:80"
     networks:
       - my-network # เพิ่มบรรทัดนี้
 
