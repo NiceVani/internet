@@ -356,31 +356,6 @@
         // Global variable to store the current room element being edited
         let currentRoomElement = null;
 
-        // Open the modal and display the room details
-        function manageRoom(roomId) {
-            if (roomId === "SC2-307" || roomId === "SC2-308") {
-                window.location.href = "D:\ip\Schedule.html"; // เปลี่ยนเส้นทางไปยังหน้า schedule.html
-                return; // หยุดการทำงานต่อ
-            }
-
-            currentRoomElement = document.getElementById(roomId);
-            const roomName = currentRoomElement.innerText;
-
-            // Set the title to show room details
-            roomDetailTitle.innerText = `รายละเอียดห้อง : ${roomName}`;
-
-            // Determine current status (Available/Not Available)
-            const currentStatus = currentRoomElement.classList.contains('available') ? 'available' : 'not-available';
-            statusSelect.value = currentStatus === 'available' ? 'available' : 'not-available';
-
-            // Load equipment list from localStorage
-            loadEquipmentList(roomId);
-
-            // Show the modal
-            modal.style.display = "block";
-        }
-
-        // Save the room status and update the room element
         saveStatusButton.onclick = function() {
             const selectedStatus = statusSelect.value;
 

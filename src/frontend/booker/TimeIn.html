@@ -465,28 +465,29 @@
       // Fetch user info from API /user and display in input fields
       async function fetchUserInfo() {
         try {
-          const response = await fetch("http://localhost:3000/user", {
+          const response = await fetch("http://localhost:3000/session", {
             credentials: "include",
           });
-          const data = await response.json();
-          if (data.length > 0) {
-            const user = data[0];
-            console.log("✅ ดึงข้อมูลผู้ใช้สำเร็จ:", user);
-            document.getElementById("student-name").value =
-              user.Name || "ไม่พบข้อมูล";
-            document.getElementById("student-id").value =
-              user.Student_ID || "ไม่พบข้อมูล";
-            document.getElementById("stud-year").value =
-              user.Study_year || "ไม่พบข้อมูล";
-            document.getElementById("phone-number").value =
-              user.Phone_number || "ไม่พบข้อมูล";
-          } else {
-            console.warn("⚠️ API /user ส่งกลับมาเป็น Array ว่าง");
+          const userSession = await response.json();
+          if (!userSession.data) {
+            alert("กรุณาเข้าสู่ระบบใหม่");
+            window.location.href = "login.html";
+            return;
           }
+          console.log("✅ ข้อมูลผู้ใช้จาก session:", userSession.data);
+          document.getElementById("student-name").value =
+            userSession.data.Name || "ไม่พบข้อมูล";
+          document.getElementById("student-id").value =
+            userSession.data.Student_ID || "ไม่พบข้อมูล";
+          document.getElementById("stud-year").value =
+            userSession.data.Study_year || "ไม่พบข้อมูล";
+          document.getElementById("phone-number").value =
+            userSession.data.Phone_number || "ไม่พบข้อมูล";
         } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
         }
       }
+
       window.onload = fetchUserInfo;
 
       // ฟังก์ชันสำหรับ toggle sidebar
@@ -498,93 +499,62 @@
       }
 
       // ฟังก์ชันสำหรับส่งข้อมูลการจองไปยัง backend
-      function submitBooking() {
-        // สมมุติว่าเรามีข้อมูล booking ตาม query ที่คุณทดสอบใน phpMyAdmin
-        const bookingData = {
-          Rooms_ID: roomParam,
-          Used_date: "2025-02-17",
-          Identify_ID: "64312995",
-          Start_time: "08:11:00",
-          End_time: "10:00:00",
-          Reason: "ขอใช้ห้องเพื่อติวหนังสือ",
-          Requests_status: "รอดำเนินการ",
-          Requests_types: "ในเวลา",
-        };
-        for (const key in bookingData) {
-          if (bookingData.hasOwnProperty(key)) {
-            // ตรวจสอบว่า key เป็นของอ็อบเจ็กต์จริงๆ
-            const value = bookingData[key];
-            console.log(`${key}: ${value}`);
-          }
-        }
-
-        /*fetch("http://localhost:3000/insertBooking", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(bookingData),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              console.log(
-                "Booking inserted successfully. Booking id:",
-                data.bookingId
-              );
-              alert("การจองสำเร็จ! รหัสการจอง: " + data.bookingId);
-              // สามารถเปลี่ยนหน้า หรือรีเฟรชข้อมูลได้ที่นี่
-            } else {
-              console.error("Failed to insert booking:", data.error);
-              alert("ไม่สามารถจองห้องได้: " + data.error);
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("เกิดข้อผิดพลาดในการจองห้อง");
-          });*/
-      }
       async function submitBooking() {
-        const studentId = document.getElementById("student-id").value;
-        const roomId = new URLSearchParams(window.location.search).get("room");
-        const usedDate = new URLSearchParams(window.location.search).get(
-          "date"
-        );
-        const startTime = new URLSearchParams(window.location.search).get(
-          "startTime"
-        );
-        const endTime = new URLSearchParams(window.location.search).get(
-          "endTime"
-        );
-        const reason = document.querySelector("select[name='usage']").value;
-        const requestType = document.querySelector(
-          "input[name='booking-type']:checked"
-        ).value;
-
-        if (
-          !studentId ||
-          !roomId ||
-          !usedDate ||
-          !startTime ||
-          !endTime ||
-          !reason ||
-          !requestType
-        ) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-          return;
-        }
-
-        const bookingData = {
-          room_id: roomId,
-          used_date: usedDate,
-          student_id: studentId,
-          start_time: startTime,
-          end_time: endTime,
-          reason: reason,
-          request_type: requestType,
-        };
-
         try {
+          // ดึงข้อมูล session ของผู้ใช้ที่ล็อกอินไว้
+          const sessionResponse = await fetch("http://localhost:3000/session", {
+            credentials: "include",
+          });
+          if (!sessionResponse.ok) {
+            throw new Error("Session expired or not logged in");
+          }
+          const userSession = await sessionResponse.json();
+          const studentId = userSession.data.Student_ID; // ดึงรหัสนิสิตจาก session
+
+          // ดึงข้อมูลจาก URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const roomId = urlParams.get("room");
+          const usedDate = urlParams.get("date");
+          const startTime = urlParams.get("startTime");
+          const endTime = urlParams.get("endTime");
+          const reason = document.querySelector("select[name='usage']").value;
+          const requestType = document.querySelector(
+            "input[name='booking-type']:checked"
+          ).value;
+
+          // ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
+          if (
+            !studentId ||
+            !roomId ||
+            !usedDate ||
+            !startTime ||
+            !endTime ||
+            !reason ||
+            !requestType
+          ) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+          }
+
+          // สร้างอ็อบเจ็กต์ bookingData โดยใช้ studentId จาก session
+          const bookingData = {
+            room_id: roomId,
+            used_date: usedDate,
+            student_id: studentId,
+            start_time: startTime,
+            end_time: endTime,
+            reason: reason,
+            request_type: requestType,
+          };
+
+          // Debug: แสดงข้อมูล bookingData
+          for (const key in bookingData) {
+            if (bookingData.hasOwnProperty(key)) {
+              console.log(`${key}: ${bookingData[key]}`);
+            }
+          }
+
+          // ส่งข้อมูลไปยัง backend
           const response = await fetch("http://localhost:3000/bookRoom", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
