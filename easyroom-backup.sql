@@ -3,7 +3,7 @@ START TRANSACTION;
 SET time_zone = 'Asia/Bangkok';
 SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
 
-USE easytest;
+USE easyroom;
 
 -- สำหรับ login
 
@@ -223,6 +223,7 @@ CREATE TABLE `room` (
   `room_id`   varchar(6)  NOT NULL,
   `room_name` varchar(10) NOT NULL,
   `floor`     enum('2','3','4') NOT NULL,
+  `room_status` enum('เปิดการใช้งาน', 'ปิดการใช้งาน') NOT NULL,
   `room_type_id` int NOT NULL,
   CONSTRAINT `room_pkey` PRIMARY KEY (`room_id`),
   CONSTRAINT `room_room_type_id_fkey`
@@ -236,15 +237,15 @@ CREATE TABLE `room` (
 INSERT INTO `room`
 (`room_id`, `room_name`, `floor`, `room_type_id`)
 VALUES
-('212', 'SC2-212', '2', 1),
-('307', 'SC2-307', '3', 2),
-('308', 'SC2-308', '3', 2),
-('311', 'SC2-311', '3', 3),
-('313', 'SC2-313', '3', 2),
-('313-1','SC2-313-1','3', 2),
-('407', 'SC2-407', '4', 1),
-('411', 'SC2-411', '4', 4),
-('414', 'SC2-414', '4', 2);
+('212', 'SC2-212', '2', 'ปิดการใช้งาน', 1),
+('307', 'SC2-307', '3', 'เปิดการใช้งาน' 2),
+('308', 'SC2-308', '3', 'ปิดการใช้งาน' 2),
+('311', 'SC2-311', '3', 'ปิดการใช้งาน' 3),
+('313', 'SC2-313', '3', 'ปิดการใช้งาน' 2),
+('313-1','SC2-313-1','3', 'ปิดการใช้งาน' 2),
+('407', 'SC2-407', '4', 'ปิดการใช้งาน' 1),
+('411', 'SC2-411', '4', 'ปิดการใช้งาน' 4),
+('414', 'SC2-414', '4', 'เปิดการใช้งาน' 2);
 
 -- END table: room
 
