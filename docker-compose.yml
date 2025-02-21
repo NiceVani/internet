@@ -1,52 +1,80 @@
-version: "3.8"
+# services เดิม
+# services:
+#   php-apache-environment:
+#     build:
+#       dockerfile: Dockerfile
+#     depends_on:
+#       - easyroomhost
+#     volumes:
+#       - ./src/frontend/:/var/www/html/
+#     ports:
+#       - "8080:80"
+#       - "5501:80"
+#     networks:
+#       - my-network # เพิ่มบรรทัดนี้
 
+#   easyroomhost:
+#     image: mysql:latest
+#     restart: always
+#     environment:
+#       MYSQL_ROOT_PASSWORD: "1234" # รหัสผ่านสำหรับ root
+#       MYSQL_DATABASE: easyroom # ชื่อฐานข้อมูลเริ่มต้น
+#       MYSQL_USER: easyroomteam
+#       MYSQL_PASSWORD: "1234" # รหัสผ่านสำหรับ user
+#     ports:
+#       - "9906:3306"
+#     volumes:
+#       - db_data:/var/lib/mysql # เก็บข้อมูลฐานข้อมูล
+#       - ./easyroom.sql:/docker-entrypoint-initdb.d/easyroom.sql # ใส่ไฟล์ SQL สำหรับ initialize database
+#       - ./mysql-init:/docker-entrypoint-initdb.d # โฟลเดอร์ที่ใช้เก็บไฟล์ SQL หรือ script อื่นๆ
+#     networks:
+#       - my-network
+
+#   phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     ports:
+#       - "8000:80"
+#     environment:
+#       PMA_HOST: easyroomhost
+#       PMA_USER: root
+#       PMA_PASSWORD: "1234"
+#     depends_on:
+#       - easyroomhost
+#     networks:
+#       - my-network
+
+# volumes:
+#   db_data:
+#     driver: local
+
+# networks:
+#   my-network:
+#     driver: bridge
+# services ใหม่ใช้ mysql db server ของ aiven ทุกคนจะสามารถเข้าถึง database server เดียวกันได้เลย
 services:
   php-apache-environment:
     build:
       dockerfile: Dockerfile
-    depends_on:
-      - easyroomhost
     volumes:
       - ./src/frontend/:/var/www/html/
     ports:
       - "8080:80"
       - "5501:80"
     networks:
-      - my-network # เพิ่มบรรทัดนี้
-
-  easyroomhost:
-    image: mysql:latest
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: "1234" # รหัสผ่านสำหรับ root
-      MYSQL_DATABASE: easyroom # ชื่อฐานข้อมูลเริ่มต้น
-      MYSQL_USER: easyroomteam
-      MYSQL_PASSWORD: "1234" # รหัสผ่านสำหรับ user
-    ports:
-      - "9906:3306"
-    volumes:
-      - db_data:/var/lib/mysql # เก็บข้อมูลฐานข้อมูล
-      - ./easyroom.sql:/docker-entrypoint-initdb.d/easyroom.sql # ใส่ไฟล์ SQL สำหรับ initialize database
-      - ./mysql-init:/docker-entrypoint-initdb.d # โฟลเดอร์ที่ใช้เก็บไฟล์ SQL หรือ script อื่นๆ
-    networks:
-      - my-network
+      - my-network # เชื่อมโยงกับเครือข่าย
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    container_name: easyroom-phpmyadmin
+    environment:
+      - PMA_HOST=easyroom-dev-panyakorn-easyroom-db.h.aivencloud.com
+      - PMA_PORT=18123
+      - PMA_USER=avnadmin
+      - PMA_PASSWORD=${aiven_password}
     ports:
       - "8000:80"
-    environment:
-      PMA_HOST: easyroomhost
-      PMA_USER: root
-      PMA_PASSWORD: "1234"
-    depends_on:
-      - easyroomhost
     networks:
-      - my-network
-
-volumes:
-  db_data:
-    driver: local
+      - my-network # เชื่อมโยงกับเครือข่าย
 
 networks:
   my-network:
