@@ -67,10 +67,10 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: easyroom-phpmyadmin
     environment:
-      - PMA_HOST=easyroom-dev-panyakorn-easyroom-db.h.aivencloud.com
-      - PMA_PORT=18123
-      - PMA_USER=avnadmin
-      - PMA_PASSWORD=${aiven_password}
+      - PMA_HOST=${DB_HOST}
+      - PMA_PORT=${DB_PORT}
+      - PMA_USER=${DB_USER}
+      - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - "8000:80"
     networks:
