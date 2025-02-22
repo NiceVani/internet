@@ -5,3 +5,6 @@ src/backend/executive_backend/node_modules
 src/backend/booker_backend/node_modules
 src/shared/booking_documents/node_modules
 easyroom.sql
+
+.env
+**/.env
