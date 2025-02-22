@@ -1,0 +1,4 @@
+src/backend/executive_backend/node_modules
+src/backend/admin_backend/node_modules
+src/backend/booker_backend/node_modules
+fpdf
