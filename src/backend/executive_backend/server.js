@@ -91,8 +91,8 @@ app.get('/useralldata', (req, res) => {
 });
 
 
-app.get('/Rooms_list_requests', (req, res) => {
-    connection.query('SELECT * FROM Rooms_list_requests', (err, results) => {
+app.get('/room_request', (req, res) => {
+    connection.query('SELECT * FROM room_request', (err, results) => {
         if (err) {
             console.error('❌ Error:', err);
             res.status(500).send(err);
@@ -104,8 +104,8 @@ app.get('/Rooms_list_requests', (req, res) => {
 });
 
 
-app.get('/data/Student_information', (req, res) => {
-    connection.query('SELECT * FROM Student_information', (err, results) => {
+app.get('/student', (req, res) => {
+    connection.query('SELECT * FROM student', (err, results) => {
         if (err) {
             console.error('❌ Error:', err);
             res.status(500).send(err);
@@ -116,8 +116,8 @@ app.get('/data/Student_information', (req, res) => {
     });
 });
 
-app.get('/data/Teacher_information', (req, res) => {
-    connection.query('SELECT * FROM Teacher_information', (err, results) => {
+app.get('/teacher', (req, res) => {
+    connection.query('SELECT * FROM teacher', (err, results) => {
         if (err) {
             console.error('❌ Error:', err);
             res.status(500).send(err);
@@ -160,42 +160,8 @@ app.get('/roomdetail', (req, res) => {
 });
 
 
-app.get('/Rooms_list_requests', (req, res) => {
-    connection.query('SELECT * FROM Rooms_list_requests', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Rooms_list_requests:', results);
-        res.json(results);
-    });
-});
 
 
-app.get('/data/Student_information', (req, res) => {
-    connection.query('SELECT * FROM Student_information', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Student_information:', results);
-        res.json(results);
-    });
-});
-
-app.get('/data/Teacher_information', (req, res) => {
-    connection.query('SELECT * FROM Teacher_information', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
-        res.json(results);
-    });
-});
 
 app.post('/updateStatus', (req, res) => {
     const { requestId, status } = req.body;
