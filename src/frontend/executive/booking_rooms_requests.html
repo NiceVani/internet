@@ -168,6 +168,8 @@
       select:focus {
         border-color: #aaa;
       }
+      
+      
 
       /* ทำให้ Sidebar Responsive */
       @media (max-width: 992px) {
@@ -518,8 +520,10 @@
                                     <i class="fas fa-file-pdf" style="font-size: 20px; color: #E40345;"></i>
                                   </a>
                                 </td>
-                                <td><button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
-                                <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
+                                <td>
+                                  <button class="btn btn-primary btn-sm" onclick="openPopup()">รายละเอียด</button>
+                                  <button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
+                                  <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
                             </tr>
                         `;
                     });
