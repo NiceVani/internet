@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>แสดงข้อมูลการจอง</title>
+  </head>
+
+  <body>
+    <h1>รายละเอียดการจองห้อง</h1>
+
+    <div>
+      <p><strong>วันที่:</strong> <span id="date"></span></p>
+      <p><strong>ห้อง:</strong> <span id="room"></span></p>
+      <p><strong>เวลาเริ่มต้น:</strong> <span id="startTime"></span></p>
+      <p><strong>เวลาสิ้นสุด:</strong> <span id="endTime"></span></p>
+    </div>
+
+    <script>
+      // รับค่าจาก query string
+      const urlParams = new URLSearchParams(window.location.search);
+
+      const date = urlParams.get("date");
+      const room = urlParams.get("room");
+      const startTime = urlParams.get("startTime");
+      const endTime = urlParams.get("endTime");
+
+      // แสดงค่าบนหน้าเว็บ
+      document.getElementById("date").textContent = date ? date : "ไม่พบข้อมูล";
+      document.getElementById("room").textContent = room ? room : "ไม่พบข้อมูล";
+      document.getElementById("startTime").textContent = startTime
+        ? startTime
+        : "ไม่พบข้อมูล";
+      document.getElementById("endTime").textContent = endTime
+        ? endTime
+        : "ไม่พบข้อมูล";
+    </script>
+  </body>
+</html>

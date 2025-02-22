@@ -1,10 +1,27 @@
 const express = require('express');
 const connection = require('./db'); // Import database connection
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(cors()); // Allow frontend to access API
+
+app.use("/booking_documents", express.static(path.join(__dirname, "../../shared/booking_documents/")));
+
+app.get("/", (req, res) => {
+  res.send(`
+    <table border="1">
+      <tr>
+        <td class="text-center">
+          <a href="../../shared/booking_documents/booking_document.pdf" target="_blank">เปิดเอกสาร</a>
+        </td>
+      </tr>
+    </table>
+  `);
+});
+
+app.listen(3000, () => console.log("Server running at http://localhost:3001"));
 
 // 📌 Whitelist allowed tables to prevent SQL injection
 const allowedTables = [
@@ -106,7 +123,7 @@ app.post('/insertSchedule', (req, res) => {
 });
 
 // 📌 Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

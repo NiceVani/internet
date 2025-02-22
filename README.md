@@ -27,7 +27,7 @@ docker-compose down
 
 ### To Open Web Page
 
-for Docker Container Service we set directory path deployment to `src/frontend` directory
+for Docker Container Service we set directory path frontend deployment to `src/frontend` directory
 
 - Port `8080`: Apache Web Server serving the EasyRoom application.
 - Port `8000`: phpMyAdmin for managing the MySQL database.
@@ -44,7 +44,6 @@ localhost:8080/admin/index.html
 easyroom-reservation/
 ├── docker-compose.yml
 ├── Dockerfile
-├── index.html
 ├── logo.png
 ├── easyroom.sql
 ├── mysql-init/
@@ -55,9 +54,11 @@ easyroom-reservation/
     │   └── admin/
     │   └── executive/
     └── backend/
-        └── booker/
-        └── admin/
-        └── executive/
+    │   └── booker_backend/
+    │   └── admin_backend/
+    │   └── executive_backend/
+    └── shared/
+        └── booking_documents/
 ```
 
 ### Configuration

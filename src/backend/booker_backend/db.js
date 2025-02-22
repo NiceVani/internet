@@ -1,20 +1,22 @@
-const mysql = require('mysql2');
+const mysql = require("mysql2");
+require("dotenv").config(); // โหลดค่าจาก .env
 
 const connection = mysql.createConnection({
-    host: 'localhost',      // ถ้าใช้ Docker อาจต้องใช้ 'host.docker.internal'
-    user: 'easyroomteam',          // ชื่อผู้ใช้ MySQL (ค่าเริ่มต้นของ XAMPP/Docker คือ 'root')
-    password: '1234',          // รหัสผ่าน (ค่าเริ่มต้นของ XAMPP ว่างเปล่า)
-    database: 'easyroom', // ชื่อฐานข้อมูล
-    port: 9906          // พอร์ต MySQL (ค่าเริ่มต้นคือ 3306)
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DBNAME,
+  port: process.env.DB_PORT,
+  ssl: process.env.SSL_CA === "true" ? { rejectUnauthorized: true } : false, // ปิด SSL ถ้าไม่ได้ใช้
 });
 
 // ตรวจสอบการเชื่อมต่อ
 connection.connect((err) => {
-    if (err) {
-        console.error('❌ ไม่สามารถเชื่อมต่อกับฐานข้อมูล:', err);
-        return;
-    }
-    console.log('✅ เชื่อมต่อฐานข้อมูล easyroom_test สำเร็จ!');
+  if (err) {
+    console.error("❌ ไม่สามารถเชื่อมต่อกับฐานข้อมูล:", err);
+    return;
+  }
+  console.log("✅ เชื่อมต่อฐานข้อมูลสำเร็จ!");
 });
 
 module.exports = connection;

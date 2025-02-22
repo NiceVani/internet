@@ -15,6 +15,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
 
     <!-- แทนที่ executive.css ด้วย <style> -->
     <style>
@@ -164,6 +168,8 @@
       select:focus {
         border-color: #aaa;
       }
+      
+      
 
       /* ทำให้ Sidebar Responsive */
       @media (max-width: 992px) {
@@ -439,6 +445,7 @@
                     </ul>
                   </div>   
                 </th>
+                <th style="color: #929292">จำนวนนิสิต(คน)</th>
                 <th style="color: #929292">เวลาจอง</th>
                 <th style="color: #929292">เอกสาร</th>
                 <th style="color: #929292">การอนุมัติ</th>
@@ -455,10 +462,10 @@
                 try {
                     // ดึงข้อมูลจาก 2 API พร้อมกัน
                     const [roomsResponse, studentsResponse ,TeacherResponse] = await Promise.all([
-                        fetch('http://localhost:3000/Rooms_list_requests'),
-                        fetch('http://localhost:3000/data/Student_information'),
-                        fetch('http://localhost:3000/data/Teacher_information'),
-                        
+                          fetch('http://localhost:3000/room_request'),
+                          fetch('http://localhost:3000/student'),
+                          fetch('http://localhost:3000/teacher'),
+                              
                     ])
             
                     const roomsData = await roomsResponse.json();
@@ -467,6 +474,7 @@
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
                     const filteredData = roomsData.filter(row => row.Requests_status === 'รออนุมัติ' );
+                    
                     
                     
                 
@@ -479,7 +487,7 @@
                         console.log(Teacher);
                         return {
                             ...room,
-                            email: student.email || Teacher.email,
+                            Email: student.Email || Teacher.Email,
                             Name: student.Name || Teacher.Name,
                             Status: student.Status || Teacher.Status
                         };
@@ -499,13 +507,24 @@
                             <tr>
                                 <td class="text-center">${new Date(row.Used_date).toLocaleDateString()}</td>
                                 <td class="text-center">${row.Name}</td>
-                                <td class="text-center">${row.email}</td>
+                                <td class="text-center">${row.Email}</td>
                                 <td class="text-center">${row.Status}</td>
                                 <td class="text-center">${row.Rooms_ID}</td>
-                                <td class="text-center">${row.Start_time+"-"+row.End_time}</td>
-                                <td class="text-center">${row.document || "ไม่มีเอกสาร"}</td>
-                                <td><button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
-                                <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
+                                <td class="text-center">${row.Status}</td>                                
+                                <td class="text-center">
+                                    ${getDayOfWeek(row.Used_date) + ' ' + new Date(row.Used_date).toLocaleDateString()}<br>
+                                    ${row.Start_time.slice(0, 5) + ' - ' + row.End_time.slice(0, 5)}<br>
+                                    ${'(' + row.Requests_types + ')'}
+                                </td>
+                                <td class="text-center">
+                                  <a href="../../shared/booking_documents/booking_document.pdf" target="_blank" title="เปิดเอกสาร">
+                                    <i class="fas fa-file-pdf" style="font-size: 20px; color: #E40345;"></i>
+                                  </a>
+                                </td>
+                                <td>
+                                  <button class="btn btn-primary btn-sm" onclick="openPopup()">รายละเอียด</button>
+                                  <button class="btn btn-success btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'อนุมัติ')">อนุมัติ</button>
+                                  <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ไม่อนุมัติ</button></td>
                             </tr>
                         `;
                     });
@@ -549,6 +568,12 @@
                     document.getElementById('modal-time').textContent = button.getAttribute('data-time');
                     document.getElementById('modal-reason').textContent = button.getAttribute('data-reason');
                 });
+
+                function getDayOfWeek(dateString) {
+                  const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+                  const date = new Date(dateString);
+                  return days[date.getDay()];  // Returns 0-6 (0 = Sunday, 1 = Monday, ...)
+              }
             
                
               </script>
