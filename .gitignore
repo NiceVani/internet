@@ -8,3 +8,4 @@ easyroom.sql
 
 .env
 **/.env
+src/backend/admin_backend/.env
