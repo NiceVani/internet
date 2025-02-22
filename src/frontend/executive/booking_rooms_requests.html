@@ -462,10 +462,10 @@
                 try {
                     // ดึงข้อมูลจาก 2 API พร้อมกัน
                     const [roomsResponse, studentsResponse ,TeacherResponse] = await Promise.all([
-                        fetch('http://localhost:3000/Rooms_list_requests'),
-                        fetch('http://localhost:3000/data/Student_information'),
-                        fetch('http://localhost:3000/data/Teacher_information'),
-                        
+                          fetch('http://localhost:3000/room_request'),
+                          fetch('http://localhost:3000/student'),
+                          fetch('http://localhost:3000/teacher'),
+                              
                     ])
             
                     const roomsData = await roomsResponse.json();
@@ -474,6 +474,7 @@
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
                     const filteredData = roomsData.filter(row => row.Requests_status === 'รออนุมัติ' );
+                    
                     
                     
                 

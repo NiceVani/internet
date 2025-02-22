@@ -448,9 +448,9 @@
                 try {
                     // ดึงข้อมูลจาก 2 API พร้อมกัน
                     const [roomsResponse, studentsResponse ,TeacherResponse] = await Promise.all([
-                        fetch('http://localhost:3000/Rooms_list_requests'),
-                        fetch('http://localhost:3000/data/Student_information'),
-                        fetch('http://localhost:3000/data/Teacher_information'),
+                        fetch('http://localhost:3000/room_request'),
+                        fetch('http://localhost:3000/student'),
+                        fetch('http://localhost:3000/teacher'),
                         
                     ])
             
@@ -459,23 +459,23 @@
                     const TeacherData = await TeacherResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.Requests_status === 'อนุมัติ' 
-                );
+                    const filteredData = roomsData.filter(row => row.Requests_status === 'อนุมัติ' && row.request_type === 'ในเวลา');
                     
+
+
                     const mergedData = filteredData.map(room => {
-                       
                         const student = studentsData.find(s => s.Student_ID === room.Identify_ID) || {};
                         const Teacher = TeacherData.find(T => T.Teacher_ID === room.Identify_ID) || {};
-                        const students = studentsData.find(s => s.Student_ID === room.Status) || {};
-                        console.log(Teacher);
+                        
                         return {
                             ...room,
                             Email: student.Email || Teacher.Email,
                             Name: student.Name || Teacher.Name,
                             Status: student.Status || Teacher.Status
                         };
-
                     });
+
+  
                     
 
                     console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
