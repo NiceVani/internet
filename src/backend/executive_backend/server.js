@@ -166,7 +166,7 @@ app.get('/roomdetail', (req, res) => {
 app.post('/updateStatus', (req, res) => {
     const { requestId, status } = req.body;
 
-    const sql = 'UPDATE Rooms_list_requests SET Requests_status = ? WHERE Rooms_requests_ID = ?';
+    const sql = 'UPDATE room_request SET requests_status = ? WHERE rooms_request_id = ?';
 
     connection.query(sql, [status, requestId], (err, results) => {
         if (err) {
