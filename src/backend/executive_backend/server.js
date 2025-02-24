@@ -178,6 +178,9 @@ app.get('/teacher', (req, res) => {
     });
 });
 
+
+
+
 app.get('/user', (req, res) => {
     const sortType = req.query.sort || "most"; // ค่าเริ่มต้นเป็น "most"
 
@@ -241,7 +244,7 @@ app.get('/roomdetail', (req, res) => {
 app.post('/updateStatus', (req, res) => {
     const { requestId, status } = req.body;
 
-    const sql = 'UPDATE Rooms_list_requests SET Requests_status = ? WHERE Rooms_requests_ID = ?';
+    const sql = 'UPDATE room_request SET request_status = ? WHERE room_request_id = ?';
 
     connection.query(sql, [status, requestId], (err, results) => {
         if (err) {

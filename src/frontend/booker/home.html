@@ -237,7 +237,7 @@
       <div class="user-avatar">😊</div>
       <div class="user-details">
         <div>ชื่อ นามสกุล: <span id="student-name">กำลังโหลด...</span></div>
-        <div>รหัสนิสิต: <span id="student-id">กำลังโหลด...</span></div>
+        <div>รหัสประจำตัว: <span id="student-id">กำลังโหลด...</span></div>
         <div>ชั้นปี: <span id="stud-year">กำลังโหลด...</span></div>
         <div>คณะ: <span id="faculty">กำลังโหลด...</span></div>
         <div>สาขา: <span id="department">กำลังโหลด...</span></div>
@@ -330,9 +330,9 @@
 
           // ✅ แสดงข้อมูลผู้ใช้
           document.getElementById("student-name").textContent =
-            userSession.data.Name;
+            userSession.data.full_name;
           document.getElementById("student-id").textContent =
-            userSession.data.Student_ID;
+            userSession.data.student_id;
           document.getElementById("stud-year").textContent =
             userSession.data.Study_year;
           document.getElementById("faculty").textContent =
@@ -364,119 +364,199 @@
           alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
         }
       }
-      async function fetchUserBookingData() {
+      async function fetchUserInfo() {
         try {
-          console.log("🔍 กำลังโหลดข้อมูลการจอง...");
-
-          // ✅ ดึงข้อมูลเซสชันของผู้ใช้
-          const sessionResponse = await fetch("http://localhost:3000/session", {
+          const response = await fetch("http://localhost:3000/session", {
+            method: "GET",
             credentials: "include",
           });
-          if (!sessionResponse.ok)
-            throw new Error("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
-
-          const userSession = await sessionResponse.json();
-          console.log("✅ ข้อมูลเซสชันที่ได้:", userSession);
-
-          const studentId = userSession.data.Student_ID;
-          console.log("🎯 studentId ที่ใช้เรียก API:", studentId);
-
-          // ✅ ดึงข้อมูลการจองของผู้ใช้
-          const response = await fetch(
-            `http://localhost:3000/userBookings/${studentId}`
-          );
-          if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลการจองได้");
-
-          const bookings = await response.json();
-          console.log("✅ ข้อมูลการจองที่ดึงมา:", bookings);
-
-          const tableBody = document.getElementById("booking-table-body");
-          tableBody.innerHTML = ""; // ✅ ล้างข้อมูลเก่าออก
-
-          if (bookings.length === 0) {
-            console.log("❌ ไม่มีข้อมูลการจอง");
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">ไม่มีข้อมูลการจอง</td></tr>`;
+      
+          if (!response.ok) {
+            throw new Error("Session expired");
+          }
+      
+          const userSession = await response.json();
+          console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
+      
+          if (!userSession.data) {
+            alert("กรุณาเข้าสู่ระบบใหม่");
+            window.location.href = "login.html";
             return;
           }
-
-          // ✅ แสดงข้อมูลในตาราง
-          bookings.forEach((booking) => {
-            console.log(
-              `📌 กำลังเพิ่มข้อมูลลงตาราง: ห้อง ${booking.Rooms_name}, วันที่ใช้ ${booking.Used_date}`
-            );
-
-            const row = document.createElement("tr");
-            row.setAttribute("data-id", booking.Rooms_requests_ID); // ✅ เพิ่ม data-id เพื่อระบุแถว
-
-            row.innerHTML = `
-                  <td>${booking.Requests_types || "-"}</td>
-                  <td>${booking.Rooms_name || "-"}</td>
-                  <td>${
-                    new Date(booking.Used_date).toLocaleDateString("th-TH", {
-                      timeZone: "Asia/Bangkok",
-                    }) || "-"
-                  }</td>
-                  <td>${booking.Start_time || "-"}</td>
-                  <td>${booking.End_time || "-"}</td>
-                  <td class="status">${booking.Requests_status || "-"}</td>
-                  <td>
-                      ${
-                        ["รอดำเนินการ", "รออนุมัติ"].includes(
-                          booking.Requests_status
-                        )
-                          ? `<button class="cancel-btn" onclick="cancelBooking(${booking.Rooms_requests_ID})">ยกเลิก</button>`
-                          : ""
-                      }
-                  </td>
-              `;
-            tableBody.appendChild(row);
-          });
-
-          console.log("✅ ตารางอัปเดตเรียบร้อย!");
+      
+          // ✅ ตรวจสอบ role และกำหนดค่าที่ต้องแสดง
+          document.getElementById("student-name").textContent = userSession.data.full_name;
+          document.getElementById("student-id").textContent = userSession.data.user_id; // ใช้ user_id ที่รวม student_id/teacher_id
+      
+          // ✅ ถ้าเป็นนิสิต ให้แสดงปีการศึกษา, คณะ, สาขา
+          if (userSession.role === "นิสิต") {
+            document.getElementById("stud-year").textContent = userSession.data.study_year || "-";
+            document.getElementById("faculty").textContent = userSession.data.faculty || "-";
+            document.getElementById("department").textContent = userSession.data.department || "-";
+          } else {
+            // ✅ ถ้าเป็นอาจารย์ ให้ซ่อนช่องปีการศึกษา
+            document.getElementById("stud-year").parentElement.style.display = "none";
+            document.getElementById("faculty").textContent = userSession.data.faculty || "-";
+            document.getElementById("department").textContent = userSession.data.department || "-";
+          }
         } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+          alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+          window.location.href = "login.html";
         }
       }
-
-      // ✅ ฟังก์ชันยกเลิกการจอง
+      
+      async function logout() {
+        try {
+          const response = await fetch("http://localhost:3000/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+      
+          if (response.ok) {
+            alert("ออกจากระบบสำเร็จ");
+            window.location.href = "login.html";
+          } else {
+            alert("เกิดข้อผิดพลาดในการออกจากระบบ");
+          }
+        } catch (error) {
+          console.error("❌ ไม่สามารถออกจากระบบได้:", error);
+          alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        }
+      }
+      
+      async function fetchUserBookingData() {
+        try {
+            console.log("🔍 กำลังโหลดข้อมูลการจอง...");
+            
+            // ✅ ดึงข้อมูลเซสชัน
+            const sessionResponse = await fetch("http://localhost:3000/session", {
+                credentials: "include",
+            });
+            if (!sessionResponse.ok) throw new Error("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+    
+            const userSession = await sessionResponse.json();
+            console.log("✅ ข้อมูลเซสชันที่ได้:", userSession);
+    
+            // ✅ ตรวจสอบ user_id
+            const userId = userSession.data?.user_id;
+            console.log("🎯 userId ที่ใช้เรียก API:", userId);
+            if (!userId) throw new Error("ไม่พบ user_id");
+    
+            // ✅ ดึงข้อมูลการจอง
+            const response = await fetch(`http://localhost:3000/userBookings/${userId}`);
+            if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลการจองได้");
+    
+            const bookings = await response.json();
+            console.log("✅ ข้อมูลการจองที่ดึงมา:", bookings);
+    
+            // ✅ ตรวจสอบว่าตารางมีอยู่หรือไม่
+            const tableBody = document.getElementById("booking-table-body");
+            if (!tableBody) throw new Error("ไม่พบองค์ประกอบตาราง booking-table-body");
+            tableBody.innerHTML = "";
+    
+            if (!Array.isArray(bookings) || bookings.length === 0) {
+                console.log("❌ ไม่มีข้อมูลการจอง");
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">ไม่มีข้อมูลการจอง</td></tr>`;
+                return;
+            }
+    
+            // ✅ วนลูปสร้างตาราง
+            bookings.forEach((booking) => {
+                console.log(`📌 กำลังเพิ่มข้อมูลลงตาราง: ห้อง ${booking.room_name}, วันที่ใช้ ${booking.Used_date}`);
+    
+                const row = document.createElement("tr");
+                row.setAttribute("data-id", booking.room_request_id);
+    
+                // ✅ กำหนดสีตาม request_status
+                let statusColor = "black";
+                if (booking.request_status === "ยกเลิกการจอง" || booking.request_status === "ไม่อนุมัติ") {
+                    statusColor = "red";
+                } else if (booking.request_status === "รอดำเนินการ" || booking.request_status === "รออนุมัติ") {
+                    statusColor = "orange";
+                } else if (booking.request_status === "อนุมัติ") {
+                    statusColor = "green";
+                }
+    
+                row.innerHTML = `
+                    <td>${booking.request_type || "-"}</td>
+                    <td>${booking.room_name || "-"}</td>
+                    <td>${convertToThaiTime(booking.Used_date) || "-"}</td>
+                    <td>${booking.start_time || "-"}</td>
+                    <td>${booking.end_time || "-"}</td>
+                    <td class="status" style="color:${statusColor}; font-weight: bold;">
+                        ${booking.request_status || "-"}
+                    </td>
+                    <td>
+                        ${
+                          ["รอดำเนินการ", "รออนุมัติ"].includes(booking.request_status)
+                            ? `<button class="cancel-btn" onclick="cancelBooking(${booking.room_request_id})">ยกเลิก</button>`
+                            : ""
+                        }
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+    
+            console.log("✅ ตารางอัปเดตเรียบร้อย!");
+        } catch (error) {
+            console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+        }
+    }
+    
+    // ✅ ฟังก์ชันแปลงเวลาให้เป็นโซนไทย (GMT+7)
+    function convertToThaiTime(utcDate) {
+        if (!utcDate) return "-";
+        const date = new Date(utcDate);
+        date.setHours(date.getHours() + 7); // ปรับเวลามาเป็น GMT+7
+        return date.toISOString().slice(0, 10); // แสดงแค่ YYYY-MM-DD
+    }
+    
+    
+      
       async function cancelBooking(requestId) {
-        const row = document.querySelector(`tr[data-id="${requestId}"]`); // ค้นหาแถวที่เกี่ยวข้อง
-        if (!row) return; // ถ้าไม่พบแถวให้หยุด
-
-        const statusCell = row.querySelector(".status"); // ค้นหาสถานะของการจอง
+        console.log(`🔍 กำลังส่ง requestId ไปที่ API: ${requestId}`);
+      
+        const row = document.querySelector(`tr[data-id="${requestId}"]`);
+        if (!row) return;
+      
+        const statusCell = row.querySelector(".status");
         const statusText = statusCell.textContent.trim();
-
-        // เช็คว่าเป็น "รอดำเนินการ" หรือ "รออนุมัติ" ก่อนที่จะลบ
+      
         if (!["รอดำเนินการ", "รออนุมัติ"].includes(statusText)) {
           alert("❌ ไม่สามารถยกเลิกการจองที่อนุมัติแล้วได้");
           return;
         }
-
-        // ถามผู้ใช้ก่อนยกเลิก
+      
         if (!confirm("คุณต้องการยกเลิกการจองนี้ใช่หรือไม่?")) return;
-
+      
         try {
-          // ส่งคำขอลบไปที่เซิร์ฟเวอร์
-          const response = await fetch(
-            `http://localhost:3000/cancelBooking/${requestId}`,
-            {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" }, // ตรวจสอบว่าใช้ headers ที่ถูกต้อง
-            }
-          );
-
-          // ถ้า response ไม่สำเร็จให้แสดงข้อผิดพลาด
+          const response = await fetch(`http://localhost:3000/cancelBooking/${requestId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          });
+      
           const result = await response.json();
-          if (!response.ok) throw new Error(result.error || "ลบไม่สำเร็จ");
-
-          // ลบแถวจากหน้าจอ
-          row.remove();
+          console.log("✅ ผลลัพธ์จากเซิร์ฟเวอร์:", result);
+      
+          if (!response.ok) throw new Error(result.error || "ไม่สามารถยกเลิกได้");
+      
+          // ✅ อัปเดตสถานะเป็น "ยกเลิกการจอง"
+          statusCell.textContent = "ยกเลิกการจอง";
+          statusCell.style.color = "orange";
+      
+          // ✅ ลบปุ่มยกเลิกหลังจากอัปเดตสำเร็จ
+          const cancelBtn = row.querySelector(".cancel-btn");
+          if (cancelBtn) cancelBtn.remove();
+      
           alert("✅ ยกเลิกการจองสำเร็จ!");
         } catch (error) {
           console.error("❌ ไม่สามารถยกเลิกได้:", error);
           alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
         }
       }
+      
+      
 
       window.onload = function () {
         console.log(
