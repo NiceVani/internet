@@ -58,7 +58,7 @@ easyroom-reservation/
         └── admin_backend/
         └── executive_backend/
         └── storage/
-            └── booking_documents/
+            └── booking_document/
             └── equipment_img/
 ```
 
