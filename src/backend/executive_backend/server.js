@@ -178,6 +178,20 @@ app.get('/teacher', (req, res) => {
     });
 });
 
+app.get('/room_request_participant', (req, res) => {
+    connection.query('SELECT * FROM room_request_participant', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก room_request_participant:', results);
+        res.json(results);
+    });
+});
+
+
+
 
 
 
