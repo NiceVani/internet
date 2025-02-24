@@ -209,10 +209,10 @@
             }
 
             // Prepare data for the Chart.js chart after fetching
-            const labels2 = data.map(item => item.DayName);
-            const totalCount2 = data.map(item => item.TotalCount);
-            const csCount2 = data.map(item => item.Cs);
-            const itCount2 = data.map(item => item.It);
+            const labels2 = data.map(item => item.day_of_week);
+            
+            const csCount2 = data.map(item => item.cs_count);
+            const itCount2 = data.map(item => item.it_count);
 
             new Chart(barCtx, {
               type: 'bar',
@@ -277,37 +277,38 @@
             console.error('Error fetching data:', error);
           });
           fetch('http://localhost:3000/detailsdaysroom')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data); // ดูข้อมูลที่ได้รับจาก API
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // ตรวจสอบข้อมูล API ที่ได้รับ
 
-      // ตรวจสอบว่ามีข้อมูลที่คาดหวังอยู่ใน data
-      const totalCount = data && data[0] ? data[0].TotalCount : 0;
-      const csCount = data && data[0] ? data[0].Cs : 0;
-      const itCount = data && data[0] ? data[0].It : 0;
+    // ดึงค่าจาก data
+    const total = data && data[0] ? data[0].total_count : 0;
+    const cs = data && data[0] ? data[0].cs_count : 0;
+    const it = data && data[0] ? data[0].it_count : 0;
 
-      console.log('TotalCount:', totalCount);
-      console.log('Cs:', csCount);
-      console.log('It:', itCount);
+    console.log('TotalCount:', total);
+    console.log('Cs:', cs);
+    console.log('It:', it);
 
-      // แปลงเป็นตัวเลข และจัดการกับค่า null หรือ undefined
-      const totalCountNum = totalCount ? parseInt(totalCount, 10) : 0;
-      const csCountNum = csCount ? parseInt(csCount, 10) : 0;
-      const itCountNum = itCount ? parseInt(itCount, 10) : 0;
+    // แปลงค่าข้อมูลให้เป็นตัวเลข
+    const totalCountNum = Number(total) || 0;
+    const csCountNum = Number(cs) || 0;
+    const itCountNum = Number(it) || 0;
 
-      console.log('Converted TotalCount:', totalCountNum);
-      console.log('Converted Cs:', csCountNum);
-      console.log('Converted It:', itCountNum);
+    console.log('Converted TotalCount:', totalCountNum);
+    console.log('Converted Cs:', csCountNum);
+    console.log('Converted It:', itCountNum);
 
-      // อัปเดตข้อความใน HTML
-      document.getElementById('totalCount').textContent = `${totalCountNum} คน`;
-      document.getElementById('csCount').textContent = `วิทยาการคอมพิวเตอร์ ${csCountNum} คน`;
-      document.getElementById('itCount').textContent = `เทคโนโลยีสารสนเทศ ${itCountNum} คน`;
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-      document.getElementById('totalCount').textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล';
-    });
+    // อัปเดตข้อความใน HTML
+    document.getElementById('totalCount').textContent = `${totalCountNum} คน`;
+    document.getElementById('csCount').textContent = `วิทยาการคอมพิวเตอร์ ${csCountNum} คน`;
+    document.getElementById('itCount').textContent = `เทคโนโลยีสารสนเทศ ${itCountNum} คน`;
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+    document.getElementById('totalCount').textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล';
+  });
+
        // fetch sidebar
        fetch("sidebar.html")
       .then((resp) => resp.text())
