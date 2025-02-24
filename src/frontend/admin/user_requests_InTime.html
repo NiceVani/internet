@@ -98,7 +98,8 @@
   <div class="container mt-4">
     <h3>รายการขอใช้ห้อง</h3>
     <div class="tab-bar">
-      <div class="tab active"><a href="#">คำขอ(รอก่อน)</a></div>
+      <div class="tab active"><a href="user_requests_InTime.html">คำขอ(ในเวลา)</a></div>
+      <div class="tab"><a href="user_requests_OutTime.html">คำขอ(นอกเวลา)</a></div>
       <div class="tab"><a href="user_approve.html">อนุมัติ</a></div>
       <div class="tab"><a href="user_notapprove.html">ไม่อนุมัติ</a></div>
       <div class="dropdown-container">
@@ -118,8 +119,9 @@
             <th class="text-center">ชื่อ-นามสกุล</th>
             <th class="text-center">อีเมล</th>
             <th class="text-center">ห้อง</th>
+            <th class="text-center">จำนวนผู้ใช้</th>
             <th class="text-center">วัน / เวลาจอง</th>
-            <th class="text-center">เอกสาร</th>
+            <th class="text-center">รายละเอียด / เอกสาร</th>
             <th class="text-center">เหตุผลในการขอใช้งาน</th>
             <th class="text-center">สถานะ</th>
           </tr>
@@ -131,30 +133,40 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="detailModalLabel">รายละเอียดการจอง</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>วันที่:</strong> <span id="modal-date"></span></p>
-                <p><strong>ชื่อ-นามสกุล:</strong> <span id="modal-name"></span></p>
-                <p><strong>อีเมล:</strong> <span id="modal-email"></span></p>
-                <p><strong>ห้อง:</strong> <span id="modal-room"></span></p>
-                <p><strong>เวลาจอง:</strong> <span id="modal-time"></span></p>
-                <p><strong>เอกสาร:</strong> <span id="modal-document"></span></p>
-                <p><strong>เหตุผลในการขอใช้งาน:</strong> <span id="modal-reason"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-            </div>
-        </div>
-    </div>
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="detailModalLabel">รายละเอียดการจอง</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <p><strong>วันที่:</strong> <span id="modal-date"></span></p>
+              <p><strong>ชื่อ-นามสกุล:</strong> <span id="modal-name"></span></p>
+              <p><strong>รายชื่อผู้ใช้งาน:</strong> <span id="modal-data-participant-names"></span></p>
+              <p><strong>อีเมล:</strong> <span id="modal-email"></span></p>
+              <p><strong>ห้อง:</strong> <span id="modal-room"></span></p>
+              <p><strong>วันที่จอง:</strong> <span id="modal-used_date"></span></p>
+              <p><strong>เวลาจอง:</strong> <span id="modal-time"></span></p>
+              <p><strong>อุปกรณ์ที่ขอยืม:</strong> <span id="modal-equipment"></span></p>
+              <p><strong>เอกสาร:</strong> <a id="modal-document" href="#" target="_blank">เปิดเอกสาร</a></p>
+              <p><strong>เหตุผลในการขอใช้งาน:</strong> <span id="modal-reason"></span></p>
+              <p><strong>เหตุผลเพิ่มเติม:</strong> <span id="modal-reason-detail"></span></p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+          </div>
+      </div>
+  </div>
 </div>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="TabBarFix.js"></script>
   <script src="user_room_requests.js"></script>        
 </body>
 
