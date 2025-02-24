@@ -209,10 +209,10 @@
         }
 
         // Prepare data for the Chart.js chart after fetching
-        const labels = data.map(item => `SC2-${item.Room}`);
-        const totalCount = data.map(item => item.total);
-        const csCount = data.map(item => item.cs);
-        const itCount = data.map(item => item.it);
+        const labels = data.map(item => `SC2-${item.room_id}`);
+        const totalCount = data.map(item => item.total_count);
+        const csCount = data.map(item => item.cs_count);
+        const itCount = data.map(item => item.it_count);
 
         new Chart(barCtx, {
           type: 'bar',
@@ -352,9 +352,9 @@
         new Chart(doughnutCtx2.getContext('2d'), {  // ✅ ใช้ .getContext('2d') ตรงนี้
           type: 'doughnut',
           data: {
-            labels: data.map(item => item.Equipments_name), // ✅ ใช้คีย์ที่ถูกต้อง
+            labels: data.map(item => item.name), // ✅ ใช้คีย์ที่ถูกต้อง
             datasets: [{
-              data: data.map(item => item.count),
+              data: data.map(item => item.total),
               backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
             }]
           },
@@ -362,7 +362,7 @@
             responsive: true,
             plugins: {
               legend: { position: 'bottom' },
-              title: { display: true, text: 'จำนวนอุปกรณ์ที่เสีย' }
+              title: { display: true, text: 'จำนวนอุปกรณ์ที่ยืม' }
             }
           }
         });
@@ -390,10 +390,9 @@
         }
 
         // Prepare data for the Chart.js chart after fetching
-        const labels2 = data.map(item => item.DayName);
-        const totalCount2 = data.map(item => item.TotalCount);
-        const csCount2 = data.map(item => item.Cs);
-        const itCount2 = data.map(item => item.It);
+        const labels2 = data.map(item => item.day_of_week);
+        const csCount2 = data.map(item => item.cs_count);
+        const itCount2 = data.map(item => item.it_count);
 
         new Chart(barCtx2, {
           type: 'bar',
@@ -468,7 +467,7 @@
         data.forEach(user => {
           const div = document.createElement("div");
           div.className = "split-container";
-          div.innerHTML = `<p>${user.Name}</p> <p>${user.Status} ครั้ง</p>`;
+          div.innerHTML = `<p>${user.name}</p> <p>${user.stat} ครั้ง</p>`;
           userList.appendChild(div);
         });
       })
