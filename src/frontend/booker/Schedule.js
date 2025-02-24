@@ -110,7 +110,7 @@ async function fetchSchedule(selectedDate) {
     const data = await response.json();
 
     const bookingResponse = await fetch(
-      "http://localhost:3000/Rooms_list_requests"
+      "http://localhost:3000/room_request"
     );
     let bookings = await bookingResponse.json();
     bookings = bookings.filter((b) => b.Requests_status === "อนุมัติ");
