@@ -28,20 +28,50 @@ const timeSlots = [
 ];
 
 /********************************
- * 2) ฟังก์ชัน getStartOfWeek(date)
- *    - หา "วันจันทร์" ของสัปดาห์
+ * Global: อ่าน room_id จาก URL
+ ********************************/
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get("room");
+if (!roomId) {
+  console.error("No room specified in URL!");
+}
+
+/********************************
+ * Helper: formatTime(timeStr)
+ * - แปลงค่าเวลาจาก string (หรือ ISO string) ให้เหลือ "HH:MM:SS"
+ ********************************/
+function formatTime(timeStr) {
+  if (!timeStr) return null;
+  if (timeStr.includes("T")) {
+    const date = new Date(timeStr);
+    return date.toTimeString().slice(0, 8);
+  }
+  return timeStr;
+}
+
+/********************************
+ * Helper: getISODate(date)
+ * - คืนค่าวันในรูปแบบ "YYYY-MM-DD"
+ ********************************/
+function getISODate(date) {
+  const yyyy = date.getFullYear();
+  const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+  const dd = date.getDate().toString().padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+/********************************
+ * 2) getStartOfWeek(date)
+ *    - หา "วันจันทร์" ของสัปดาห์ที่เลือก
  ********************************/
 function getStartOfWeek(date) {
   const selectedDate = new Date(date);
-  const dayOfWeek = selectedDate.getDay(); // ค่าของวัน (0 = อาทิตย์, 1 = จันทร์, ..., 6 = เสาร์)
-
-  // ถ้าวันอาทิตย์ (0) ต้องเลื่อนกลับไปวันจันทร์ของสัปดาห์ก่อนหน้า
+  const dayOfWeek = selectedDate.getDay(); // 0 = อาทิตย์, 1 = จันทร์, ...
   const startOfWeek = new Date(selectedDate);
   startOfWeek.setDate(
     selectedDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
   );
-
-  return startOfWeek; // คืนค่าวันจันทร์ของสัปดาห์ที่เลือก
+  return startOfWeek;
 }
 
 /********************************
@@ -89,212 +119,189 @@ function showAlert(message) {
   alertDiv.textContent = message;
 
   document.body.appendChild(alertDiv);
-
-  setTimeout(() => {
-    alertDiv.remove();
-  }, 3000);
+  setTimeout(() => alertDiv.remove(), 3000);
 }
 
 /********************************
  * 6) fetchSchedule()
- *    - ดึงข้อมูลการเรียน + การจอง
- *    - แสดงผลใน <tbody>
+ *    - ดึงข้อมูลตารางเรียนและการจอง แล้วแสดงผลใน <tbody>
  ********************************/
 async function fetchSchedule(selectedDate) {
   try {
-    // หาวันจันทร์ของสัปดาห์ที่เลือก
     const startOfWeek = getStartOfWeek(new Date(selectedDate));
 
-    // ดึงข้อมูล "มีเรียน" และ "จองแล้ว"
+    // ดึงข้อมูลตารางเรียนทั้งหมด
     const response = await fetch("http://localhost:3000/getSchedule");
     const data = await response.json();
+    // กรองเฉพาะ schedule ที่ตรงกับ room_id ที่อ่านมาจาก URL
+    const roomSchedules = data.filter((d) => d.room_id === roomId);
 
-    const bookingResponse = await fetch(
-      "http://localhost:3000/Rooms_list_requests"
-    );
+    // ดึงข้อมูลการจองและกรองเฉพาะของ room นั้น
+    const bookingResponse = await fetch("http://localhost:3000/room_request");
     let bookings = await bookingResponse.json();
-    bookings = bookings.filter((b) => b.Requests_status === "อนุมัติ");
+    bookings = bookings.filter(
+      (b) => b.request_status === "อนุมัติ" && b.room_id === roomId
+    );
 
-    console.log("Schedule Data:", data);
-    console.log("Approved Bookings:", bookings);
+    console.log("📌 ตารางเรียน (Room " + roomId + "):", roomSchedules);
+    console.log("📌 การจอง (Room " + roomId + "):", bookings);
 
-    // เลือก <tbody>
     const tbody = document.querySelector("tbody");
     if (!tbody) {
-      console.error("Table body (tbody) not found!");
+      console.error("ไม่พบ <tbody> ในตาราง");
       return;
     }
 
-    // **สร้างตารางให้ตรงกับสัปดาห์ที่เลือก**
     tbody.innerHTML = days
       .map((day, index) => {
         let currentDate = new Date(startOfWeek);
         currentDate.setDate(startOfWeek.getDate() + index);
         const formattedDate = getFormattedDate(currentDate);
+        const rowISO = getISODate(currentDate);
+
+        // คัดกรอง schedule entries สำหรับวันนั้น:
+        const applicableSchedules = roomSchedules.filter((entry) => {
+          if (entry.schedule_date) {
+            return getISODate(new Date(entry.schedule_date)) === rowISO;
+          } else {
+            return entry.week_day?.trim() === day;
+          }
+        });
 
         return `
-            <tr>
-              <td data-day="${index}">
-                ${day} (${formattedDate})
-              </td>
-              ${timeSlots
-                .map((startSlot, i) => {
-                  const endSlot = timeSlots[i + 1] || addOneHour(startSlot);
-                  const isClass = data.some(
-                    (d) =>
-                      d.Week_days?.trim() === day && d.Start_time === startSlot
-                  );
-
-                  const isBooked = bookings.some((b) => {
-                    const bookingDate = new Date(b.Used_date);
-                    const bookingFormatted = getFormattedDate(bookingDate);
-                    if (bookingFormatted !== formattedDate) return false;
-
-                    const slotStartTime = parseInt(
-                      startSlot.replace(":", ""),
-                      10
-                    );
-                    const slotEndTime = parseInt(endSlot.replace(":", ""), 10);
-                    const bookingStartTime = parseInt(
-                      b.Start_time.replace(":", ""),
-                      10
-                    );
-                    const bookingEndTime = parseInt(
-                      b.End_time.replace(":", ""),
-                      10
-                    );
-
-                    return (
-                      slotStartTime < bookingEndTime &&
-                      slotEndTime > bookingStartTime
-                    );
-                  });
-
-                  if (isClass) {
-                    return `<td class="class-time">มีเรียน</td>`;
-                  } else if (isBooked) {
-                    return `<td class="booked-time">จองแล้ว</td>`;
-                  } else {
-                    return `<td class="available" onclick="toggleSelection(this)"></td>`;
-                  }
-                })
-                .join("")}
-            </tr>`;
+        <tr>
+          <td data-day="${index}">${day} (${formattedDate})</td>
+          ${timeSlots
+            .map((slot) => {
+              // หา entry ที่ครอบคลุมช่วงเวลาใน cell นี้
+              const matchingEntry = applicableSchedules.find((entry) => {
+                // เปรียบเทียบโดยตรง (เวลาที่เก็บใน database ควรเป็น HH:MM:SS)
+                return slot >= entry.start_time && slot < entry.end_time;
+              });
+              let cellClass = "available";
+              let cellContent = "";
+              if (matchingEntry) {
+                const status = matchingEntry.room_status;
+                if (status === "มีเรียน") {
+                  cellClass = "class-time";
+                  cellContent = "มีเรียน";
+                } else if (status === "ไม่ว่าง") {
+                  cellClass = "not-available";
+                  cellContent = "ไม่ว่าง";
+                } else if (status === "กำลังปรับปรุง") {
+                  cellClass = "maintenance-time";
+                  cellContent = "กำลังปรับปรุง";
+                }
+              }
+              // ตรวจสอบการจอง ถ้า cell ยัง available
+              if (cellClass === "available") {
+                const isBooked = bookings.some((b) => {
+                  const bookingISO = getISODate(new Date(b.used_date));
+                  if (bookingISO !== rowISO) return false;
+                  return slot >= b.start_time && slot < b.end_time;
+                });
+                if (isBooked) {
+                  cellClass = "booked-time";
+                  cellContent = "จองแล้ว";
+                }
+              }
+              // กำหนดให้ cell ที่เป็น available สามารถคลิกเลือกได้เฉพาะวันปัจจุบันหรืออนาคต
+              const todayISO = getISODate(new Date());
+              const canSelect = rowISO >= todayISO && cellClass === "available";
+              return `<td class="${cellClass}" ${
+                canSelect ? 'onclick="toggleSelection(this)"' : ""
+              }>${cellContent}</td>`;
+            })
+            .join("")}
+        </tr>
+      `;
       })
       .join("");
   } catch (error) {
-    console.error("Error fetching schedule:", error);
+    console.error("❌ Error fetching schedule:", error);
   }
 }
 
 /********************************
  * 7) updateTableForSelectedDate(date)
- *    - เมื่อ user เปลี่ยน date
- *    - สร้างตารางโครง + เรียก fetchSchedule()
+ *    - สร้างโครงสร้างตารางสำหรับสัปดาห์ที่เลือก แล้วโหลดข้อมูล
  ********************************/
 async function updateTableForSelectedDate(date) {
   const selectedDate = new Date(date);
   const startOfWeek = getStartOfWeek(selectedDate);
-
   const tbody = document.querySelector("tbody");
   if (!tbody) return;
 
-  // **สร้างโครงสร้างของตารางให้ตรงกับสัปดาห์ที่เลือก**
   tbody.innerHTML = days
     .map((day, index) => {
-      const currentDate = new Date(startOfWeek);
+      let currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + index);
       const formattedDate = getFormattedDate(currentDate);
       const isWeekend = index === 5 || index === 6;
-
       return `
-        <tr class="${
-          formattedDate === getFormattedDate(selectedDate) ? "highlight" : ""
-        }">
-          <td data-day="${index}" class="${isWeekend ? "disabled" : ""}">
-            ${day} (${formattedDate})  
-          </td>
-          ${timeSlots
-            .map(
-              () => `<td class="available" ${isWeekend ? "disabled" : ""}></td>`
-            )
-            .join("")}
-        </tr>
-      `;
+      <tr class="${
+        getISODate(currentDate) === getISODate(selectedDate) ? "highlight" : ""
+      }">
+        <td data-day="${index}" class="${isWeekend ? "disabled" : ""}">
+          ${day} (${formattedDate})
+        </td>
+        ${timeSlots
+          .map(
+            () => `<td class="available" ${isWeekend ? "disabled" : ""}></td>`
+          )
+          .join("")}
+      </tr>
+    `;
     })
     .join("");
 
-  // โหลดข้อมูลของสัปดาห์ที่เลือก
   await fetchSchedule(date);
-
-  // ไฮไลต์วันปัจจุบันที่เลือก
   highlightDay(date);
 }
 
 /********************************
  * 8) toggleSelection(cell)
- *    - เมื่อคลิกเซลล์ จะเลือก (checked)
- *    - ไม่ให้เลือกข้ามช่วงต่อเนื่อง
+ *    - เมื่อคลิก cell ให้เลือก (available cells เท่านั้น)
  ********************************/
 function toggleSelection(cell) {
-  // ถ้าเป็น class-time หรือ booked-time => เตือน
-  if (
-    cell.classList.contains("class-time") ||
-    cell.classList.contains("booked-time")
-  ) {
+  if (!cell.classList.contains("available")) {
     showAlert("ช่วงเวลานี้ไม่ว่าง!");
     return;
   }
-
-  // ตรวจสอบว่ามี cell อื่นในแถวเดียวกันที่ checked อยู่ไหม
   const row = cell.parentElement;
   const selectedCells = row.querySelectorAll(".checked");
-
   if (selectedCells.length > 0) {
-    // index ของ cell ล่าสุด
     const cellIndex = Array.from(row.children).indexOf(cell);
-    // index ของ cells ที่เลือกก่อนหน้า
     const selectedIndexes = Array.from(selectedCells).map((c) =>
       Array.from(row.children).indexOf(c)
     );
-
     selectedIndexes.sort((a, b) => a - b);
-    // ถ้าห่างกันมากกว่า 1 => คือข้าม
     if (Math.abs(cellIndex - selectedIndexes[selectedIndexes.length - 1]) > 1) {
       showAlert("ไม่สามารถเลือกข้ามช่วงเวลาได้!");
       return;
     }
   }
-
-  // toggle
   cell.classList.toggle("checked");
-  if (cell.classList.contains("checked")) {
-    cell.innerHTML = '<i class="fas fa-check"></i>';
-  } else {
-    cell.innerHTML = "";
-  }
+  cell.innerHTML = cell.classList.contains("checked")
+    ? '<i class="fas fa-check"></i>'
+    : "";
 }
 
 /********************************
  * 9) highlightDay(date)
- *    - ใส่คลาส .highlight ให้แถวที่ตรงกับ date
+ *    - ไฮไลต์แถวที่ตรงกับวันที่เลือก
  ********************************/
 function highlightDay(date) {
   const selectedDate = new Date(date);
-  const formattedSelectedDate = getFormattedDate(selectedDate);
-
+  const formattedSelected = getFormattedDate(selectedDate);
   document.querySelectorAll("#schedule-table tbody tr").forEach((row) => {
     const dayCell = row.querySelector("td");
     if (!dayCell) return;
-
     const dayIndex = parseInt(dayCell.dataset.day);
-    if (isNaN(dayIndex)) return;
-
     const startOfWeek = getStartOfWeek(selectedDate);
-    const dateInRow = new Date(startOfWeek);
-    dateInRow.setDate(startOfWeek.getDate() + dayIndex);
-
-    if (getFormattedDate(dateInRow) === formattedSelectedDate) {
+    const rowDate = new Date(startOfWeek);
+    rowDate.setDate(startOfWeek.getDate() + dayIndex);
+    if (getFormattedDate(rowDate) === formattedSelected) {
       row.classList.add("highlight");
     } else {
       row.classList.remove("highlight");
@@ -304,9 +311,7 @@ function highlightDay(date) {
 
 /********************************
  * 10) confirmBooking()
- *    - กดปุ่ม "ยืนยัน"
- *    - เอาวันที่, room, startTime, endTime
- *    - ส่งไปหน้าอื่นผ่าน URL
+ *    - เมื่อกด "ยืนยัน" จะเก็บข้อมูลวัน ห้อง เวลาเริ่ม-สิ้นสุด แล้วส่งไปหน้าต่อ
  ********************************/
 function confirmBooking() {
   const selectedCells = document.querySelectorAll("td.checked");
@@ -314,28 +319,20 @@ function confirmBooking() {
     showAlert("กรุณาเลือกช่วงเวลาที่ต้องการจอง!");
     return;
   }
-
-  // ตรวจสอบว่า cell ที่เลือกมาจากแถวเดียวกันเท่านั้น
   const rowSet = new Set();
   selectedCells.forEach((cell) => rowSet.add(cell.parentElement));
   if (rowSet.size > 1) {
     showAlert("ไม่สามารถเลือกเวลาข้ามวันได้!");
     return;
   }
-
-  // สมมติว่าทุก cell ที่เลือกมาจากแถวเดียวกัน
   const row = selectedCells[0].parentElement;
   const dayCell = row.querySelector("td");
-  // ตัวอย่าง textContent: "จันทร์ (14/02/2568)"
   const text = dayCell.textContent.trim();
-
-  // ใช้ Regular Expression จับชื่อวันและวันที่ในวงเล็บ
   const matched = text.match(/^(.*?)\s*\((.*?)\)$/);
   let selectedDay, selectedDate;
   if (matched) {
-    selectedDay = matched[1]; // เช่น "จันทร์"
-    const dateOnly = matched[2]; // เช่น "14/02/2568"
-    // แปลงจาก dd/mm/พ.ศ. เป็น yyyy-mm-dd (เปลี่ยนปีพ.ศ.เป็น ค.ศ.)
+    selectedDay = matched[1];
+    const dateOnly = matched[2];
     const [d, m, y] = dateOnly.split("/");
     const yearInAD = parseInt(y) - 543;
     selectedDate = `${yearInAD}-${m}-${d}`;
@@ -343,52 +340,36 @@ function confirmBooking() {
     console.error("รูปแบบวันไม่ตรงกับที่คาดไว้:", text);
     return;
   }
-
-  // เก็บ index ของ cell ที่เลือก (ในแต่ละแถว ค่า index เริ่มที่ 0 สำหรับคอลัมน์แรกที่แสดงวัน)
-  let selectedIndices = [];
+  let selectedIndexes = [];
   selectedCells.forEach((cell) => {
     const cellIndex = Array.from(row.children).indexOf(cell);
-    selectedIndices.push(cellIndex);
+    selectedIndexes.push(cellIndex);
   });
-  selectedIndices.sort((a, b) => a - b);
-  const startIndex = selectedIndices[0]; // คอลัมน์ที่เริ่ม (cellIndex ในแถว)
-  const endIndex = selectedIndices[selectedIndices.length - 1]; // คอลัมน์ที่สิ้นสุด
-
-  // เนื่องจากคอลัมน์แรกใน row เป็นชื่อวัน
-  // index ของ timeslot = cellIndex - 1
+  selectedIndexes.sort((a, b) => a - b);
+  const startIndex = selectedIndexes[0];
+  const endIndex = selectedIndexes[selectedIndexes.length - 1];
   const startTime = timeSlots[startIndex - 1];
-  let endTime;
-  if (endIndex < row.children.length - 1) {
-    // หากมี cell ถัดไปใน row ให้ใช้ค่าของ cell ถัดไปใน timeslot arrayเป็นเวลา end
-    endTime = timeSlots[endIndex];
-  } else {
-    // ถ้า cell ที่เลือกเป็น cell สุดท้าย ให้ใช้ addOneHour กับค่า start time ของ cell นั้น
-    endTime = addOneHour(timeSlots[endIndex - 1]);
-  }
-
+  const endTime =
+    endIndex < row.children.length - 1
+      ? timeSlots[endIndex]
+      : addOneHour(timeSlots[endIndex - 1]);
   console.log("Selected Day:", selectedDay);
-  console.log("Selected Date:", selectedDate); // รูปแบบ yyyy-mm-dd
+  console.log("Selected Date:", selectedDate);
   console.log("Start Time:", startTime);
   console.log("End Time:", endTime);
-
-  // ตัวอย่าง: สร้างพารามิเตอร์ส่งไปหน้าอื่น
   const urlParams = new URLSearchParams({
     date: selectedDate,
-    room: "307", // สมมติห้อง 307
+    room: roomId,
     startTime: startTime,
     endTime: endTime,
   });
-  console.log("Query Parameters to Send:", urlParams.toString());
-
-  // ส่งข้อมูลไปหน้า nextPage.html (ถ้าต้องการ)
-  window.location.href = `deskSC2-307.html?${urlParams.toString()}`;
+  window.location.href = `deskSC2-${roomId}.html?${urlParams.toString()}`;
 }
 
 /********************************
  * 11) DOMContentLoaded
- *    - ตั้ง datePicker = วันนี้
- *    - updateTableForSelectedDate(formattedDate)
- *    - highlightDay(formattedDate)
+ *    - ตั้งค่า datePicker เป็นวันนี้, กำหนด min (สำหรับการจอง)
+ *    - โหลดตารางและตั้ง EventListener
  ********************************/
 document.addEventListener("DOMContentLoaded", async function () {
   try {
@@ -397,98 +378,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
     const day = currentDate.getDate().toString().padStart(2, "0");
     const formattedDate = `${year}-${month}-${day}`;
-    document.getElementById("date-picker").value = formattedDate;
-
+    const datePicker = document.getElementById("date-picker");
+    datePicker.value = formattedDate;
+    // สำหรับการจอง ให้ไม่เลือกวันย้อนหลัง แต่ให้ดูข้อมูลย้อนหลังได้
+    datePicker.min = formattedDate;
     await updateTableForSelectedDate(formattedDate);
     highlightDay(formattedDate);
   } catch (error) {
-    console.error("เกิดข้อผิดพลาดขณะโหลดตาราง: ", error);
+    console.error("เกิดข้อผิดพลาดขณะโหลดตาราง:", error);
   }
-
-  // ดึงชื่อห้องจาก URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomName = urlParams.get("room");
-
-  if (roomName) {
-    document.getElementById("room-name").textContent = `ห้อง: SC2-${roomName}`;
-    loadScheduleForRoom(roomName);
-  } else {
-    console.error("No room specified!");
+  // แสดงชื่อห้องตาม room_id จาก URL
+  if (roomId) {
+    document.getElementById("room-name").textContent = `ห้อง: SC2-${roomId}`;
+    console.log(`Loading schedule for room SC2-${roomId}`);
   }
-
-  function loadScheduleForRoom(roomName) {
-    // ฟังก์ชันโหลดข้อมูลตารางเวลาของห้องที่เลือก
-    console.log(`Loading schedule for ${roomName}`);
-  }
-  // หรือปรับใช้ roomName ใน fetchSchedule() ถ้าต้องการแยกห้อง
-
-  // ✅ เพิ่ม Event Listener ให้ date-picker เมื่อมีการเปลี่ยนแปลง
   document
     .getElementById("date-picker")
     .addEventListener("change", async (event) => {
-      const selectedDate = event.target.value;
-      await updateTableForSelectedDate(selectedDate);
+      await updateTableForSelectedDate(event.target.value);
     });
 });
 
-function toggleSelection(cell) {
-  // ตรวจสอบว่า cell ที่ถูกคลิกอยู่ในแถวเดียวกับ cell ที่เลือกไปแล้วหรือไม่
-  const allCheckedCells = document.querySelectorAll("td.checked");
-  if (allCheckedCells.length > 0) {
-    // นำ row ของ cell แรกที่ถูกเลือกมาเปรียบเทียบ
-    const firstRow = allCheckedCells[0].parentElement;
-    const currentRow = cell.parentElement;
-    if (firstRow !== currentRow) {
-      showAlert("ไม่สามารถเลือกช่วงเวลาข้ามวันได้!");
-      return;
-    }
-  }
-
-  // ดึงข้อมูลของวันจากแถว (ใช้ data-day)
-  const dayCell = cell.closest("tr").querySelector("td");
-  const dayIndex = dayCell.dataset.day;
-
-  // ตรวจสอบหากเป็นวันเสาร์ (5) หรือวันอาทิตย์ (6)
-  if (dayIndex === "5" || dayIndex === "6") {
-    showAlert("ไม่สามารถเลือกวันเสาร์หรืออาทิตย์ได้!");
-    return; // หยุดการทำงานของฟังก์ชัน
-  }
-
-  // หากเซลล์เป็น "class-time" หรือ "booked-time" (มีเรียนหรือจองแล้ว)
-  if (
-    cell.classList.contains("class-time") ||
-    cell.classList.contains("booked-time")
-  ) {
-    showAlert("ช่วงเวลานี้ไม่ว่าง!");
-    return;
-  }
-
-  // ตรวจสอบว่ามี cell อื่นในแถวเดียวกันที่เลือกอยู่หรือไม่ (เพื่อไม่ให้เลือกข้ามช่วงในวันเดียว)
-  const row = cell.parentElement;
-  const selectedCells = row.querySelectorAll(".checked");
-  if (selectedCells.length > 0) {
-    const cellIndex = Array.from(row.children).indexOf(cell);
-    const selectedIndexes = Array.from(selectedCells).map((c) =>
-      Array.from(row.children).indexOf(c)
-    );
-    selectedIndexes.sort((a, b) => a - b);
-    if (Math.abs(cellIndex - selectedIndexes[selectedIndexes.length - 1]) > 1) {
-      showAlert("ไม่สามารถเลือกข้ามช่วงเวลาได้!");
-      return;
-    }
-  }
-
-  // toggle การเลือก cell
-  cell.classList.toggle("checked");
-  if (cell.classList.contains("checked")) {
-    cell.innerHTML = '<i class="fas fa-check"></i>';
-  } else {
-    cell.innerHTML = "";
-  }
-}
-
 /********************************
- * 12) WebSocket
+ * 12) WebSocket สำหรับการอัปเดตเรียลไทม์
  ********************************/
 const socket = io("http://localhost:3000");
 socket.on("connect", () => {
