@@ -1,4 +1,8 @@
-fetchUserInfo();
+document.addEventListener("DOMContentLoaded", () => {
+  fetchUserInfo();
+  attachRoomClickEvents();
+});
+
 // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
 async function fetchUserInfo() {
   try {
@@ -40,6 +44,28 @@ async function fetchUserInfo() {
   }
 }
 
+// ✅ ฟังก์ชันอัปเดตชื่อผู้ใช้
+function updateUserName(name) {
+  const userNameElement = document.getElementById("user-name");
+  if (userNameElement) {
+    userNameElement.textContent = name || "ไม่ระบุชื่อ";
+  }
+}
+
+// ✅ ฟังก์ชันแนบ event กับปุ่มห้องเรียน
+function attachRoomClickEvents() {
+  document.addEventListener("click", (event) => {
+    const roomElement = event.target.closest(".room"); // เช็คว่าคลิกที่ .room หรือไม่
+    if (!roomElement) return;
+
+    const roomName = roomElement.dataset.room; // ดึงค่า room จาก data-room
+    if (!roomName) return;
+
+    localStorage.setItem("selectedRoom", roomName);
+    window.location.href = `Schedule.html?room=${encodeURIComponent(roomName)}`;
+  });
+}
+
 // ✅ ฟังก์ชันออกจากระบบ
 async function logout() {
   try {
@@ -48,14 +74,17 @@ async function logout() {
       credentials: "include",
     });
 
-    if (response.ok) {
-      alert("ออกจากระบบสำเร็จ");
-      window.location.href = "login.html";
-    } else {
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ");
-    }
+    if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการออกจากระบบ");
+
+    alert("ออกจากระบบสำเร็จ");
+    redirectToLogin();
   } catch (error) {
     console.error("❌ ไม่สามารถออกจากระบบได้:", error);
     alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
   }
+}
+
+// ✅ ฟังก์ชันเปลี่ยนหน้าไป login.html
+function redirectToLogin() {
+  window.location.href = "login.html";
 }

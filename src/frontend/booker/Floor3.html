@@ -88,9 +88,8 @@
         }
 
         .room:hover {
-            background-color: #f0ad4e;
-            transform: scale(1.1);
-        }
+            transform: scale(1.05);
+          }
 
         .room.large {
             position: relative;
@@ -200,7 +199,6 @@
         .room.vertical_8 {
             grid-row: 6 / span 2;
             grid-column: 5 / span 1;
-            background-color: gray;
         }
 
         .room.vertical_9 {
@@ -351,6 +349,12 @@
           .floor-selector button.active {
             background-color: #6c3483;
           }
+
+          .disabled-room {
+            pointer-events: none; /* ป้องกันการกด */
+            cursor: not-allowed; /* เปลี่ยนเมาส์เป็น "ห้าม" */
+          }
+          
     </style>
 </head>
 
@@ -372,23 +376,23 @@
           <button onclick="window.location.href='Floor4.html'">ชั้น 4</button>
           <main>
               <div class="layout">
-                  <div class="room red vertical_1">SC2-304</div>
-                  <div class="room red vertical_1">SC2-305</div>
-                  <div class="room red vertical_1">SC2-306</div>
+                  <div class="room red vertical_1" data-room="304">SC2-304</div>
+                  <div class="room red vertical_1" data-room="305">SC2-305</div>
+                  <div class="room red vertical_1" data-room="306">SC2-306</div>
       
-                  <div onclick="window.location.href='Schedule.html'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large" id="SC2-307" value="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
-                  <div onclick="window.location.href='Schedule.html'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large sc2-308" id="SC2-308" value="308">SC2-308</div>
+                  <div class="room large available" data-room="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
+                  <div class="room large sc2-308 available" data-room="308">SC2-308</div>
       
                   <div class="room red vertical_2">ห้องน้ำ</div>
                   <div class="room red vertical_3">ห้องน้ำ</div>
-                  <div class="room red vertical_4">SC2-310</div>
-                  <div class="room red vertical_5">SC2-301</div>
-                  <div class="room red vertical_6">SC2-302</div>
-                  <div class="room red vertical_7">SC2-303</div>
-                  <div class="room vertical_8 small" id="SC2-314" onclick="manageRoom('SC2-314')">SC2-314</div>
-                  <div class="room vertical_9 small" id="SC2-313-1" onclick="manageRoom('SC2-313-1')">SC2-313-1</div>
-                  <div class="room vertical_10 room large sc2-313" id="SC2-313" onclick="manageRoom('SC2-313')">SC2-313</div>
-                  <div class="room vertical_11 room large sc2-311" id="SC2-311" onclick="manageRoom('SC2-311')">SC2-311</div>
+                  <div class="room red vertical_4" data-room="310">SC2-310</div>
+                  <div class="room red vertical_5" data-room="301">SC2-301</div>
+                  <div class="room red vertical_6" data-room="302">SC2-302</div>
+                  <div class="room red vertical_7" data-room="303">SC2-303</div>
+                  <div class="room red vertical_8" data-room="314">SC2-314</div>
+                  <div class="room vertical_9 small available" data-room="313-1">SC2-313-1</div>
+                  <div class="room vertical_10 room large sc2-313 available" data-room="313">SC2-313</div>
+                  <div class="room vertical_11 room large sc2-311 available" data-room="311">SC2-311<br>(Co-working Space)</div>
               </div>
       
               <div class="sidebar">
@@ -423,62 +427,7 @@
 
     <script>
         // Modal references
-        const modal = document.getElementById("roomModal");
-        const closeModal = document.querySelector(".close");
-        const saveStatusButton = document.getElementById("saveStatus");
-        const statusSelect = document.getElementById("status");
-        const roomDetailTitle = document.getElementById("roomDetailTitle");
-        // Global variable to store the current room element being edited
-        let currentRoomElement = null;
-
-        saveStatusButton.onclick = function() {
-            const selectedStatus = statusSelect.value;
-
-            if (selectedStatus === "available") {
-                currentRoomElement.classList.add('available');
-                currentRoomElement.classList.remove('not-available');
-            } else {
-                currentRoomElement.classList.add('not-available');
-                currentRoomElement.classList.remove('available');
-            }
-
-            // Save the room status in localStorage
-            localStorage.setItem(currentRoomElement.id, selectedStatus);
-
-            // Close the modal after saving
-            modal.style.display = "none";
-        }
-
-        // Close the modal
-        closeModal.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // Close the modal if clicked outside of it
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        // Load room status from localStorage when the page reloads
-        window.onload = function() {
-            const rooms = document.querySelectorAll('.room');
-
-            rooms.forEach(room => {
-                const savedStatus = localStorage.getItem(room.id);
-
-                if (savedStatus) {
-                    if (savedStatus === "available") {
-                        room.classList.add('available');
-                        room.classList.remove('not-available');
-                    } else {
-                        room.classList.add('not-available');
-                        room.classList.remove('available');
-                    }
-                }
-            });
-        }
+        
     </script>
     <script src="BookScript.js"></script>
 
