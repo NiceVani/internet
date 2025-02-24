@@ -128,6 +128,20 @@ app.get('/teacher', (req, res) => {
     });
 });
 
+app.get('/room_request_participant', (req, res) => {
+    connection.query('SELECT * FROM room_request_participant', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก room_request_participant:', results);
+        res.json(results);
+    });
+});
+
+
+
 
 
 
@@ -166,7 +180,7 @@ app.get('/roomdetail', (req, res) => {
 app.post('/updateStatus', (req, res) => {
     const { requestId, status } = req.body;
 
-    const sql = 'UPDATE Rooms_list_requests SET Requests_status = ? WHERE Rooms_requests_ID = ?';
+    const sql = 'UPDATE room_request SET request_status = ? WHERE room_request_id = ?';
 
     connection.query(sql, [status, requestId], (err, results) => {
         if (err) {
