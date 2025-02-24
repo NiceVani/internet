@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        rel="stylesheet"
+      />
     <title>Floor Layout</title>
     <style>
         body {
@@ -54,10 +58,15 @@
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             grid-template-rows: repeat(7, 1fr);
-            grid-gap: 5px;
-            padding: 20px;
+            gap: 1px;
             position: relative;
-            border: 2px solid #000;
+            width: 100%;
+            height: calc(100vh - 50px);
+            overflow: auto;
+            box-sizing: border-box;
+            padding: 20px;
+            border-bottom-left-radius: 10px;
+            border-top-left-radius: 10px;
         }
 
         .room {
@@ -218,37 +227,14 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            border-left: 2px solid #000;
             border: 2px solid #000;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
         }
 
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
-        }
-
-        .categories {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-
-        .categories li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #000000;
-            border-radius: 51px;
-            background-color: #fff;
-        }
-
-        .categories li span {
-            background-color: #eb0f0f;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
         }
 
         .reports {
@@ -293,57 +279,146 @@
         button:hover {
             background-color: #563080;
         }
+
+        .icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 18px;
+            color: rgb(0, 0, 0);
+            flex-shrink: 0;
+          }
+    
+          .icon-red {
+            background-color: red;
+          }
+    
+          .icon-green {
+            background-color: green;
+          }
+    
+
+        .header {
+            background-color: #e54715;
+            padding: 15px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .header-title {
+            font-size: 20px;
+            font-weight: bold;
+          }
+          .nav {
+            display: flex;
+            gap: 20px;
+          }
+          .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+          }
+          .nav a:hover {
+            text-decoration: underline;
+          }
+          .nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+          }
+          .content {
+            padding: 20px;
+            text-align: center;
+          }
+          .floor-selector {
+            margin-bottom: 20px;
+          }
+          .floor-selector button {
+            background-color: #a569bd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+          }
+          .floor-selector button:hover {
+            background-color: #512e5f;
+          }
+          .floor-selector button.active {
+            background-color: #6c3483;
+          }
     </style>
 </head>
 
 <body>
-    <main>
-        <div class="layout">
-            <div class="room red vertical_1">SC2-304</div>
-            <div class="room red vertical_1">SC2-305</div>
-            <div class="room red vertical_1">SC2-306</div>
-
-            <div onclick="window.location.href='Schedule.php'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large" id="SC2-307" value="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
-            <div onclick="window.location.href='Schedule.php'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large sc2-308" id="SC2-308">SC2-308</div>
-
-            <div class="room red vertical_2">ห้องน้ำ</div>
-            <div class="room red vertical_3">ห้องน้ำ</div>
-            <div class="room red vertical_4">SC2-310</div>
-            <div class="room red vertical_5">SC2-301</div>
-            <div class="room red vertical_6">SC2-302</div>
-            <div class="room red vertical_7">SC2-303</div>
-            <div class="room vertical_8 small" id="SC2-314" onclick="manageRoom('SC2-314')">SC2-314</div>
-            <div class="room vertical_9 small" id="SC2-313-1" onclick="manageRoom('SC2-313-1')">SC2-313-1</div>
-            <div class="room vertical_10 room large sc2-313" id="SC2-313" onclick="manageRoom('SC2-313')">SC2-313</div>
-            <div class="room vertical_11 room large sc2-311" id="SC2-311" onclick="manageRoom('SC2-311')">SC2-311</div>
+    <div class="header">
+        <div class="header-title">EasyRoom Reservation System</div>
+        <div class="nav">
+          <a href="home.html">หน้าหลัก</a>
+          <a href="#" class="active">จองห้อง</a>
+          <a href="repost.html">รายงาน</a>
+          <button onclick="logout()">ออกจากระบบ</button>
         </div>
-
-        <div class="sidebar">
-            <div class="reports">
-                <div class="report-item">
-                    <span class="icon icon-red"></i></span> <!-- ไอคอนจองไม่ได้ -->
-                    <span>จองไม่ได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon icon-green"></i></span> <!-- ไอคอนจองได้ -->
-                    <span>จองได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span> <!-- ไอคอนห้องเล็กเชอร์ -->
-                    <span>ห้องเล็กเชอร์</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-laptop-code"></i></span> <!-- ไอคอนห้องปฏิบัติการ -->
-                    <span>ห้องปฏิบัติการ</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-users"></i></span> <!-- ไอคอนห้องประชุม -->
-                    <span>ห้องประชุม</span>
-                </div>
-            </div>
-
+      </div>
+      <div class="content">
+        <div class="floor-selector">
+          <!-- เมื่อกดปุ่มจะไปเปิดไฟล์ Floor*.html -->
+          <button onclick="window.location.href='Floor2.html'">ชั้น 2</button>
+          <button onclick="window.location.href='Floor3.html'" class="floor-btn active">ชั้น 3</button>
+          <button onclick="window.location.href='Floor4.html'">ชั้น 4</button>
+          <main>
+              <div class="layout">
+                  <div class="room red vertical_1">SC2-304</div>
+                  <div class="room red vertical_1">SC2-305</div>
+                  <div class="room red vertical_1">SC2-306</div>
+      
+                  <div onclick="window.location.href='Schedule.html'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large" id="SC2-307" value="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
+                  <div onclick="window.location.href='Schedule.html'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large sc2-308" id="SC2-308" value="308">SC2-308</div>
+      
+                  <div class="room red vertical_2">ห้องน้ำ</div>
+                  <div class="room red vertical_3">ห้องน้ำ</div>
+                  <div class="room red vertical_4">SC2-310</div>
+                  <div class="room red vertical_5">SC2-301</div>
+                  <div class="room red vertical_6">SC2-302</div>
+                  <div class="room red vertical_7">SC2-303</div>
+                  <div class="room vertical_8 small" id="SC2-314" onclick="manageRoom('SC2-314')">SC2-314</div>
+                  <div class="room vertical_9 small" id="SC2-313-1" onclick="manageRoom('SC2-313-1')">SC2-313-1</div>
+                  <div class="room vertical_10 room large sc2-313" id="SC2-313" onclick="manageRoom('SC2-313')">SC2-313</div>
+                  <div class="room vertical_11 room large sc2-311" id="SC2-311" onclick="manageRoom('SC2-311')">SC2-311</div>
+              </div>
+      
+              <div class="sidebar">
+                  <div class="reports">
+                      <div class="report-item">
+                          <span class="icon icon-red"></i></span> <!-- ไอคอนจองไม่ได้ -->
+                          <span>จองไม่ได้</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon icon-green"></i></span> <!-- ไอคอนจองได้ -->
+                          <span>จองได้</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span> <!-- ไอคอนห้องเล็กเชอร์ -->
+                          <span>ห้องเล็กเชอร์</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-laptop-code"></i></span> <!-- ไอคอนห้องปฏิบัติการ -->
+                          <span>ห้องปฏิบัติการ</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-users"></i></span> <!-- ไอคอนห้องประชุม -->
+                          <span>ห้องประชุม</span>
+                      </div>
+                  </div>
+      
+              </div>
+          </main>
         </div>
-    </main>
+      </div>
 
 
     <script>
@@ -405,7 +480,7 @@
             });
         }
     </script>
+    <script src="BookScript.js"></script>
 
 </body>
-
 </html>
