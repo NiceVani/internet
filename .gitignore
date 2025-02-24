@@ -7,3 +7,4 @@ src/shared/booking_documents/node_modules
 easyroom.sql
 .env
 src\backend\booker_backend\.env
+**/.env

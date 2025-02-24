@@ -65,24 +65,6 @@ easyroom-reservation/
 
 in `docker-compose.yml`
 
-##### Connecting DataBase
-
-```bash
-dbname: easyroom
-host: easyroomhost
-user: root
-password: 1234
-```
-
-##### Configure DataBase Server
-
-```bash
-MYSQL_ROOT_PASSWORD="1234"
-MYSQL_DATABASE=easyroom
-MYSQL_USER=easyroomteam
-MYSQL_PASSWORD="1234"
-```
-
 ### Installation
 
 - **Docker:** Make sure Docker is installed on your system. You can download it from [here](https://www.docker.com/get-started).

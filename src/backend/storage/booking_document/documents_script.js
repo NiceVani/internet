@@ -1,6 +1,5 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-
 // สร้างเอกสาร PDF
 const doc = new PDFDocument({ margin: 30 });
 let studentData = {

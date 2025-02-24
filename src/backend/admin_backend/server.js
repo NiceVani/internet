@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Allow frontend to access API
 
-app.use("/booking_documents", express.static(path.join(__dirname, "../../shared/booking_documents/")));
+/*app.use("/booking_documents", express.static(path.join(__dirname, "../../shared/booking_documents/")));
 
 app.get("/", (req, res) => {
   res.send(`
@@ -19,17 +19,17 @@ app.get("/", (req, res) => {
       </tr>
     </table>
   `);
-});
+});*/
 
 app.listen(3000, () => console.log("Server running at http://localhost:3001"));
 
 // 📌 Whitelist allowed tables to prevent SQL injection
 const allowedTables = [
-    'Admin_information', 'Computer_list_requests', 'Equipments_list_brokened',
-    'Equipments_list_information', 'Equipments_list_requests', 'Executive_information',
-    'Manage_computers', 'Manage_equipments', 'Name_list_requests_rooms', 
-    'Rooms_list_information','Rooms_list_requests', 'Rooms_schedule_time', 
-    'Student_information', 'Teacher_information', 'Users_accounts'
+    'admin', 'computer_management', 'equipment',
+    'equipment_management', 'executive', 'room',
+    'room_request', 'room_request_computer', 'room_request_equipment', 
+    'room_request_participant','room_schedule', 'room_type', 
+    'student', 'teacher', 'user'
 ];
 
 
@@ -53,7 +53,7 @@ app.get('/data/:table', (req, res) => {
     });
 });
 
-app.post('/updateStatus', (req, res) => {
+/*app.post('/updateStatus', (req, res) => {
     const { requestId, status } = req.body;
 
     const sql = 'UPDATE Rooms_list_requests SET Requests_status = ? WHERE Rooms_requests_ID = ?';
@@ -120,7 +120,7 @@ app.post('/insertSchedule', (req, res) => {
 
         res.status(200).json({ message: 'New schedule inserted', newScheduleId: result.insertId });
     });
-});
+});*/
 
 // 📌 Start Server
 const PORT = process.env.PORT || 3001;
