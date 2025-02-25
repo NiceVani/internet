@@ -2,7 +2,10 @@
 
 Separate Directory
 
-`storage` is directory for storing `image` file and `document` pdf file
+`storage` is directory for storing data
+
+- `document` pdf file in `booking_document` directory
+- `image` file in `equipment_img` directory
 
 ```bash
 easyroom-reservation/
