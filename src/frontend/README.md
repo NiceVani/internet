@@ -3,7 +3,7 @@
 Separate Directory
 
 ```bash
-easyroom-reservation/
+src/
 ├── booker/
 ├── admin/
 └── executive/

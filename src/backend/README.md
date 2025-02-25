@@ -8,7 +8,7 @@ Separate Directory
 - `equipment_img` store image file
 
 ```bash
-easyroom-reservation/
+src/
 ├── booker_backend/
 ├── admin_backend/
 ├── executive_backend/
