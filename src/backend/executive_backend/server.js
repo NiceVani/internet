@@ -178,6 +178,29 @@ app.get('/teacher', (req, res) => {
     });
 });
 
+app.get('/quipment_brokened', (req, res) => {
+    connection.query('SELECT * FROM quipment_brokened', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:', results);
+        res.json(results);
+    });
+});
+app.get('/equipment', (req, res) => {
+    connection.query('SELECT * FROM equipment', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก equipment:', results);
+        res.json(results);
+    });
+});
+
 app.get('/room_request_participant', (req, res) => {
     connection.query('SELECT * FROM room_request_participant', (err, results) => {
         if (err) {
