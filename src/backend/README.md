@@ -4,8 +4,8 @@ Separate Directory
 
 `storage` is directory for storing data
 
-- `document` pdf file in `booking_document` directory
-- `image` file in `equipment_img` directory
+- `booking_document` store pdf file
+- `equipment_img` store image file
 
 ```bash
 easyroom-reservation/
