@@ -110,16 +110,24 @@
             <tr>
               <td>
                 <select id="roomDropdown">
-                    <option value="allroom">room</option>
-                    <option value="room1">SC2-211</option>
-                    <option value="room2">SC2-212</option>
-                    <option value="room3">SC2-311</option>
-                </select>
+                  <option value="allroom" selected>ทั้งหมด</option>
+                  <option value="SC2-211">SC2-211</option>
+                  <option value="SC2-212">SC2-212</option>
+                  <option value="SC2-307">SC2-307</option>
+                  <option value="SC2-308">SC2-308</option>
+                  <option value="SC2-311">SC2-311</option>
+                  <option value="SC2-313">SC2-313</option>
+                  <option value="SC2-407">SC2-407</option>
+                  <option value="SC2-411">SC2-411</option>
+                  <option value="SC2-414">SC2-414</option>
+              </select>
+              
+              
             </td>
                 <td>ชั้น</td>
                 <td>ห้อง</td>
                 <td>ประเภทห้อง</td>
-                <td>จำนวนการยืม</td>
+                <td>จำนวนการจองทั้้งหมด</td>
             </tr>
         </table>
         <hr id="hr-line">
@@ -224,45 +232,46 @@ closePopupBtn.addEventListener("click", () => {
   document.getElementById("hr-line").classList.remove("hidden"); // แสดง <hr> อีกครั้ง
 });
 
+document.getElementById("roomDropdown").addEventListener("change", async function () {
+    const selectedRoom = this.value; 
+    console.log("Selected Room:", selectedRoom); // ดูค่าที่เลือก
+    await fetchRoomData(selectedRoom); 
+});
 
-async function fetchRoomData() {
-            try {
-                const response = await fetch("http://localhost:3000/TableRoomBooked");
-                const data = await response.json();
+async function fetchRoomData(roomName = "allroom") {
+    try {
+        console.log("Fetching data for:", roomName); // Debug ดูค่าที่ส่งไป API
+        const response = await fetch(`http://localhost:3000/TableRoomBooked?room=${roomName}`);
+        const data = await response.json();
 
-                const dropdown = document.getElementById("roomDropdown");
-                const table = document.getElementById("roomTable");
+        console.log("API Response:", data); // ดูว่ามีข้อมูลกลับมาหรือไม่
 
-                // เคลียร์ข้อมูลเก่า
-                dropdown.innerHTML = '<option value="allroom">room</option>';
-                table.innerHTML = "";
+        const table = document.getElementById("roomTable");
+        table.innerHTML = ""; // ล้างข้อมูลเก่า
 
-                data.forEach(room => {
-                    if (room.Total_Book > 0) {  // แสดงเฉพาะห้องที่มีการจอง
-                        // เพิ่มตัวเลือกใน Dropdown
-                        let option = document.createElement("option");
-                        option.value = room.Rooms_name;
-                        option.textContent = room.Rooms_name;
-                        dropdown.appendChild(option);
-
-                        // สร้างแถวตาราง
-                        let row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td>${room.Room}</td>
-                            <td>${room.Floor}</td>
-                            <td>${room.RoomID}</td>
-                            <td>${room.RoomType}</td>
-                            <td>${room.Total_Book}</td>
-                        `;
-                        table.appendChild(row);
-                    }
-                });
-            } catch (error) {
-                console.error("Error fetching room data:", error);
-            }
+        if (data.length === 0) {
+            table.innerHTML = "<tr><td colspan='5'>ไม่มีข้อมูล</td></tr>"; // แสดงข้อความถ้าไม่มีข้อมูล
+            return;
         }
 
-        // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
-        document.addEventListener("DOMContentLoaded", fetchRoomData);
+        data.forEach(room => {
+            let row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${room.room_name}</td>
+                <td>${room.floor}</td>
+                <td>${room.room_id}</td>
+                <td>${room.type_name}</td>
+                <td>${room.total}</td>
+            `;
+            table.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error fetching room data:", error);
+    }
+}
+
+// โหลดข้อมูลเมื่อเปิดเว็บ
+document.addEventListener("DOMContentLoaded", () => fetchRoomData());
+
 </script>
 </html>

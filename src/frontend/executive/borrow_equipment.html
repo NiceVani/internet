@@ -106,14 +106,27 @@
     <table>
       <tr>
           <td>
-              <select id="equipmentFilter">
-                  <option value="">All Equipment</option>
-                  <option value="ไมค์">คอมพิวเตอร์</option>
-                  <option value="ปลั๊กไฟ">จอคอมพิวเตอร์</option>
-                  <option value="pointer">เก้าอี้</option>
-                  <option value="pointer">เม้าส์</option>
-                  <option value="pointer">โปรเจคเตอร์</option>
-              </select>
+            <select id="equipmentFilter">
+              <option value="">All Equipment</option>
+              <option value="สายไฟ">สายไฟ</option>
+              <option value="เก้าอี้">เก้าอี้</option>
+              <option value="โต๊ะ">โต๊ะ</option>
+              <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
+              <option value="โปรเจคเตอร์">โปรเจคเตอร์</option>
+              <option value="ทีวี">ทีวี</option>
+              <option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</option>
+              <option value="วิชวลไลเซอร์">วิชวลไลเซอร์</option>
+              <option value="Hub">Hub</option>
+              <option value="Router">Router</option>
+              <option value="Switch">Switch</option>
+              <option value="พอยเตอร์">พอยเตอร์</option>
+              <option value="เม้าส์">เม้าส์</option>
+              <option value="คีย์บอร์ด">คีย์บอร์ด</option>
+              <option value="ปลั๊กไฟ">ปลั๊กไฟ</option>
+              <option value="ไมค์">ไมค์</option>
+              <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
+          </select>
+          
           </td>
           <td>ชื่อห้อง</td>
           <td>จำนวนอุปกรณ์</td>
@@ -216,30 +229,41 @@ fetch("sidebar.html")
       popup.style.display = "none"; // ปิด Popup หลังจากเลือกตัวกรอง
     });
   });
-  async function fetchEquipmentData() {
-            try {
-                const response = await fetch("http://localhost:3000/TableBorrowEquipment");
-                const data = await response.json();
-                
-                const table = document.getElementById("equipmentTable");
-                table.innerHTML = "";
+  async function fetchEquipmentData(equipment = "") {
+    try {
+        const url = equipment 
+            ? `http://localhost:3000/TableBorrowEquipment?equipment=${equipment}` 
+            : "http://localhost:3000/TableBorrowEquipment";
 
-                data.forEach(item => {
-                    const row = `
-                        <tr>
-                            <td>${item.equipmentname}</td>
-                            <td>${item.roomname}</td>
-                            <td>${item.Equipments_amount}</td>
-                            <td>${item.total_borrowed_times}</td>
-                        </tr>
-                    `;
-                    table.innerHTML += row;
-                });
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }
+        const response = await fetch(url);
+        const data = await response.json();
 
-        document.addEventListener("DOMContentLoaded", fetchEquipmentData);
+        const table = document.getElementById("equipmentTable");
+        table.innerHTML = "";
+
+        data.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.room}</td>
+                    <td>${item.stock}</td>
+                    <td>${item.total}</td>
+                </tr>
+            `;
+            table.innerHTML += row;
+        });
+    } catch (error) {
+        console.error("❌ Error fetching data:", error);
+    }
+}
+
+// โหลดข้อมูลเริ่มต้น
+document.addEventListener("DOMContentLoaded", () => fetchEquipmentData());
+
+// เพิ่ม Event Listener ให้ Dropdown
+document.getElementById("equipmentFilter").addEventListener("change", function () {
+    fetchEquipmentData(this.value);
+});
+
   </script>
 </html>

@@ -77,11 +77,12 @@
     <h1>User</h1>
     <div class="header-right">
     <button id="openPopup">ทั้งหมด</button>
-          <select id = "room">
-            <option>นิสิที่จองห้องบ่อยทื่สุด</option>
-            <option>นิสิที่จองห้องล่าสุด</option>
-            <option>นิสิที่จองห้องเก่าที่สุด</option>
-          </select>
+    <select id="roomFilter">
+      <option value="most_frequent" selected>นิสิตที่จองห้องบ่อยที่สุด</option>
+      <option value="latest">นิสิตที่จองห้องล่าสุด</option>
+      <option value="oldest">นิสิตที่จองห้องเก่าที่สุด</option>
+  </select>
+  
         </div>
   </header>
   <body>
@@ -114,9 +115,10 @@
             <tr>
                 <td>Username</td>
                 <td>Student ID</td>
-                <td>Phone Number</td>
+                <td>room</td>
                 <td>Email</td>
                 <td>Status</td>
+                <td>Role</td>
             </tr>
         </table>
         <hr>
@@ -195,28 +197,48 @@
       popup.style.display = "none"; // ปิด Popup หลังจากเลือกตัวกรอง
     });
   });
-  fetch("http://localhost:3000/user")
-            .then(response => response.json()) // แปลง JSON
+  document.addEventListener("DOMContentLoaded", function () {
+    const roomFilter = document.getElementById("roomFilter");
+    const tableBody = document.getElementById("userTable");
+
+    function fetchData(sort) {
+        let url = `http://localhost:3000/user?sort=${sort}`;
+
+        fetch(url)
+            .then(response => response.json())
             .then(data => {
-                const tableBody = document.getElementById("userTable");
-                tableBody.innerHTML = ""; // เคลียร์ข้อมูลเก่า
+                tableBody.innerHTML = ""; // ล้างข้อมูลเก่า
 
                 data.forEach(user => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${user.Name}</td>
-                        <td>${user.Student_ID}</td>
-                        <td>${user.Phone_number}</td>
+                        <td>${user.name}</td>
+                        <td>${user.id}</td>
+                        <td>${user.room}</td>
                         <td>${user.email}</td>
-                        <td>${user.Status}</td>
+                        <td>${user.stat}</td>
+                        <td>${user.role}</td>
                     `;
                     tableBody.appendChild(row);
                 });
             })
             .catch(error => {
-                console.error("เกิดข้อผิดพลาด:", error);
-                document.getElementById("userTable").innerHTML = "<tr><td colspan='5'>ไม่สามารถโหลดข้อมูลได้</td></tr>";
+                console.error("❌ โหลดข้อมูลผิดพลาด:", error);
+                tableBody.innerHTML = "<tr><td colspan='6'>ไม่สามารถโหลดข้อมูลได้</td></tr>";
             });
+    }
+
+    // ✅ โหลดข้อมูลเริ่มต้นที่ 'most_frequent' ทันทีที่หน้าเว็บโหลด
+    roomFilter.value = "most_frequent"; // ตั้งค่า default
+    fetchData("most_frequent");
+
+    // ✅ อัปเดตข้อมูลเมื่อมีการเปลี่ยนค่า filter
+    roomFilter.addEventListener("change", function () {
+        fetchData(this.value);
+    });
+});
+
+
   // fetch sidebar
   fetch("sidebar.html")
     .then((resp) => resp.text())
