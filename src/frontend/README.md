@@ -2,6 +2,9 @@
 
 Separate Directory
 
-- Booker
-- Admin
-- Executive
+```bash
+easyroom-reservation/
+├── booker/
+├── admin/
+└── executive/
+```
