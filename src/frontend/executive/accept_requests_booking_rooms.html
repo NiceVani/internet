@@ -437,43 +437,65 @@
                 <th style="color: #929292">จำนวนนิสิต(คน)</th>
                 <th style="color: #929292">เวลาจอง</th>
                 <th style="color: #929292">เอกสาร</th>
-                <th style="color: #929292">สถานะ</th>
                 <th style="color: #929292">ยกเลิกการอนุมัติ</th>
               </tr>
             </thead>
             <tbody id="reservation-table">
               <!-- ตัวอย่างข้อมูล -->
               <script>
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // กำหนดให้เทียบเฉพาะวันที่
+
+
                 async function fetchData() {
                 try {
                     // ดึงข้อมูลจาก 2 API พร้อมกัน
-                    const [roomsResponse, studentsResponse ,TeacherResponse] = await Promise.all([
+                    const [roomsResponse, studentsResponse ,TeacherResponse,participantResponse] = await Promise.all([
                         fetch('http://localhost:3000/room_request'),
                         fetch('http://localhost:3000/student'),
                         fetch('http://localhost:3000/teacher'),
+                        fetch('http://localhost:3000/room_request_participant')
                         
                     ])
             
                     const roomsData = await roomsResponse.json();
                     const studentsData = await studentsResponse.json();
                     const TeacherData = await TeacherResponse.json();
+                    const participantData = await participantResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.Requests_status === 'อนุมัติ' && row.request_type === 'ในเวลา');
+                    const filteredData = roomsData.filter(row => row.request_status === 'อนุมัติ' && row.request_type === 'นอกเวลา');
+
+                    const participantCountMap = participantData.reduce((acc, participant) => {
+                      acc[participant.room_request_id] = (acc[participant.room_request_id] || 0) + 1;
+                      return acc;
+                  }, {});
+      
+                  console.log("📌 จำนวนผู้เข้าร่วมต่อ room_request_id:", participantCountMap);
                     
+                    // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
+                    for (const row of filteredData) {
+                      const requestDate = new Date(row.used_date);
+                      requestDate.setHours(0, 0, 0, 0);
 
+                    if (requestDate < today) {
+                          await updateStatus(row.room_request_id, 'ไม่อนุมัติ');
+                      }
+                  }
 
-                    const mergedData = filteredData.map(room => {
-                        const student = studentsData.find(s => s.Student_ID === room.Identify_ID) || {};
-                        const Teacher = TeacherData.find(T => T.Teacher_ID === room.Identify_ID) || {};
-                        
-                        return {
-                            ...room,
-                            Email: student.Email || Teacher.Email,
-                            Name: student.Name || Teacher.Name,
-                            Status: student.Status || Teacher.Status
-                        };
-                    });
+                      const mergedData = filteredData.map(room => {
+                      const student = studentsData.find(s => s.student_id === room.student_id) || {};
+                      const Teacher = TeacherData.find(T => T.teacher_id === room.teacher_id) || {};
+                      
+                      return {
+                          ...room,
+                          email: student.email || Teacher.email,
+                          full_name: student.full_name || Teacher.full_name,
+                          role: student.role || Teacher.role,
+                          participantCount: participantCountMap[room.room_request_id] || 0 // ✅ ดึงค่าจำนวนผู้เข้าร่วม
+                      };
+                  });
 
   
                     
@@ -486,24 +508,23 @@
                     mergedData.forEach(row => {
                         tableBody.innerHTML += `
                             <tr>
-                                <td class="text-center">${new Date(row.Used_date).toLocaleDateString()}</td>
-                                <td class="text-center">${row.Name}</td>
-                                <td class="text-center">${row.Email}</td>
-                                <td class="text-center">${row.Status}</td>
-                                <td class="text-center">${row.Rooms_ID}</td>
-                                <td class="text-center">${row.Status}</td>
+                                 <td class="text-center">${new Date(row.submitted_time).toLocaleDateString('th')}</td>
+                                <td class="text-center">${row.full_name}</td>
+                                <td class="text-center">${row.email}</td>
+                                <td class="text-center">${row.role}</td>
+                                <td class="text-center">${row.room_id}</td>
+                                <td class="text-center">${row.participantCount}</td>
                                 <td class="text-center">
-                                    ${getDayOfWeek(row.Used_date) + ' ' + new Date(row.Used_date).toLocaleDateString()}<br>
-                                    ${row.Start_time.slice(0, 5) + ' - ' + row.End_time.slice(0, 5)}<br>
-                                    ${'(' + row.Requests_types + ')'}
+                                    ${getDayOfWeek(row.used_date) + ' ' + new Date(row.used_date).toLocaleDateString('th')}<br>
+                                    ${row.start_time.slice(0, 5) + ' - ' + row.end_time.slice(0, 5)}<br>
+                                    ${'(' + row.request_type + ')'}
                                 </td>
                                 <td class="text-center">
                                   <a href="../../shared/booking_documents/booking_document.pdf" target="_blank" title="เปิดเอกสาร">
                                     <i class="fas fa-file-pdf" style="font-size: 20px; color: #E40345;"></i>
                                   </a>
                                 </td>
-                                <td style="color: #929292">อนุมัติแล้ว</td>
-                                <td><button class="btn btn-danger btn-sm" onclick="updateStatus(${row.Rooms_requests_ID}, 'ไม่อนุมัติ')">ยกเลิก</button></td>
+                                <td><button class="btn btn-danger btn-sm" onclick="updateStatus(${row.room_request_id}, 'ไม่อนุมัติ')">ยกเลิก</button></td>
                             </tr>
                         `;
                     });

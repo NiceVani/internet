@@ -43,10 +43,10 @@ app.post("/login", async (req, res) => {
   try {
     const [users] = await connection
       .promise()
-      .query(
-        "SELECT * FROM user WHERE username = ? AND password = ?",
-        [username, password]
-      );
+      .query("SELECT * FROM user WHERE username = ? AND password = ?", [
+        username,
+        password,
+      ]);
 
     if (users.length === 0) {
       return res
@@ -59,9 +59,7 @@ app.post("/login", async (req, res) => {
     // ค้นหาในตาราง student
     const [studentResults] = await connection
       .promise()
-      .query("SELECT * FROM student WHERE student_id = ?", [
-        user.username,
-      ]);
+      .query("SELECT * FROM student WHERE student_id = ?", [user.username]);
 
     if (studentResults.length > 0) {
       req.session.user = { role: "นิสิต", data: studentResults[0] };
@@ -83,9 +81,7 @@ app.post("/login", async (req, res) => {
     // ค้นหาในตาราง teacher
     const [teacherResults] = await connection
       .promise()
-      .query("SELECT * FROM teacher WHERE teacher_id = ?", [
-        user.username,
-      ]);
+      .query("SELECT * FROM teacher WHERE teacher_id = ?", [user.username]);
 
     if (teacherResults.length > 0) {
       req.session.user = { role: "อาจารย์", data: teacherResults[0] };
@@ -133,7 +129,6 @@ app.get("/session", (req, res) => {
   }
 });
 
-
 // ✅ API ล็อกเอาต์ -> ล้าง Session
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
@@ -155,9 +150,23 @@ app.use(
 // 📌 Endpoint: /getSchedule
 app.get("/getSchedule", async (req, res) => {
   try {
-    const [results] = await connection
-      .promise()
-      .query("SELECT * FROM room_schedule");
+    // const [results] = await connection.promise().query(`
+    //     SELECT
+    //       room_schedule_id,
+    //       room_id,
+    //       week_day,
+    //       CONVERT_TZ(schedule_date, '+00:00', '+07:00') AS schedule_date,
+    //       CONVERT_TZ(start_time, '+00:00', '+07:00') AS start_time,
+    //       CONVERT_TZ(end_time, '+00:00', '+07:00') AS end_time,
+    //       room_status
+    //     FROM room_schedule
+    // `);
+    const [results] = await connection.promise().query(`
+      SELECT 
+        *
+      FROM room_schedule
+  `);
+
     console.log("✅ ดึงข้อมูลตารางเรียนสำเร็จ:", results.length);
     res.json(results);
   } catch (err) {
@@ -272,7 +281,7 @@ app.get("/user", (req, res) => {
     GROUP BY si.student_id 
     ORDER BY Status DESC;
   `;
-  
+
   connection.query(query, (err, studentResults) => {
     if (err) {
       console.error("❌ เกิดข้อผิดพลาด (นิสิต):", err);
@@ -315,13 +324,10 @@ app.get("/user", (req, res) => {
   });
 });
 
-
 // 📌 Endpoint: /userTeacher - ดึงข้อมูลอาจารย์
 app.get("/userTeacher", async (req, res) => {
   try {
-    const [results] = await connection
-      .promise()
-      .query("SELECT * FROM teacher");
+    const [results] = await connection.promise().query("SELECT * FROM teacher");
     console.log("✅ ดึงข้อมูลอาจารย์สำเร็จ:", results.length);
     res.json(results);
   } catch (err) {
@@ -333,9 +339,7 @@ app.get("/userTeacher", async (req, res) => {
 // 📌 Endpoint: /userAccount - ดึงข้อมูลบัญชีผู้ใช้
 app.get("/userAccount", async (req, res) => {
   try {
-    const [results] = await connection
-      .promise()
-      .query("SELECT * FROM user;");
+    const [results] = await connection.promise().query("SELECT * FROM user;");
     console.log("✅ ดึงข้อมูลบัญชีผู้ใช้สำเร็จ:", results.length);
     res.json(results);
   } catch (err) {
@@ -353,10 +357,9 @@ app.get("/userBookings/:userId", async (req, res) => {
     await connection.promise().query("SET time_zone = '+07:00'");
 
     // ตรวจสอบว่าผู้ใช้นี้เป็น "นิสิต" หรือ "อาจารย์"
-    const [userResults] = await connection.promise().query(
-      "SELECT role FROM user WHERE username = ?",
-      [userId]
-    );
+    const [userResults] = await connection
+      .promise()
+      .query("SELECT role FROM user WHERE username = ?", [userId]);
 
     if (userResults.length === 0) {
       return res.status(404).json({ error: "ไม่พบผู้ใช้ในระบบ" });
@@ -419,7 +422,6 @@ app.get("/userBookings/:userId", async (req, res) => {
   }
 });
 
-
 // 📌 Endpoint: /cancelBooking/:requestId
 app.delete("/cancelBooking/:requestId", async (req, res) => {
   const { requestId } = req.params;
@@ -433,10 +435,11 @@ app.delete("/cancelBooking/:requestId", async (req, res) => {
     }
 
     // ✅ ตรวจสอบว่ามีการจองที่ตรงกับ requestId หรือไม่
-    const [checkResult] = await connection.promise().query(
-      "SELECT * FROM room_request WHERE room_request_id = ?",
-      [requestId]
-    );
+    const [checkResult] = await connection
+      .promise()
+      .query("SELECT * FROM room_request WHERE room_request_id = ?", [
+        requestId,
+      ]);
     console.log("🔍 ข้อมูลที่ค้นหา:", checkResult);
 
     if (checkResult.length === 0) {
@@ -461,14 +464,11 @@ app.delete("/cancelBooking/:requestId", async (req, res) => {
 
     console.log(`✅ อัปเดตสถานะเป็น 'ยกเลิกการจอง' สำเร็จ! ID: ${requestId}`);
     res.json({ success: true, message: "ยกเลิกการจองสำเร็จ!" });
-
   } catch (err) {
     console.error("❌ ERROR:", err);
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการยกเลิกการจอง" });
   }
 });
-
-
 
 // Endpoint: /getEquipmentInformation
 app.get("/getEquipmentInformation", async (req, res) => {
@@ -476,10 +476,7 @@ app.get("/getEquipmentInformation", async (req, res) => {
     const [results] = await connection
       .promise()
       .query("SELECT * FROM equipment");
-    console.log(
-      "✅ ดึงข้อมูล equipment สำเร็จ:",
-      results.length
-    );
+    console.log("✅ ดึงข้อมูล equipment สำเร็จ:", results.length);
     res.json(results);
   } catch (err) {
     console.error("เกิดข้อผิดพลาดในการดึงข้อมูลอุปกรณ์:", err);
@@ -544,7 +541,6 @@ app.get("/getBrokenEquipments", async (req, res) => {
   }
 });
 
-
 app.get("/getRoomInfo", async (req, res) => {
   const roomID = req.query.room;
   if (!roomID) {
@@ -554,10 +550,9 @@ app.get("/getRoomInfo", async (req, res) => {
   try {
     const [results] = await connection
       .promise()
-      .query(
-        "SELECT room_name, room_name FROM room WHERE room_id = ?",
-        [roomID]
-      );
+      .query("SELECT room_name, room_name FROM room WHERE room_id = ?", [
+        roomID,
+      ]);
 
     if (results.length === 0) {
       return res.status(404).json({ error: "❌ ไม่พบข้อมูลห้อง" });
@@ -646,7 +641,14 @@ app.post("/bookRoom", async (req, res) => {
     return res.status(400).json({ error: "บทบาทไม่ถูกต้อง" });
   }
 
-  if (!room_id || !used_date || !start_time || !end_time || !request_reason || !request_type) {
+  if (
+    !room_id ||
+    !used_date ||
+    !start_time ||
+    !end_time ||
+    !request_reason ||
+    !request_type
+  ) {
     return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
@@ -682,7 +684,6 @@ app.post("/bookRoom", async (req, res) => {
   }
 });
 
-
 // 📌 Endpoint: /bookRoomOut - เพิ่มข้อมูลการจองห้องนอกเวลา
 app.post("/bookRoomOut", async (req, res) => {
   const {
@@ -714,7 +715,14 @@ app.post("/bookRoomOut", async (req, res) => {
     return res.status(400).json({ error: "บทบาทไม่ถูกต้อง" });
   }
 
-  if (!room_id || !used_date || !start_time || !end_time || !request_reason || !request_type) {
+  if (
+    !room_id ||
+    !used_date ||
+    !start_time ||
+    !end_time ||
+    !request_reason ||
+    !request_type
+  ) {
     return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
@@ -771,7 +779,6 @@ app.post("/bookRoomOut", async (req, res) => {
     res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
   }
 });
-
 
 // ✅ เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;

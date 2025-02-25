@@ -107,7 +107,7 @@
         <table>
           <tr>
             <td>
-              <select>
+              <select id = dayDropdown>
                 <option value="days">วันที่</option>
                 <option value="months">เดือน</option>
                 <option value="years">ปี</option>
@@ -115,21 +115,27 @@
             </td>
             <td>เวลา</td>
             <td>
-              <select>
-                <option value="room">ห้อง</option>
-                <option value="room1">SC2-211</option>
-                <option value="room2">SC2-212</option>
-                <option value="room3">SC2-307</option>
-                <option value="room4">SC2-407</option>
-                <option value="room5">SC2-414</option>
-              </select>
+              <select id="roomDropdown">
+              <option value="allroom" selected>ทั้งหมด</option>
+              <option value="SC2-211">SC2-211</option>
+              <option value="SC2-212">SC2-212</option>
+              <option value="SC2-307">SC2-307</option>
+              <option value="SC2-308">SC2-308</option>
+              <option value="SC2-311">SC2-311</option>
+              <option value="SC2-313">SC2-313</option>
+              <option value="SC2-407">SC2-407</option>
+              <option value="SC2-411">SC2-411</option>
+              <option value="SC2-414">SC2-414</option>
+          </select>
+          
             </td>
             <td>ชื่อ-นามสกุล</td>
             <td>อีเมลล์</td>
             <td>
-              <select>
-                <option value="teacher">อาจารย์</option>
-                <option value="student">นิสิต</option>
+              <select id="roleFilter">
+                <option value="all">ทั้งหมด</option>
+                <option value="อาจารย์">อาจารย์</option>
+                <option value="นิสิต">นิสิต</option>
               </select>
             </td>
           </tr>
@@ -138,6 +144,8 @@
         <table id="room-table">
           <!-- ตารางจะถูกเติมข้อมูลจาก API ที่นี่ -->
         </table>
+        <div id="pagination" style="text-align: center; margin-top: 10px;"></div>
+
         <button onclick="window.location.href='grap.html'">BACK</button>
     </div>
 
@@ -226,21 +234,88 @@
     })
     .catch((err) => console.error("Failed to load sidebar:", err));
   // end of fetch sidebar
-  fetch('http://localhost:3000/TableRoomListRequest')
-      .then(response => response.json())
-      .then(data => {
-        const table = document.getElementById('room-table');
-        data.forEach(item => {
-          const row = table.insertRow();
-          row.insertCell(0).textContent = item.Date;           // วันที่
-          row.insertCell(1).textContent = item.Time;           // เวลา
-          row.insertCell(2).textContent = item.ห้อง;           // ห้อง
-          row.insertCell(3).textContent = item.Name;           // ชื่อ-นามสกุล
-          row.insertCell(4).textContent = item.Email;          // อีเมลล์
-          row.insertCell(5).textContent = item.Status;         // สถานะ
-        });
-      })
-      .catch(error => console.error('Error fetching data:', error));
+  let currentPage = 1;
+const rowsPerPage = 10;
+let data = [];
+
+// ดึงข้อมูลจาก API ตาม filter
+function fetchData() {
+  const role = document.getElementById("roleFilter").value;
+  const room = document.getElementById("roomDropdown").value;
+  const dateFilter = document.getElementById("dayDropdown").value;
+
+  let url = `http://localhost:3000/TableRoomListRequest?role=${role}&room=${room}&dateFilter=${dateFilter}`;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(result => {
+      data = result;
+      currentPage = 1; // รีเซ็ตไปหน้าแรก
+      displayTable(currentPage);
+    })
+    .catch(error => console.error("❌ Error fetching data:", error));
+}
+
+// แสดงข้อมูลในตาราง
+function displayTable(page) {
+  const table = document.getElementById("room-table");
+  table.innerHTML = "";
+
+  const start = (page - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedData = data.slice(start, end);
+
+  paginatedData.forEach(item => {
+    const row = table.insertRow();
+    row.insertCell(0).textContent = item.date;
+    row.insertCell(1).textContent = item.time;
+    row.insertCell(2).textContent = item.room;
+    row.insertCell(3).textContent = item.name;
+    row.insertCell(4).textContent = item.email;
+    row.insertCell(5).textContent = item.role;
+  });
+
+  updatePagination();
+}
+
+// อัปเดตการแบ่งหน้า
+function updatePagination() {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
+
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+
+  const prevButton = document.createElement("button");
+  prevButton.textContent = "«";
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener("click", () => {
+    currentPage--;
+    displayTable(currentPage);
+  });
+  pagination.appendChild(prevButton);
+
+  const pageNumber = document.createElement("span");
+  pageNumber.textContent = ` ${currentPage} / ${totalPages} `;
+  pagination.appendChild(pageNumber);
+
+  const nextButton = document.createElement("button");
+  nextButton.textContent = "»";
+  nextButton.disabled = currentPage === totalPages;
+  nextButton.addEventListener("click", () => {
+    currentPage++;
+    displayTable(currentPage);
+  });
+  pagination.appendChild(nextButton);
+}
+
+// ดักจับการเปลี่ยนค่า filter แล้วโหลดข้อมูลใหม่
+document.getElementById("roleFilter").addEventListener("change", fetchData);
+document.getElementById("roomDropdown").addEventListener("change", fetchData);
+document.getElementById("dayDropdown").addEventListener("change", fetchData);
+
+// โหลดข้อมูลครั้งแรก
+fetchData();
+
 </script>
 
 </html>
