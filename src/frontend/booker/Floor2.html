@@ -357,9 +357,62 @@
         background-color: #6c3483;
       }
 
+      /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+      .available {
+        background-color: #8e8e8e !important; /* ✅ สีเขียว */
+      }
+
+      /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
       .disabled-room {
-        pointer-events: none; /* ป้องกันการกด */
-        cursor: not-allowed; /* เปลี่ยนเมาส์เป็น "ห้าม" */
+        pointer-events: none;
+        cursor: not-allowed;
+        background-color: #8e8e8e !important; /* ❌ สีแดง */
+      }
+
+      /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+      .status-label {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        border: 2px solid white;
+      }
+
+      /* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** */
+      .no-data {
+        background-color: #ff0000 !important; /* 🔴 พื้นหลังแดง */
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+      .no-data .status-label {
+        display: none !important;
+      }
+
+      /* ✅ ป้าย "ว่าง" */
+      .available .status-label {
+        background-color: green;
+      }
+
+      /* ✅ ป้าย "ไม่ว่าง" */
+      .disabled-room .status-label {
+        background-color: red;
+      }
+
+      /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+      .available::after,
+      .disabled-room::after {
+        content: none !important;
       }
     </style>
   </head>

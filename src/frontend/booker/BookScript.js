@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   fetchUserInfo();
+  fetchRoomStatus();
   attachRoomClickEvents();
 });
 
@@ -44,6 +45,28 @@ async function fetchUserInfo() {
   }
 }
 
+async function logout() {
+  try {
+    const response = await fetch("http://localhost:3000/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการออกจากระบบ");
+
+    alert("ออกจากระบบสำเร็จ");
+    redirectToLogin();
+  } catch (error) {
+    console.error("❌ ไม่สามารถออกจากระบบได้:", error);
+    alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+  }
+}
+
+// ✅ ฟังก์ชันเปลี่ยนหน้าไป login.html
+function redirectToLogin() {
+  window.location.href = "login.html";
+}
+
 // ✅ ฟังก์ชันอัปเดตชื่อผู้ใช้
 function updateUserName(name) {
   const userNameElement = document.getElementById("user-name");
@@ -67,24 +90,58 @@ function attachRoomClickEvents() {
 }
 
 // ✅ ฟังก์ชันออกจากระบบ
-async function logout() {
+
+// ✅ ฟังก์ชันดึงสถานะห้องจากฐานข้อมูล
+async function fetchRoomStatus() {
   try {
-    const response = await fetch("http://localhost:3000/logout", {
-      method: "POST",
-      credentials: "include",
+    const response = await fetch("http://localhost:3000/getRoomStatus");
+    if (!response.ok) throw new Error("Failed to fetch room data");
+
+    const rooms = await response.json();
+    console.log("✅ ห้องที่ดึงมา:", rooms);
+
+    const allRoomElements = document.querySelectorAll(".room");
+
+    allRoomElements.forEach((roomElement) => {
+      const roomId = roomElement.dataset.room;
+      if (!roomId) return;
+
+      // 🔹 ค้นหาห้องจากฐานข้อมูล
+      const roomData = rooms.find((r) => r.room_id === roomId);
+
+      let statusElement = roomElement.querySelector(".status-label");
+      if (!statusElement) {
+        statusElement = document.createElement("div");
+        statusElement.classList.add("status-label");
+        roomElement.appendChild(statusElement);
+      }
+
+      if (roomData) {
+        // ✅ ห้องมีข้อมูลในฐานข้อมูล
+        if (roomData.room_status.trim() === "เปิดการใช้งาน") {
+          roomElement.classList.add("available");
+          roomElement.classList.remove("disabled-room", "no-data");
+          statusElement.textContent = "ว่าง";
+          statusElement.style.backgroundColor = "green";
+          roomElement.style.backgroundColor = "#5cb85c"; // 🟢 สีเขียว
+          roomElement.style.cursor = "pointer";
+        } else {
+          roomElement.classList.add("disabled-room");
+          roomElement.classList.remove("available", "no-data");
+          statusElement.textContent = "ไม่ว่าง";
+          statusElement.style.backgroundColor = "red"; // ❌ สีแดงเฉพาะป้าย
+          roomElement.style.backgroundColor = "#8e8e8e"; // ⚫ เทาสำหรับห้อง
+          roomElement.style.cursor = "not-allowed";
+        }
+      } else {
+        // ❌ ห้องไม่มีข้อมูล → พื้นหลังแดง ไม่มีข้อความ
+        roomElement.classList.add("no-data");
+        roomElement.classList.remove("available", "disabled-room");
+        roomElement.style.backgroundColor = "#ff0000"; // 🔴 สีแดงทั้งห้อง
+        statusElement.textContent = ""; // ไม่แสดงข้อความใดๆ
+      }
     });
-
-    if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการออกจากระบบ");
-
-    alert("ออกจากระบบสำเร็จ");
-    redirectToLogin();
   } catch (error) {
-    console.error("❌ ไม่สามารถออกจากระบบได้:", error);
-    alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    console.error("❌ Error loading room status:", error);
   }
-}
-
-// ✅ ฟังก์ชันเปลี่ยนหน้าไป login.html
-function redirectToLogin() {
-  window.location.href = "login.html";
 }

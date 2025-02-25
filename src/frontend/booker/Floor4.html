@@ -11,566 +11,431 @@
 <body>
   <style>
     .room:hover {
-      transform: scale(1.05);
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding-top: 60px;
-    }
-
-    .modal-content {
-      background-color: #fff;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      border-radius: 10px;
-    }
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background-color: #d9c1ab;
-    }
-
-    header {
-      background-color: #d9c1ab;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 2px solid #000;
-    }
-
-    .floor-buttons {
-      display: flex;
-      gap: 15px;
-    }
-
-    .floor-buttons button {
-      background-color: #6c34a3;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .floor-buttons button:hover {
-      background-color: #563080;
-    }
-
-    .floor-buttons button:active {
-      box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.4);
-    }
-
-    main {
-      display: flex;
-      flex: 1;
-    }
-
-    .layout {
-      flex: 3;
-      background-color: white;
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-template-rows: repeat(7, 1fr);
-      gap: 1px;
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 50px);
-      overflow: auto;
-      box-sizing: border-box;
-      padding: 20px;
-      border-bottom-left-radius: 10px;
-      border-top-left-radius: 10px;
-    }
-
-    .room {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 14px;
-      text-align: center;
-      border: 2px solid #000;
-      border-radius: 10px;
-      background-color: #ff0000;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .room.large {
-      position: relative;
-      grid-column: 2 / span 2;
-      grid-row: 1 / span 2;
-    }
-
-    .room.large::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.large.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.largeDown1 {
-      position: relative;
-      grid-column: 6 / span 2;
-      grid-row: 6 / span 2;
-      background-color: #8e8e8e;
-    }
-
-    .room.largeDown1::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: #ff0000;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.largeDown1.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.largeDown2 {
-      position: relative;
-      grid-column: 8 / span 2;
-      grid-row: 6 / span 2;
-      background-color: #8e8e8e;
-    }
-
-    .room.largeDown2::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.largeDown2.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.large1 {
-      position: relative;
-      grid-column: 6 / span 2;
-      grid-row: 1 / span 2;
-      background-color: #8e8e8e;
-    }
-
-    .room.large1::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.large1.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.small {
-      position: relative;
-      grid-column: 4 / span 1;
-      grid-row: 1 / span 1;
-      background-color: #8e8e8e;
-    }
-
-    .room.small::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 1px;
-      /* Adjust to move above the top edge */
-      left: 50%;
-      /* Horizontally center relative to the parent */
-      transform: translateX(-50%);
-      /* Offset to perfectly center */
-      width: 25px;
-      height: 25px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visible */
-    }
-
-    .room.small.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.smallDown {
-      position: relative;
-      grid-column: span 1;
-      grid-row: 7 / span 1;
-      background-color: #8e8e8e;
-    }
-
-    .room.smallDown::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 1px;
-      /* Adjust to move above the top edge */
-      left: 50%;
-      /* Horizontally center relative to the parent */
-      transform: translateX(-50%);
-      /* Offset to perfectly center */
-      width: 25px;
-      height: 25px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visible */
-    }
-
-    .room.smallDown.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.small1 {
-      grid-column: 9 / span 1;
-      grid-row: 1 / span 1;
-      background-color: #ff0000;
-    }
-
-    .room.small2 {
-      grid-column: 9 / span 1;
-      grid-row: 2 / span 1;
-      background-color: #ff0000;
-    }
-
-    .room.small4 {
-      grid-column: 11 / span 1;
-      grid-row: 2 / span 1;
-      background-color: #ff0000;
-    }
-
-    .room.vertical {
-      position: relative;
-      grid-row: span 2;
-      background-color: #8e8e8e;
-    }
-
-    .room.vertical::after {
-      content: 'ไม่ว่าง';
-      /* Displayed as "Not Available" in Thai */
-      position: absolute;
-      top: 10px;
-      right: 7px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visi /* Makes it a circle */
-    }
-
-    .room.vertical.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.verticalDown {
-      grid-column: span 1;
-      grid-row: 6 / span 2;
-      background-color: #ff0000;
-    }
-
-    .room.vertical1 {
-      position: relative;
-      grid-column: 8 / span 1;
-      grid-row: span 2;
-      background-color: #8e8e8e;
-    }
-
-    .room.vertical1::after {
-      content: 'ไม่ว่าง';
-      /* Displayed as "Not Available" in Thai */
-      position: absolute;
-      top: 10px;
-      right: 7px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visi /* Makes it a circle */
-    }
-
-    .room.vertical1.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
-    .room.vertical1Down {
-      grid-column: span 1;
-      grid-row: 6 / span 2;
-      background-color: #ff0000;
-    }
-
-    .available {
-      background-color: #5cb85c;
-    }
-
-    .sidebar {
-      flex: 1;
-      background-color: #f8f9fa;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      border-left: 2px solid #000;
-      border: 2px solid #000;
-      border-bottom-right-radius: 10px;
-      border-top-right-radius: 10px;
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-
-    .reports {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      text-align: left;
-      /* จัดข้อความชิดซ้าย */
-    }
-
-    .report-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      /* เพิ่มช่องว่างระหว่างไอคอนกับข้อความ */
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 20px;
-      background-color: #fff;
-      text-align: left;
-      /* จัดข้อความชิดซ้าย */
-    }
-
-    .report {
-      background-color: #fff3cd;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ffeeba;
-      border-radius: 5px;
-      border: 1px solid #000000;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #6c34a3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #563080;
-    }
-
-    .icon {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      font-size: 18px;
-      color: rgb(0, 0, 0);
-      flex-shrink: 0;
-    }
-
-    .icon-red {
-      background-color: red;
-    }
-
-    .icon-green {
-      background-color: green;
-    }
-
-
-    .header {
-      background-color: #e54715;
-      padding: 15px;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-title {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .nav {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav a {
-      color: white;
-      text-decoration: none;
-      font-size: 16px;
-    }
-
-    .nav a:hover {
-      text-decoration: underline;
-    }
-
-    .nav a.active {
-      font-weight: bold;
-      text-decoration: underline;
-    }
-
-    .content {
-      padding: 20px;
-      text-align: center;
-    }
-
-    .floor-selector {
-      margin-bottom: 20px;
-    }
-
-    .floor-selector button {
-      background-color: #a569bd;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 5px;
-    }
-
-    .floor-selector button:hover {
-      background-color: #512e5f;
-    }
-
-    .floor-selector button.active {
-      background-color: #6c3483;
-    }
-
-    .disabled-room {
-      pointer-events: none; /* ป้องกันการกด */
-      cursor: not-allowed; /* เปลี่ยนเมาส์เป็น "ห้าม" */
-    }
+    transform: scale(1.05);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding-top: 60px;
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 10px;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #d9c1ab;
+  }
+
+  header {
+    background-color: #d9c1ab;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 2px solid #000;
+  }
+
+  .floor-buttons {
+    display: flex;
+    gap: 15px;
+  }
+
+  .floor-buttons button {
+    background-color: #6c34a3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .floor-buttons button:hover {
+    background-color: #563080;
+  }
+
+  .floor-buttons button:active {
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  main {
+    display: flex;
+    flex: 1;
+  }
+
+  .layout {
+    flex: 3;
+    background-color: white;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 1px;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 50px);
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+  }
+
+  .room {
+    position: relative; /* ✅ ต้องใช้เพื่อให้ ::after ทำงาน */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    text-align: center;
+    border: 2px solid #000;
+    border-radius: 10px;
+    background-color: #ff0000;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+
+  .room.large {
+    position: relative;
+    grid-column: 2 / span 2;
+    grid-row: 1 / span 2;
+    background-color: #8e8e8e;
+  }
+
+  .room.largeDown1 {
+    position: relative;
+    grid-column: 6 / span 2;
+    grid-row: 6 / span 2;
+    background-color: #8e8e8e;
+  }
+
+  .room.largeDown2 {
+    position: relative;
+    grid-column: 8 / span 2;
+    grid-row: 6 / span 2;
+    background-color: #8e8e8e;
+  }
+
+  .room.large1 {
+    position: relative;
+    grid-column: 6 / span 2;
+    grid-row: 1 / span 2;
+    background-color: #8e8e8e;
+  }
+
+  .room.small {
+    position: relative;
+    grid-column: 4 / span 1;
+    grid-row: 1 / span 1;
+    background-color: #8e8e8e;
+  }
+
+
+  .room.smallDown {
+    position: relative;
+    grid-column: span 1;
+    grid-row: 7 / span 1;
+    background-color: #8e8e8e;
+  }
+
+
+  .room.small1 {
+    grid-column: 9 / span 1;
+    grid-row: 1 / span 1;
+    background-color: #ff0000;
+    cursor: not-allowed;
+  }
+
+  .room.small2 {
+    grid-column: 9 / span 1;
+    grid-row: 2 / span 1;
+    background-color: #ff0000;
+    cursor: not-allowed;
+  }
+
+  .room.small4 {
+    grid-column: 11 / span 1;
+    grid-row: 2 / span 1;
+    background-color: #ff0000;
+    cursor: not-allowed;
+  }
+
+  .room.vertical {
+    position: relative;
+    grid-row: span 2;
+    background-color: #8e8e8e;
+  }
+
+ 
+
+  .room.verticalDown {
+    grid-column: span 1;
+    grid-row: 6 / span 2;
+    background-color: #ff0000;
+    cursor: not-allowed;
+  }
+
+  .room.vertical1 {
+    position: relative;
+    grid-column: 8 / span 1;
+    grid-row: span 2;
+    background-color: #8e8e8e;
+  }
+
+  .room.vertical1Down {
+    grid-column: span 1;
+    grid-row: 6 / span 2;
+    background-color: #ff0000;
+    cursor: not-allowed;
+  }
+
+  .sidebar {
+    flex: 1;
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid #000;
+    border: 2px solid #000;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+
+  .reports {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    text-align: left;
+    /* จัดข้อความชิดซ้าย */
+  }
+
+  .report-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* เพิ่มช่องว่างระหว่างไอคอนกับข้อความ */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: #fff;
+    text-align: left;
+    /* จัดข้อความชิดซ้าย */
+  }
+
+  .report {
+    background-color: #fff3cd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ffeeba;
+    border-radius: 5px;
+    border: 1px solid #000000;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #6c34a3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #563080;
+  }
+
+  .icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 18px;
+    color: rgb(0, 0, 0);
+    flex-shrink: 0;
+  }
+
+  .icon-red {
+    background-color: red;
+  }
+
+  .icon-green {
+    background-color: green;
+  }
+
+
+  .header {
+    background-color: #e54715;
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  .nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  .nav a:hover {
+    text-decoration: underline;
+  }
+
+  .nav a.active {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  .content {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .floor-selector {
+    margin-bottom: 20px;
+  }
+
+  .floor-selector button {
+    background-color: #a569bd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+  }
+
+  .floor-selector button:hover {
+    background-color: #512e5f;
+  }
+
+  .floor-selector button.active {
+    background-color: #6c3483;
+  }
+
+  .disabled-room {
+    pointer-events: none;
+    /* ปิดการกด */
+    cursor: not-allowed;
+    background-color: #8e8e8e !important;
+    /* สีเทาเพื่อแสดงว่าไม่ว่าง */
+  }
+
+  /* .room[style*="background-color: red"],
+  .room[style*="background-color: #ff0000"] {
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+  } */
+
+  /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+.available {
+    background-color: #8e8e8e !important; /* ✅ สีเขียว */
+}
+
+
+/* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+.disabled-room {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #8e8e8e !important; /* ❌ สีแดง */
+}
+
+/* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+.status-label {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    border: 2px solid white;
+}
+
+/* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** */
+.no-data {
+    background-color: #ff0000 !important; /* 🔴 พื้นหลังแดง */
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+.no-data .status-label {
+    display: none !important;
+}
+
+/* ✅ ป้าย "ว่าง" */
+.available .status-label {
+    background-color: green;
+}
+
+/* ✅ ป้าย "ไม่ว่าง" */
+.disabled-room .status-label {
+    background-color: red;
+}
+
+/* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+.available::after,
+.disabled-room::after {
+    content: none !important;
+}
 
   </style>
 
@@ -592,10 +457,10 @@
         <button onclick="window.location.href='Floor4.html'" class="floor-btn active">ชั้น 4</button>
         <main>
           <div class="layout">
-            <div class="room vertical available" data-room="411">SC2-411<br>(Studio Room)</div>
-            <div class="room large disabled-room" data-room="412">SC2-412</div>
+            <div class="room vertical " data-room="411">SC2-411<br>(Studio Room)</div>
+            <div class="room large " data-room="412">SC2-412</div>
             <div class="room small" data-room="413">SC2-413</div>
-            <div class="room large1 available" data-room="414">SC2-414</div>
+            <div class="room large1 " data-room="414">SC2-414</div>
             <div class="room vertical1" data-room="415">SC2-415</div>
             <div class="room small1" data-room="416">SC2-416</div>
             <div class="room small2" data-room="416">SC2-416</div>
