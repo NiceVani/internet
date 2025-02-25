@@ -160,6 +160,37 @@
       </div>
   </div>
 </div>
+
+<!-- Modal สำหรับปฏิเสธการจอง -->
+<div id="rejectModal" class="modal fade" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="rejectModalLabel">ปฏิเสธการขอใช้ห้อง</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <input type="hidden" id="rejectRequestId">
+              
+              <label for="rejectReason">เหตุผล:</label>
+              <select id="rejectReason" class="form-select">
+                <option value="จำนวนคนใช้ห้องน้อยเกินไป">จำนวนคนใช้ห้องน้อยเกินไป</option>
+                <option value="คำขอซ้ำซ้อน">คำขอซ้ำซ้อน</option>
+                <option value="ห้องมีการบำรุงรักษาหรือติดตั้งอุปกรณ์ใหม่">ห้องมีการบำรุงรักษาหรือติดตั้งอุปกรณ์ใหม่</option>
+                <option value="มีการใช้ห้องผิดประเภท">มีการใช้ห้องผิดประเภท</option>
+              </select>
+              
+              <label for="rejectDetail" class="mt-2">รายละเอียดเพิ่มเติม:</label>
+              <input type="text" id="rejectDetail" class="form-control" maxlength="255">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+              <button type="button" class="btn btn-danger" onclick="submitReject()">ยืนยัน</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
