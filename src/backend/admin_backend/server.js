@@ -2,6 +2,8 @@ const express = require('express');
 const connection = require('./db'); // Import database connection
 const cors = require('cors');
 const path = require('path');
+const fs = require("fs");
+
 const util = require('util');
 
 const app = express();
@@ -15,7 +17,7 @@ const allowedTables = [
     'equipment_management', 'executive', 'room',
     'room_request', 'room_request_computer', 'room_request_equipment',
     'room_request_participant', 'room_schedule', 'room_type',
-    'student', 'teacher', 'user'
+    'student', 'teacher', 'user', 'equipment_brokened'
 ];
 
 app.get('/data/:table', async (req, res) => {
@@ -135,6 +137,51 @@ app.get('/data/room_schedule', async (req, res) => {
         res.status(500).json({ error: 'Database query failed' });
     }
 });
+
+app.get('/data/equipment_brokened', async (req, res) => {
+    try {
+        const results = await query('SELECT * FROM equipment_brokened');
+        console.log("✅ Retrieved Data Sample:", results.slice(0, 5)); // แสดงข้อมูลตัวอย่าง 5 รายการ
+        res.json(results);
+    } catch (err) {
+        console.error('❌ Error fetching equipment_brokened:', err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+app.post('/updateEquipmentStatus', async (req, res) => {
+    const { repair_id, new_status } = req.body;
+
+    try {
+        const sql = `UPDATE equipment_brokened SET repair_status = ? WHERE repair_number = ?`;
+        const params = [new_status, repair_id];
+
+        const result = await query(sql, params);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
+        }
+
+        console.log(`✅ สถานะของแจ้งซ่อม ${repair_id} อัปเดตเป็น: ${new_status}`);
+        res.json({ message: "สถานะอัปเดตเรียบร้อย", updatedStatus: new_status });
+
+    } catch (error) {
+        console.error("❌ Database error:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตสถานะ", error: error.message });
+    }
+});
+
+app.get("/image/:filename", async(req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "../storage/equipment_img", filename);
+
+    if (fs.existsSync(filePath)) {
+        res.setHeader("Content-Type", "image/jpeg");
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: "File not found" });
+    }
+});
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
