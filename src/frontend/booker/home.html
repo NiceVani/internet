@@ -595,7 +595,7 @@
           }
 
           brokenEquipments.forEach((item, index) => {
-            const repairDate = new Date(item.repair_date).toLocaleString(
+            const repairDate = new Date(item.Repair_date).toLocaleString(
               "th-TH",
               {
                 year: "numeric",
@@ -610,11 +610,11 @@
             const row = document.createElement("tr");
             row.innerHTML = `
                   <td>${repairDate}</td>
-                  <td>${item.equipment_name}</td>
-                  <td>${item.damage_details}</td>
-                  <td>SC2-${item.room_id}</td>
+                  <td>${item.Equipments_name}</td>
+                  <td>${item.Damaged_details}</td>
+                  <td>SC2-${item.Rooms_ID}</td>
                   <td>${item.Admin_Name}</td>
-                  <td class="status">${item.repair_status}</td>
+                  <td class="status">${item.Repair_status}</td>
                   <td><button class="details-btn" onclick="openDetailsModal(${index})">รายละเอียด</button></td>
               `;
 
@@ -642,7 +642,7 @@
 
         console.log("📌 ข้อมูลที่ดึงมา:", item);
 
-        const repairDate = new Date(item.repair_date).toLocaleString("th-TH", {
+        const repairDate = new Date(item.Repair_date).toLocaleString("th-TH", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
@@ -656,11 +656,11 @@
         <div class="details-container">
             <div class="details-row"><strong>ผู้แจ้ง:</strong> ${item.Admin_Name}</div>
             <div class="details-row"><strong>เวลาที่แจ้งซ่อม:</strong> ${repairDate}</div>
-            <div class="details-row"><strong>ชื่ออุปกรณ์:</strong> ${item.equipment_name}</div>
-            <div class="details-row"><strong>รายละเอียด:</strong> ${item.damage_details}</div>
-            <div class="details-row"><strong>ห้อง:</strong> SC2-${item.room_id}</div>
+            <div class="details-row"><strong>ชื่ออุปกรณ์:</strong> ${item.Equipments_name}</div>
+            <div class="details-row"><strong>รายละเอียด:</strong> ${item.Damaged_details}</div>
+            <div class="details-row"><strong>ห้อง:</strong> SC2-${item.Rooms_ID}</div>
             <div class="details-row"><strong>ผู้รับแจ้งซ่อม:</strong> ${item.Admin_Name}</div>
-            <div class="details-row"><strong>สถานะ:</strong> ${item.repair_status}</div>
+            <div class="details-row"><strong>สถานะ:</strong> ${item.Repair_status}</div>
         </div>
     `;
 
