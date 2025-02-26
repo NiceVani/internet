@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        rel="stylesheet"
+      />
     <title>Floor Layout</title>
     <style>
         body {
@@ -14,7 +18,7 @@
             height: 100vh;
             background-color: #d9c1ab;
         }
-
+        
         header {
             background-color: #d9c1ab;
             padding: 10px;
@@ -23,12 +27,12 @@
             align-items: center;
             border-bottom: 2px solid #000;
         }
-
+        
         .floor-buttons {
             display: flex;
             gap: 15px;
         }
-
+        
         .floor-buttons button {
             background-color: #6c34a3;
             color: white;
@@ -38,28 +42,33 @@
             cursor: pointer;
             font-size: 16px;
         }
-
+        
         .floor-buttons button:hover {
             background-color: #563080;
         }
-
+        
         main {
             display: flex;
             flex: 1;
         }
-
+        
         .layout {
             flex: 3;
             background-color: white;
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             grid-template-rows: repeat(7, 1fr);
-            grid-gap: 5px;
-            padding: 20px;
+            gap: 1px;
             position: relative;
-            border: 2px solid #000;
+            width: 100%;
+            height: calc(100vh - 50px);
+            overflow: auto;
+            box-sizing: border-box;
+            padding: 20px;
+            border-bottom-left-radius: 10px;
+            border-top-left-radius: 10px;
         }
-
+        
         .room {
             display: flex;
             justify-content: center;
@@ -73,184 +82,116 @@
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
         }
-
+        
         .room.red {
             pointer-events: none;
         }
-
+        
         .room:hover {
-            background-color: #f0ad4e;
-            transform: scale(1.1);
-        }
-
+            transform: scale(1.05);
+          }
+        
         .room.large {
             position: relative;
             grid-column: 5 / span 2;
             grid-row: 1 / span 2;
             background-color: #8e8e8e;
         }
-
-        .room.large::after {
-            content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
-
-        .room.large.available::after {
-            content: 'ว่าง';
-            /* Content changes to "Available" */
-            background-color: green;
-            /* Change color to green for available rooms */
-        }
-
+        
+        
+        
+        
         .room.small {
             position: relative;
             grid-column: 5 / span 2;
             grid-row: 1 / span 2;
             background-color: #8e8e8e;
         }
-
-        .room.small::after {
-            content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
-            position: absolute;
-            top: 10px;
-            right: 7px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
-
-        .room.small.available::after {
-            content: 'ว่าง';
-            /* Content changes to "Available" */
-            background-color: green;
-            /* Change color to green for available rooms */
-        }
-
-
+        
+        
+        
+        
+        
+        
         .room.large.sc2-308 {
             grid-column: 7 / span 2;
             grid-row: 1 / span 2;
             background-color: #8e8e8e;
         }
-
+        
         .room.vertical_1 {
             grid-row: span 2;
         }
-
+        
         .room.vertical_2 {
             grid-row: span 2;
             grid-column: 10;
         }
-
+        
         .room.vertical_3 {
             grid-row: span 2;
             grid-column: 11;
         }
-
+        
         .room.vertical_4 {
             grid-row: span 2;
             grid-column: 12;
         }
-
+        
         .room.vertical_5 {
             grid-row: 6 / span 2;
             grid-column: 1 / span 1;
         }
-
+        
         .room.vertical_6 {
             grid-row: 6 / span 2;
             grid-column: 2 / span 1;
         }
-
+        
         .room.vertical_7 {
             grid-row: 6 / span 2;
             grid-column: 3 / span 1;
         }
-
+        
         .room.vertical_8 {
             grid-row: 6 / span 2;
             grid-column: 5 / span 1;
-            background-color: gray;
         }
-
+        
         .room.vertical_9 {
             grid-row: 6 / span 2;
             grid-column: 6 / span 1;
             background-color: gray;
         }
-
+        
         .room.vertical_10.room.large.sc2-313 {
             grid-column: 7 / span 2;
             grid-row: 6 / span 2;
             background-color: gray;
         }
-
+        
         .room.vertical_11.room.large.sc2-311 {
             grid-column: 11 / span 2;
             grid-row: 6 / span 2;
             background-color: gray;
         }
-
+        
         .sidebar {
             flex: 1;
             background-color: #f8f9fa;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            border-left: 2px solid #000;
             border: 2px solid #000;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
         }
-
+        
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-
-        .categories {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-
-        .categories li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #000000;
-            border-radius: 51px;
-            background-color: #fff;
-        }
-
-        .categories li span {
-            background-color: #eb0f0f;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-
+        
         .reports {
             flex: 1;
             overflow-y: auto;
@@ -258,7 +199,7 @@
             text-align: left;
             /* จัดข้อความชิดซ้าย */
         }
-
+        
         .report-item {
             display: flex;
             align-items: center;
@@ -271,7 +212,7 @@
             text-align: left;
             /* จัดข้อความชิดซ้าย */
         }
-
+        
         .report {
             background-color: #fff3cd;
             padding: 10px;
@@ -280,7 +221,7 @@
             border-radius: 5px;
             border: 1px solid #000000;
         }
-
+        
         button {
             padding: 10px 20px;
             background-color: #6c34a3;
@@ -289,123 +230,219 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
+        
         button:hover {
             background-color: #563080;
         }
+        
+        .icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 18px;
+            color: rgb(0, 0, 0);
+            flex-shrink: 0;
+          }
+        
+          .icon-red {
+            background-color: red;
+          }
+        
+          .icon-green {
+            background-color: green;
+          }
+        
+        
+        .header {
+            background-color: #e54715;
+            padding: 15px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .header-title {
+            font-size: 20px;
+            font-weight: bold;
+          }
+          .nav {
+            display: flex;
+            gap: 20px;
+          }
+          .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+          }
+          .nav a:hover {
+            text-decoration: underline;
+          }
+          .nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+          }
+          .content {
+            padding: 20px;
+            text-align: center;
+          }
+          .floor-selector {
+            margin-bottom: 20px;
+          }
+          .floor-selector button {
+            background-color: #a569bd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+          }
+          .floor-selector button:hover {
+            background-color: #512e5f;
+          }
+          .floor-selector button.active {
+            background-color: #6c3483;
+          }
+        
+          
+          /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+        .available {
+            background-color: #8e8e8e !important; /* ✅ สีเขียว */
+        }
+        
+        
+        /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+        .disabled-room {
+            pointer-events: none;
+            cursor: not-allowed;
+            background-color: #8e8e8e !important; /* ❌ สีแดง */
+        }
+        
+        /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+        .status-label {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+        }
+        
+        /* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** */
+        .no-data {
+            background-color: #ff0000 !important; /* 🔴 พื้นหลังแดง */
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        
+        /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+        .no-data .status-label {
+            display: none !important;
+        }
+        
+        /* ✅ ป้าย "ว่าง" */
+        .available .status-label {
+            background-color: green;
+        }
+        
+        /* ✅ ป้าย "ไม่ว่าง" */
+        .disabled-room .status-label {
+            background-color: red;
+        }
+        
+        /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+        .available::after,
+        .disabled-room::after {
+            content: none !important;
+        }
+        
+          
     </style>
 </head>
 
 <body>
-    <main>
-        <div class="layout">
-            <div class="room red vertical_1">SC2-304</div>
-            <div class="room red vertical_1">SC2-305</div>
-            <div class="room red vertical_1">SC2-306</div>
-
-            <div onclick="window.location.href='Schedule.php'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large" id="SC2-307" value="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
-            <div onclick="window.location.href='Schedule.php'" style="cursor: pointer; text-decoration: none; color: inherit;" class="room large sc2-308" id="SC2-308">SC2-308</div>
-
-            <div class="room red vertical_2">ห้องน้ำ</div>
-            <div class="room red vertical_3">ห้องน้ำ</div>
-            <div class="room red vertical_4">SC2-310</div>
-            <div class="room red vertical_5">SC2-301</div>
-            <div class="room red vertical_6">SC2-302</div>
-            <div class="room red vertical_7">SC2-303</div>
-            <div class="room vertical_8 small" id="SC2-314" onclick="manageRoom('SC2-314')">SC2-314</div>
-            <div class="room vertical_9 small" id="SC2-313-1" onclick="manageRoom('SC2-313-1')">SC2-313-1</div>
-            <div class="room vertical_10 room large sc2-313" id="SC2-313" onclick="manageRoom('SC2-313')">SC2-313</div>
-            <div class="room vertical_11 room large sc2-311" id="SC2-311" onclick="manageRoom('SC2-311')">SC2-311</div>
+    <div class="header">
+        <div class="header-title">EasyRoom Reservation System</div>
+        <div class="nav">
+          <a href="home.html">หน้าหลัก</a>
+          <a href="#" class="active">จองห้อง</a>
+          <a href="repost.html">รายงาน</a>
+          <button onclick="logout()">ออกจากระบบ</button>
         </div>
-
-        <div class="sidebar">
-            <div class="reports">
-                <div class="report-item">
-                    <span class="icon icon-red"></i></span> <!-- ไอคอนจองไม่ได้ -->
-                    <span>จองไม่ได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon icon-green"></i></span> <!-- ไอคอนจองได้ -->
-                    <span>จองได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span> <!-- ไอคอนห้องเล็กเชอร์ -->
-                    <span>ห้องเล็กเชอร์</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-laptop-code"></i></span> <!-- ไอคอนห้องปฏิบัติการ -->
-                    <span>ห้องปฏิบัติการ</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-users"></i></span> <!-- ไอคอนห้องประชุม -->
-                    <span>ห้องประชุม</span>
-                </div>
-            </div>
-
+      </div>
+      <div class="content">
+        <div class="floor-selector">
+          <!-- เมื่อกดปุ่มจะไปเปิดไฟล์ Floor*.html -->
+          <button onclick="window.location.href='Floor2.html'">ชั้น 2</button>
+          <button onclick="window.location.href='Floor3.html'" class="floor-btn active">ชั้น 3</button>
+          <button onclick="window.location.href='Floor4.html'">ชั้น 4</button>
+          <main>
+              <div class="layout">
+                  <div class="room red vertical_1" data-room="304">SC2-304</div>
+                  <div class="room red vertical_1" data-room="305">SC2-305</div>
+                  <div class="room red vertical_1" data-room="306">SC2-306</div>
+      
+                  <div class="room large available" data-room="307">SC2-307 <i class="fas fa-chalkboard-teacher"></i></span></div>
+                  <div class="room large sc2-308 available" data-room="308">SC2-308</div>
+      
+                  <div class="room red vertical_2">ห้องน้ำ</div>
+                  <div class="room red vertical_3">ห้องน้ำ</div>
+                  <div class="room red vertical_4" data-room="310">SC2-310</div>
+                  <div class="room red vertical_5" data-room="301">SC2-301</div>
+                  <div class="room red vertical_6" data-room="302">SC2-302</div>
+                  <div class="room red vertical_7" data-room="303">SC2-303</div>
+                  <div class="room red vertical_8" data-room="314">SC2-314</div>
+                  <div class="room vertical_9 small available" data-room="313-1">SC2-313-1</div>
+                  <div class="room vertical_10 room large sc2-313 available" data-room="313">SC2-313</div>
+                  <div class="room vertical_11 room large sc2-311 available" data-room="311">SC2-311<br>(Co-working Space)</div>
+              </div>
+      
+              <div class="sidebar">
+                  <div class="reports">
+                      <div class="report-item">
+                          <span class="icon icon-red"></i></span> <!-- ไอคอนจองไม่ได้ -->
+                          <span>จองไม่ได้</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon icon-green"></i></span> <!-- ไอคอนจองได้ -->
+                          <span>จองได้</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span> <!-- ไอคอนห้องเล็กเชอร์ -->
+                          <span>ห้องเล็กเชอร์</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-laptop-code"></i></span> <!-- ไอคอนห้องปฏิบัติการ -->
+                          <span>ห้องปฏิบัติการ</span>
+                      </div>
+                      <div class="report-item">
+                          <span class="icon"><i class="fas fa-users"></i></span> <!-- ไอคอนห้องประชุม -->
+                          <span>ห้องประชุม</span>
+                      </div>
+                  </div>
+      
+              </div>
+          </main>
         </div>
-    </main>
+      </div>
 
 
     <script>
         // Modal references
-        const modal = document.getElementById("roomModal");
-        const closeModal = document.querySelector(".close");
-        const saveStatusButton = document.getElementById("saveStatus");
-        const statusSelect = document.getElementById("status");
-        const roomDetailTitle = document.getElementById("roomDetailTitle");
-        // Global variable to store the current room element being edited
-        let currentRoomElement = null;
-
-        saveStatusButton.onclick = function() {
-            const selectedStatus = statusSelect.value;
-
-            if (selectedStatus === "available") {
-                currentRoomElement.classList.add('available');
-                currentRoomElement.classList.remove('not-available');
-            } else {
-                currentRoomElement.classList.add('not-available');
-                currentRoomElement.classList.remove('available');
-            }
-
-            // Save the room status in localStorage
-            localStorage.setItem(currentRoomElement.id, selectedStatus);
-
-            // Close the modal after saving
-            modal.style.display = "none";
-        }
-
-        // Close the modal
-        closeModal.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // Close the modal if clicked outside of it
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        // Load room status from localStorage when the page reloads
-        window.onload = function() {
-            const rooms = document.querySelectorAll('.room');
-
-            rooms.forEach(room => {
-                const savedStatus = localStorage.getItem(room.id);
-
-                if (savedStatus) {
-                    if (savedStatus === "available") {
-                        room.classList.add('available');
-                        room.classList.remove('not-available');
-                    } else {
-                        room.classList.add('not-available');
-                        room.classList.remove('available');
-                    }
-                }
-            });
-        }
+        
     </script>
+    <script src="BookScript.js"></script>
 
 </body>
-
 </html>

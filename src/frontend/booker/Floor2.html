@@ -1,429 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <head>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    </head>    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
     <title>Floor Layout</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <style>
-        .room:hover {
-            transform: scale(1.05);
-        }
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #d9c1ab;
-        }
+      .room:hover {
+        transform: scale(1.05);
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #d9c1ab;
+      }
 
-        header {
-            background-color: #d9c1ab;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom: 2px solid #000;
-        }
+      header {
+        background-color: #d9c1ab;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 2px solid #000;
+      }
 
-        .floor-buttons {
-            display: flex;
-            gap: 15px;
-        }
+      main {
+        display: flex;
+        flex: 1;
+      }
 
-        .floor-buttons button {
-            background-color: #6c34a3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+      .layout {
+        flex: 3;
+        background-color: white;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: repeat(7, 1fr);
+        gap: 1px;
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 50px);
+        overflow: auto;
+        box-sizing: border-box;
+        padding: 20px;
+        border-bottom-left-radius: 10px;
+        border-top-left-radius: 10px;
+      }
 
-        .floor-buttons button:hover {
-            background-color: #563080;
-        }
+      .room {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        text-align: center;
+        border: 2px solid #000;
+        border-radius: 10px;
+        background-color: #ff0000;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+      }
 
-        main {
-            display: flex;
-            flex: 1;
-        }
+      .room:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* เพิ่มเงาเมื่อ hover */
+      }
 
-        .layout {
-            flex: 3;
-            background-color: white;
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-template-rows: repeat(7, 1fr);
-            gap: 1px;
-            position: relative;
-            width: 100%;
-            height: calc(100vh - 50px);
-            overflow: auto;
-            box-sizing: border-box;
-        }
+      .room.large {
+        grid-column: span 2;
+        grid-row: span 2;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีแดงสำหรับห้องใหญ่ */
+      }
 
-        .circle {
-            content: 'ไม่ว่าง';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
+      .room.small {
+        grid-column: span 1;
+        grid-row: span 1;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีเขียวสำหรับห้องเล็ก */
+      }
 
-        .room {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-    text-align: center;
-    background-color: #ff0000;
-    color: white;
-    border: 2px solid #000; /* เพิ่มกรอบสีดำให้ห้อง */
-    border-radius: 10px; /* ทำมุมให้โค้งมน */
-    padding: 10px; /* เพิ่มระยะห่างจากกรอบ */
-    margin: 5px; /* เพิ่มระยะห่างระหว่างห้อง */
-}
+      .room.men {
+        grid-column: span 1;
+        grid-row: span 1;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีน้ำเงินสำหรับห้องผู้ชาย */
+      }
 
-.room:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* เพิ่มเงาเมื่อ hover */
-}
+      .room.women {
+        grid-column: span 1;
+        grid-row: 2;
+        grid-column: 10;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีเหลืองสำหรับห้องผู้หญิง */
+      }
 
-.room.large {
-    grid-column: span 2;
-    grid-row: span 2;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีแดงสำหรับห้องใหญ่ */
-}
+      .room.large.bottom {
+        grid-column: 1 / span 1;
+        grid-row: 6 / span 2;
+        background-color: grey;
+        border: 2px solid #000; /* กรอบสีม่วงสำหรับห้องใหญ่ */
+      }
 
-.room.small {
-    grid-column: span 1;
-    grid-row: span 1;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีเขียวสำหรับห้องเล็ก */
-}
+      .room.large.bottom2 {
+        grid-column: 2 / span 1;
+        grid-row: 6 / span 2;
+        background-color: grey;
+        border: 2px solid #000; /* กรอบสีเทาสำหรับห้องใหญ่ */
+      }
 
-.room.men {
-    grid-column: span 1;
-    grid-row: span 1;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีน้ำเงินสำหรับห้องผู้ชาย */
-}
+      .room.large.bottom3 {
+        grid-column: 3 / span 1;
+        grid-row: 6 / span 2;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีส้มสำหรับห้องใหญ่ */
+      }
 
-.room.women {
-    grid-column: span 1;
-    grid-row: 2;
-    grid-column: 10;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีเหลืองสำหรับห้องผู้หญิง */
-}
+      .room.large.bottom4 {
+        grid-column: 6 / span 2;
+        grid-row: 6 / span 2;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีส้มเข้มสำหรับห้องใหญ่ */
+      }
 
-.room.large.bottom {
-    grid-column: 1 / span 1;
-    grid-row: 6 / span 2;
-    background-color: grey;
-    border: 2px solid #000; /* กรอบสีม่วงสำหรับห้องใหญ่ */
-}
+      .room.large.bottom5 {
+        grid-column: 8 / span 2;
+        grid-row: 6 / span 2;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีส้มอ่อนสำหรับห้องใหญ่ */
+      }
 
-.room.large.bottom2 {
-    grid-column: 2 / span 1;
-    grid-row: 6 / span 2;
-    background-color: grey;
-    border: 2px solid #000; /* กรอบสีเทาสำหรับห้องใหญ่ */
-}
+      .room.large.bottom6 {
+        grid-column: 12 / span 1;
+        grid-row: 6 / span 2;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีเหลืองสำหรับห้องใหญ่ */
+      }
 
-.room.large.bottom3 {
-    grid-column: 3 / span 1;
-    grid-row: 6 / span 2;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีส้มสำหรับห้องใหญ่ */
-}
+      .room.smallss.bottoms1 {
+        grid-column: 4 / span 1;
+        grid-row: 7 / span 1;
+        background-color: #ff0000;
+        border: 2px solid #000; /* กรอบสีเหลืองอ่อนสำหรับห้องเล็ก */
+      }
 
-.room.large.bottom4 {
-    grid-column: 6 / span 2;
-    grid-row: 6 / span 2;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีส้มเข้มสำหรับห้องใหญ่ */
-}
+      .available {
+        position: relative;
+        background-color: #28a745;
+        color: white;
+      }
 
-.room.large.bottom5 {
-    grid-column: 8 / span 2;
-    grid-row: 6 / span 2;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีส้มอ่อนสำหรับห้องใหญ่ */
-}
+      .room .status {
+        content: "ว่าง";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: #28a745;
+        border: 2px solid #000;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        color: white;
+      }
 
-.room.large.bottom6 {
-    grid-column: 12 / span 1;
-    grid-row: 6 / span 2;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีเหลืองสำหรับห้องใหญ่ */
-}
+      .Notavailable {
+        position: relative;
+        background-color: red;
+        color: white;
+      }
 
-.room.smallss.bottoms1 {
-    grid-column: 4 / span 1;
-    grid-row: 7 / span 1;
-    background-color: #ff0000;
-    border: 2px solid #000; /* กรอบสีเหลืองอ่อนสำหรับห้องเล็ก */
-}
+      .room .statusN {
+        content: "ไม่ว่าง";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: red;
+        border: 2px solid white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        color: white;
+      }
 
-        .available {
-            position: relative;
-            background-color: #28a745;
-            color: white;
-        }
+      .center {
+        align-items: center;
+        grid-column: 5 / span 6;
+        grid-row: 4 / span 1;
+        background-color: #fff;
+      }
 
-        .room .status {
-            content: 'ว่าง';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-color: #28a745;
-            border: 2px solid #000;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
+      .sidebar {
+        flex: 1;
+        background-color: #f8f9fa;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        border-left: 2px solid #000;
+        border: 2px solid #000;
+        border-bottom-right-radius: 10px;
+        border-top-right-radius: 10px;
+      }
 
-        .Notavailable {
-            position: relative;
-            background-color: red;
-            color: white;
-        }
+      .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-        .room .statusN {
-            content: 'ไม่ว่าง';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
+      .reports {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .center {
-            align-items: center;
-            grid-column: 5 / span 6;
-            grid-row: 4 / span 1;
-            background-color: #fff;
-        }
+      .report-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        border-radius: 20px;
+        padding: 10px;
+        background-color: #fff;
+        text-align: left;
+      }
 
-        .sidebar {
-            flex: 1;
-            background-color: #f8f9fa;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            border-left: 2px solid #000;
-        }
+      .report {
+        background-color: #fff3cd;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #000000;
+      }
 
-        .sidebar h2 {
-            margin-bottom: 20px;
-        }
+      button {
+        padding: 10px 20px;
+        background-color: #6c34a3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
 
-        .categories {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
+      button:hover {
+        background-color: #563080;
+      }
 
-        .categories li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #fff;
-        }
+      .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-        .categories li span {
-            background-color: #ff0000;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
+      .popup.hidden {
+        display: none;
+      }
 
-        .reports {
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            text-align: left;
-        }
+      .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        position: relative;
+      }
 
-        .report-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #fff;
-            text-align: left;
-        }
+      .icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        font-size: 18px;
+        color: rgb(0, 0, 0);
+        flex-shrink: 0;
+      }
 
-        .report {
-            background-color: #fff3cd;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #000000;
-        }
+      .icon-red {
+        background-color: red;
+      }
 
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+      .icon-green {
+        background-color: green;
+      }
 
-        .popup.hidden {
-            display: none;
-        }
+      .header {
+        background-color: #e54715;
+        padding: 15px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header-title {
+        font-size: 20px;
+        font-weight: bold;
+      }
 
-        .popup-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            position: relative;
-        }
+      .nav {
+        display: flex;
+        gap: 20px;
+      }
+      .nav a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+      }
+      .nav a:hover {
+        text-decoration: underline;
+      }
+      .nav a.active {
+        font-weight: bold;
+        text-decoration: underline;
+      }
+      .content {
+        padding: 20px;
+        text-align: center;
+      }
+      .floor-selector {
+        margin-bottom: 20px;
+      }
+      .floor-selector button {
+        background-color: #a569bd;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .floor-selector button:hover {
+        background-color: #512e5f;
+      }
+      .floor-selector button.active {
+        background-color: #6c3483;
+      }
 
-        .icon {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            font-size: 18px;
-            color: rgb(0, 0, 0);
-            flex-shrink: 0;
-        }
+      /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+      .available {
+        background-color: #8e8e8e !important; /* ✅ สีเขียว */
+      }
 
-        .icon-red {
-            background-color: red;
-        }
+      /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+      .disabled-room {
+        pointer-events: none;
+        cursor: not-allowed;
+        background-color: #8e8e8e !important; /* ❌ สีแดง */
+      }
 
-        .icon-green {
-            background-color: green;
-        }
+      /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+      .status-label {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        border: 2px solid white;
+      }
+
+      /* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** */
+      .no-data {
+        background-color: #ff0000 !important; /* 🔴 พื้นหลังแดง */
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+      .no-data .status-label {
+        display: none !important;
+      }
+
+      /* ✅ ป้าย "ว่าง" */
+      .available .status-label {
+        background-color: green;
+      }
+
+      /* ✅ ป้าย "ไม่ว่าง" */
+      .disabled-room .status-label {
+        background-color: red;
+      }
+
+      /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+      .available::after,
+      .disabled-room::after {
+        content: none !important;
+      }
     </style>
-</head>
-<body>
-    <main>
-        <div class="layout">
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-title">EasyRoom Reservation System</div>
+      <div class="nav">
+        <a href="home.html">หน้าหลัก</a>
+        <a href="#" class="active">จองห้อง</a>
+        <a href="repost.html">รายงาน</a>
+        <button onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="floor-selector">
+        <!-- เมื่อกดปุ่มจะไปเปิดไฟล์ Floor*.html -->
+        <button
+          onclick="window.location.href='Floor2.html'"
+          class="floor-btn active"
+        >
+          ชั้น 2
+        </button>
+        <button onclick="window.location.href='Floor3.html'">ชั้น 3</button>
+        <button onclick="window.location.href='Floor4.html'">ชั้น 4</button>
+        <main>
+          <div class="layout">
             <div class="space large"></div>
             <div class="space small"></div>
-            <div class="room small">SC2-213</div>
+            <div class="room small disabled-room">SC2-213</div>
             <div class="space smalls"></div>
-            <div class="room large">SC2-214</div>
-            <div class="room large">SC2-215</div>
-            <div class="room men">ห้องสุขา อจ ชาย</div>
-            <div class="room women">ห้องสุขา อจ หญิง</div>
+            <div class="room large disabled-room">SC2-214</div>
+            <div class="room large disabled-room">SC2-215</div>
+            <div class="room men disabled-room">ห้องสุขา อจ ชาย</div>
+            <div class="room women disabled-room">ห้องสุขา อจ หญิง</div>
             <div class="space smalls"></div>
-            <div class="room vertical">SC2-201</div>
+            <div class="room vertical disabled-room">SC2-201</div>
             <div class="center"></div>
-            <div class="room large bottom available" data-popup="true"><span class="status">ว่าง</span>SC2-212</div>
-            <div class="room large bottom2 available" data-popup="true"><span class="statusN">ไม่ว่าง</span>SC2-211</div>
-            <div class="room large bottom3">SC2-210</div>
-            <div class="room smallss bottoms1">SC2-209</div>
-            <div class="room large bottom4">SC2-208</div>
-            <div class="room large bottom5">SC2-207</div>
-            <div class="room large bottom6">SC2-206</div>
-        </div>
-        <div class="sidebar">
-            <div class="reports">
-                <div class="report-item">
-                    <span class="icon icon-red"></span>
-                    <span>จองไม่ได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon icon-green"></span>
-                    <span>จองได้</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
-                    <span>ห้องเล็กเชอร์</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-laptop-code"></i></span>
-                    <span>ห้องปฏิบัติการ</span>
-                </div>
-                <div class="report-item">
-                    <span class="icon"><i class="fas fa-users"></i></span>
-                    <span>ห้องประชุม</span>
-                </div>
+            <div class="room large bottom available" data-popup="true">
+              <span class="status">ว่าง</span>SC2-212
             </div>
-        </div>
-    </main>
+            <div class="room large bottom2 available" data-popup="true">
+              <span class="statusN disabled-room">ไม่ว่าง</span>SC2-211
+            </div>
+            <div class="room large bottom3 disabled-room">SC2-210</div>
+            <div class="room smallss bottoms1 disabled-room">SC2-209</div>
+            <div class="room large bottom4 disabled-room">SC2-208</div>
+            <div class="room large bottom5 disabled-room">SC2-207</div>
+            <div class="room large bottom6 disabled-room">SC2-206</div>
+          </div>
+          <div class="sidebar">
+            <div class="reports">
+              <div class="report-item">
+                <span class="icon icon-red"></span>
+                <span>จองไม่ได้</span>
+              </div>
+              <div class="report-item">
+                <span class="icon icon-green"></span>
+                <span>จองได้</span>
+              </div>
+              <div class="report-item">
+                <span class="icon"
+                  ><i class="fas fa-chalkboard-teacher"></i
+                ></span>
+                <span>ห้องเล็กเชอร์</span>
+              </div>
+              <div class="report-item">
+                <span class="icon"><i class="fas fa-laptop-code"></i></span>
+                <span>ห้องปฏิบัติการ</span>
+              </div>
+              <div class="report-item">
+                <span class="icon"><i class="fas fa-users"></i></span>
+                <span>ห้องประชุม</span>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
 
     <div id="popup" class="popup hidden">
-        <div class="popup-content">
-            <span class="close-button">&times;</span>
-            <h2>Room Details</h2>
-            <p id="room-details">Details about the room...</p>
-        </div>
+      <div class="popup-content">
+        <span class="close-button">&times;</span>
+        <h2>Room Details</h2>
+        <p id="room-details">Details about the room...</p>
+      </div>
     </div>
     <script>
-        const rooms = document.querySelectorAll('.room');
-        const popup = document.getElementById('popup');
-        const popupContent = document.getElementById('room-details');
-        const closeButton = document.querySelector('.close-button');
-        
-        rooms.forEach(room => {
-            room.addEventListener('click', () => {
-                if (room.getAttribute('data-popup') === 'true') {
-                    const roomText = room.textContent;
-                    popupContent.textContent = `Details about ${roomText}`;
-                    popup.classList.remove('hidden');
-                }
-            });
-        });
-        
-        closeButton.addEventListener('click', () => {
-            popup.classList.add('hidden');
-        });
-        
-        popup.addEventListener('click', (e) => {
-            if (e.target === popup) {
-                popup.classList.add('hidden');
-            }
-        });
-    </script>
-</body>
+      const rooms = document.querySelectorAll(".room");
+      const popup = document.getElementById("popup");
+      const popupContent = document.getElementById("room-details");
+      const closeButton = document.querySelector(".close-button");
 
+      rooms.forEach((room) => {
+        room.addEventListener("click", () => {
+          if (room.getAttribute("data-popup") === "true") {
+            const roomText = room.textContent;
+            popupContent.textContent = `Details about ${roomText}`;
+            popup.classList.remove("hidden");
+          }
+        });
+      });
+
+      closeButton.addEventListener("click", () => {
+        popup.classList.add("hidden");
+      });
+
+      popup.addEventListener("click", (e) => {
+        if (e.target === popup) {
+          popup.classList.add("hidden");
+        }
+      });
+    </script>
+    <script src="BookScript.js"></script>
+  </body>
 </html>

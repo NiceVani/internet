@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyRoom Reservation System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="executive.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background-color: #d9c1ab;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #000;
+    }
+
+    .floor-buttons,
+    .report-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .report-buttons {
+      margin-left: auto;
+    }
+
+    .logout-button {
+      margin-left: 15px;
+    }
+
+    .floor-buttons button,
+    .report-buttons button,
+    .logout-button button {
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .floor-buttons button {
+      background-color: #6c34a3;
+      color: white;
+    }
+
+    .floor-buttons button:hover {
+      background-color: #563080;
+    }
+
+    .report-buttons button {
+      background-color: rgb(37, 196, 37);
+      color: white;
+    }
+
+    .report-buttons button:hover {
+      background-color: rgb(30, 170, 30);
+    }
+
+    .logout-button button {
+      background-color: orange;
+      color: white;
+    }
+
+    .logout-button button:hover {
+      background-color: rgb(179, 117, 0);
+    }
+
+    .table-responsive {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="floor-buttons">
+      <a href="floor2.html"><button>ชั้น 2</button></a>
+      <a href="floor3.html"><button>ชั้น 3</button></a>
+      <a href="Index.html"><button>ชั้น 4</button></a>
+    </div>
+    <div class="report-buttons">
+      
+      <button>คำร้องขอใช้งานห้อง</button>
+        <a href="request_crash_equipments.html"><button>รายงานอุปกรณ์ชำรุด</button></a>
+    </div>
+    <div class="logout-button">
+      <button>ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <div class="container mt-4">
+    <h3>รายการขอใช้ห้อง</h3>
+    <div class="tab-bar">
+      <div class="tab active"><a href="user_requests_InTime.html">คำขอ(ในเวลา)</a></div>
+      <div class="tab"><a href="user_requests_OutTime.html">คำขอ(นอกเวลา)</a></div>
+      <div class="tab"><a href="user_approve.html">อนุมัติ</a></div>
+      <div class="tab"><a href="user_notapprove.html">ไม่อนุมัติ</a></div>
+      <div class="dropdown-container">
+        <select id="sorttime">
+          <option value="" selected>จัดเรียงตามเวลา</option>
+          <option value="oldest">เวลาเก่าที่สุด</option>
+          <option value="newest">เวลาใหม่ที่สุด</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th class="text-center">วันที่</th>
+            <th class="text-center">ชื่อ-นามสกุล</th>
+            <th class="text-center">อีเมล</th>
+            <th class="text-center">ห้อง</th>
+            <th class="text-center">จำนวนผู้ใช้</th>
+            <th class="text-center">วัน / เวลาจอง</th>
+            <th class="text-center">รายละเอียด / เอกสาร</th>
+            <th class="text-center">เหตุผลในการขอใช้งาน</th>
+            <th class="text-center">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="reservation-table">
+          <!-- Data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="detailModalLabel">รายละเอียดการจอง</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <p><strong>วันที่:</strong> <span id="modal-date"></span></p>
+              <p><strong>ชื่อ-นามสกุล:</strong> <span id="modal-name"></span></p>
+              <p><strong>รายชื่อผู้ใช้งาน:</strong> <span id="modal-data-participant-names"></span></p>
+              <p><strong>อีเมล:</strong> <span id="modal-email"></span></p>
+              <p><strong>ห้อง:</strong> <span id="modal-room"></span></p>
+              <p><strong>วันที่จอง:</strong> <span id="modal-used_date"></span></p>
+              <p><strong>เวลาจอง:</strong> <span id="modal-time"></span></p>
+              <p><strong>อุปกรณ์ที่ขอยืม:</strong> <span id="modal-equipment"></span></p>
+              <p><strong>เอกสาร:</strong> <a id="modal-document" href="#" target="_blank">เปิดเอกสาร</a></p>
+              <p><strong>เหตุผลในการขอใช้งาน:</strong> <span id="modal-reason"></span></p>
+              <p><strong>เหตุผลเพิ่มเติม:</strong> <span id="modal-reason-detail"></span></p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Modal สำหรับปฏิเสธการจอง -->
+<div id="rejectModal" class="modal fade" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="rejectModalLabel">ปฏิเสธการขอใช้ห้อง</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <input type="hidden" id="rejectRequestId">
+              
+              <label for="rejectReason">เหตุผล:</label>
+              <select id="rejectReason" class="form-select">
+                  <option value="จำนวนคนใช้ห้องน้อยเกินไป">จำนวนคนใช้ห้องน้อยเกินไป</option>
+                  <option value="คำขอซ้ำซ้อน">คำขอซ้ำซ้อน</option>
+                  <option value="ห้องมีการบำรุงรักษาหรือติดตั้งอุปกรณ์ใหม่">ห้องมีการบำรุงรักษาหรือติดตั้งอุปกรณ์ใหม่</option>
+                  <option value="มีการใช้ห้องผิดประเภท">มีการใช้ห้องผิดประเภท</option>
+              </select>
+              
+              <label for="rejectDetail" class="mt-2">รายละเอียดเพิ่มเติม:</label>
+              <input type="text" id="rejectDetail" class="form-control" maxlength="255">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+              <button type="button" class="btn btn-danger" onclick="submitReject()">ยืนยัน</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="TabBarFix.js"></script>
+  <script src="user_room_requests.js"></script>        
+</body>
+
+</html>

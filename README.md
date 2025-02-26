@@ -54,34 +54,17 @@ easyroom-reservation/
     │   └── admin/
     │   └── executive/
     └── backend/
-    │   └── booker_backend/
-    │   └── admin_backend/
-    │   └── executive_backend/
-    └── shared/
-        └── booking_documents/
+        └── booker_backend/
+        └── admin_backend/
+        └── executive_backend/
+        └── storage/
+            └── booking_document/
+            └── equipment_img/
 ```
 
 ### Configuration
 
 in `docker-compose.yml`
-
-##### Connecting DataBase
-
-```bash
-dbname: easyroom
-host: easyroomhost
-user: root
-password: 1234
-```
-
-##### Configure DataBase Server
-
-```bash
-MYSQL_ROOT_PASSWORD="1234"
-MYSQL_DATABASE=easyroom
-MYSQL_USER=easyroomteam
-MYSQL_PASSWORD="1234"
-```
 
 ### Installation
 
