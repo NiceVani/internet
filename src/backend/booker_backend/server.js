@@ -995,28 +995,36 @@ app.post("/reportIssue", async (req, res) => {
   }
 });
 
-// ✅ API ดึงสถานะห้อง
-app.get("/getRoomStatus", async (req, res) => {
+app.get("/getComputersByRoom", async (req, res) => {
+  const { room_id } = req.query;
+
+  if (!room_id) {
+      return res.status(400).json({ error: "กรุณาระบุ room_id" });
+  }
+
   try {
-    console.log("🔄 กำลังดึงข้อมูลสถานะห้อง...");
+      const [results] = await connection.promise().query(
+          "SELECT computer_id FROM computer_management WHERE room_id = ?",
+          [room_id]
+      );
 
-    // ตรวจสอบตาราง room ว่ามี field `room_status` หรือไม่
-    const [rooms] = await connection
-      .promise()
-      .query("SELECT room_id, room_name, room_status FROM room");
+      if (results.length === 0) {
+          return res.json({ computers: [] }); // ถ้าไม่มีคอมพิวเตอร์ในห้องนี้
+      }
 
-    console.log("✅ ข้อมูลห้องที่ดึงมา:", rooms); // ตรวจสอบข้อมูลที่ดึงมา
-    res.json(rooms);
+      res.json({ computers: results });
   } catch (err) {
-    console.error("❌ Error fetching room status:", err);
-    res.status(500).json({ error: "ดึงสถานะล้มเหลว", details: err.message });
+      console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลคอมพิวเตอร์:", err);
+      res.status(500).json({ error: "ดึงข้อมูลล้มเหลว" });
   }
 });
+
+
+
 
 // ===============================
 // เริ่มเซิร์ฟเวอร์
 // ===============================
-// ✅ เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
