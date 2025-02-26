@@ -91,7 +91,7 @@
     <h1>EasyRoom Reservation System</h1>
     <nav>
       <a href="home.html">หน้าหลัก</a>
-      <a href="Floor1.html">จองห้อง</a>
+      <a href="Floor2.html">จองห้อง</a>
       <a href="repost.html">รายงาน</a>
       <button id="logout-btn" class="logout-btn">ออกจากระบบ</button>
     </nav>
@@ -143,6 +143,14 @@
           <option value="SC2-411">SC2-411</option>
           <option value="SC2-414">SC2-414</option>
         </select>
+        <!-- ส่วนเลือกคอมพิวเตอร์ (จะแสดงเฉพาะเมื่อเลือกอุปกรณ์เป็น "คอมพิวเตอร์") -->
+        <div id="computer-section" class="form-section" style="display: none;">
+          <label for="computer">ตำแหน่งคอมพิวเตอร์</label>
+          <select id="computer" name="computer">
+            <option value="">-- กรุณาเลือก --</option>
+          </select>
+        </div>
+
         <label for="details">รายละเอียดเพิ่มเติม</label>
         <select id="details" name="details" required>
           <option value="">-- กรุณาเลือก --</option>

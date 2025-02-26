@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const reportForm = document.getElementById("reportForm");
     const equipmentSelect = document.getElementById("equipment");
     const roomSelect = document.getElementById("room");
+    const computerSelect = document.getElementById("computer");
+    const computerSection = document.getElementById("computer-section"); // ✅ div ครอบ <select>
     const detailsSelect = document.getElementById("details");
     const imageInput = document.getElementById("image");
     const previewImage = document.getElementById("preview");
@@ -78,24 +80,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     
-            // 5) หลังอัปโหลดเสร็จ => ส่งข้อมูลบันทึกลงตาราง
+            // ✅ อัปเดตการส่งข้อมูลให้รองรับ computer_id
             const reportData = {
                 repair_number: repairNumber,
                 repair_date: repairDate,
                 student_id: sessionRole === "นิสิต" ? sessionUserId : null,
-                teacher_id: sessionRole === "อาจารย์" ? sessionUserId : null, // ✅ แก้ให้รองรับ teacher_id
+                teacher_id: sessionRole === "อาจารย์" ? sessionUserId : null,
                 equipment_id: equipmentId,
                 room_id: roomId,
-                computer_id: null, // หรือค่าที่ถูกต้อง
-                admin_id: null, // หรือค่าที่ถูกต้อง
+                computer_id: equipmentSelect.value === "คอมพิวเตอร์" ? document.getElementById("computer").value : null, // ✅ เพิ่ม computer_id ถ้าเลือกคอมพิวเตอร์
+                admin_id: null,
                 damage: details,
                 damage_details: additionalText,
                 repair_status: "รอซ่อม",
                 image_path: imagePath
             };
-            
-            
-    
+                        
+            // ✅ ส่งข้อมูลไปยัง Backend
             const response = await fetch("http://localhost:3000/reportIssue", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -120,12 +121,12 @@ document.addEventListener("DOMContentLoaded", function () {
     equipmentSelect.addEventListener("change", function () {
         const equipment = equipmentSelect.value;
         detailsSelect.innerHTML = '<option value="">-- กรุณาเลือก --</option>';
-
+    
         const problems = {
             "สายไฟ": ["สายไฟชำรุด", "สายไฟขาด", "ปลั๊กไฟหลวม"],
             "เก้าอี้": ["ขาเก้าอี้หัก", "เบาะชำรุด", "พนักพิงหลุด"],
             "โต๊ะ": ["ขาโต๊ะหัก", "พื้นโต๊ะมีรอย", "โต๊ะโยก"],
-            "จอคอมพิวเตอร์": ["หน้าจอไม่ติด", "จอมีรอยแตก", "ภาพไม่ชัด", "จอฟ้า"],
+            "จอคอมพิวเตอร์": ["หน้าจอไม่ติด", "จอมีรอยแตก", "ภาพไม่ชัด"],
             "โปรเจคเตอร์": ["โปรเจคเตอร์ไม่ติด", "ภาพเบลอ", "รีโมทไม่ทำงาน"],
             "ทีวี": ["ทีวีไม่ติด", "เสียงไม่ออก", "จอภาพไม่ชัด"],
             "เครื่องปรับอากาศ": ["ไม่มีความเย็น", "มีน้ำหยด", "เปิดไม่ติด"],
@@ -138,9 +139,10 @@ document.addEventListener("DOMContentLoaded", function () {
             "คีย์บอร์ด": ["ปุ่มกดไม่ติด", "ปุ่มบางตัวหลุด", "แสงไฟไม่ติด"],
             "ปลั๊กไฟ": ["ปลั๊กไฟชำรุด", "สายไฟหลวม", "ไฟไม่ออก"],
             "เสียงไมค์": ["ไมค์ไม่มีเสียง", "เสียงขาดหาย", "ไมค์ไม่เชื่อมต่อ"],
-            "คอมพิวเตอร์": ["เครื่องไม่เปิด", "หน้าจอไม่แสดงผล", "คีย์บอร์ดหรือเมาส์ไม่ตอบสนอง"]
+            "คอมพิวเตอร์": ["เครื่องไม่เปิด", "หน้าจอไม่แสดงผล", "คีย์บอร์ดหรือเมาส์ไม่ตอบสนอง", "จอฟ้า"]
         };
-
+    
+        // ✅ อัปเดตรายการรายละเอียดปัญหาตามอุปกรณ์ที่เลือก
         if (problems[equipment]) {
             problems[equipment].forEach(problem => {
                 const option = document.createElement("option");
@@ -149,7 +151,64 @@ document.addEventListener("DOMContentLoaded", function () {
                 detailsSelect.appendChild(option);
             });
         }
+    
+        // ✅ ถ้าเลือก "คอมพิวเตอร์" ให้แสดง <select> computer_id, ถ้าไม่ใช่ให้ซ่อน
+        if (equipment === "คอมพิวเตอร์") {
+            computerSection.style.display = "block"; // แสดง dropdown ของ computer_id
+        } else {
+            computerSection.style.display = "none"; // ซ่อน dropdown
+            computerSelect.innerHTML = '<option value="">-- กรุณาเลือก --</option>'; // รีเซ็ตค่า
+        }
+
+        // ✅ เมื่อเลือกห้อง โหลดคอมพิวเตอร์ที่อยู่ในห้องนั้น (เฉพาะเมื่อเลือก "คอมพิวเตอร์")
+        roomSelect.addEventListener("change", async function () {
+            if (equipmentSelect.value !== "คอมพิวเตอร์") return; // ถ้าอุปกรณ์ไม่ใช่คอมพิวเตอร์ ให้ออกจากฟังก์ชัน
+
+            const roomName = roomSelect.value;
+
+            if (!roomName) {
+                computerSelect.innerHTML = '<option value="">-- กรุณาเลือก --</option>';
+                return;
+            }
+
+            try {
+                // ดึง room_id จาก room_name
+                const response = await fetch(`http://localhost:3000/getRoomId?name=${encodeURIComponent(roomName)}`);
+                const data = await response.json();
+
+                if (!response.ok || !data.room_id) {
+                    console.error("❌ ไม่พบ room_id สำหรับห้องที่เลือก");
+                    computerSelect.innerHTML = '<option value="">-- ไม่พบข้อมูล --</option>';
+                    return;
+                }
+
+                const roomId = data.room_id;
+
+                // ดึง computer_id สำหรับห้องที่เลือก
+                const compResponse = await fetch(`http://localhost:3000/getComputersByRoom?room_id=${roomId}`);
+                const compData = await compResponse.json();
+
+                computerSelect.innerHTML = '<option value="">-- กรุณาเลือก --</option>';
+                if (compData.computers.length === 0) {
+                    computerSelect.innerHTML = '<option value="">-- ไม่มีคอมพิวเตอร์ในห้องนี้ --</option>';
+                    return;
+                }
+
+                compData.computers.forEach((comp) => {
+                    const option = document.createElement("option");
+                    option.value = comp.computer_id;
+                    option.textContent = `${comp.computer_id}`;
+                    computerSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("❌ Error fetching computers:", error);
+                computerSelect.innerHTML = '<option value="">-- เกิดข้อผิดพลาด --</option>';
+            }
+        });
+
     });
+    
 
     // ฟังก์ชันแสดงตัวอย่างภาพที่อัปโหลด
     imageInput.addEventListener("change", function (event) {

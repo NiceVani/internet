@@ -1092,24 +1092,6 @@ app.post("/reportIssue", async (req, res) => {
   }
 });
 
-// ✅ API ดึงสถานะห้อง
-app.get("/getRoomStatus", async (req, res) => {
-  try {
-    console.log("🔄 กำลังดึงข้อมูลสถานะห้อง...");
-
-    // ตรวจสอบตาราง room ว่ามี field `room_status` หรือไม่
-    const [rooms] = await connection
-      .promise()
-      .query("SELECT room_id, room_name, room_status FROM room");
-
-    console.log("✅ ข้อมูลห้องที่ดึงมา:", rooms); // ตรวจสอบข้อมูลที่ดึงมา
-    res.json(rooms);
-  } catch (err) {
-    console.error("❌ Error fetching room status:", err);
-    res.status(500).json({ error: "ดึงสถานะล้มเหลว", details: err.message });
-  }
-});
-
 app.get("/getComputersByRoom", async (req, res) => {
   const { room_id } = req.query;
 
@@ -1138,7 +1120,6 @@ app.get("/getComputersByRoom", async (req, res) => {
 // ===============================
 // เริ่มเซิร์ฟเวอร์
 // ===============================
-// ✅ เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
