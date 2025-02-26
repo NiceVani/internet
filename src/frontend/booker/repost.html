@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EasyRoom Reservation System - รายงานปัญหา</title>
   <style>
     * {
@@ -12,12 +11,10 @@
       box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
-
     body {
       background-color: #ffffff;
       color: #000000;
     }
-
     header {
       background-color: #e54715;
       color: #ffffff;
@@ -26,33 +23,27 @@
       justify-content: space-between;
       align-items: center;
     }
-
     header h1 {
       font-size: 24px;
     }
-
     nav a {
       color: #ffffff;
       margin-left: 15px;
       text-decoration: none;
       font-size: 18px;
     }
-
     .container {
       margin: 20px;
       max-width: 800px;
     }
-
     .form-section {
       margin-bottom: 20px;
     }
-
     .form-section label {
       display: block;
       font-weight: bold;
       margin-bottom: 8px;
     }
-
     .form-section select,
     .form-section textarea {
       width: 100%;
@@ -61,18 +52,15 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-
     .form-section textarea {
       resize: none;
       height: 80px;
     }
-
     .upload-section {
       text-align: center;
       margin: 20px 0;
       color: #ccc;
     }
-
     button {
       background-color: #e54715;
       color: #ffffff;
@@ -82,52 +70,46 @@
       cursor: pointer;
       border-radius: 4px;
     }
-
     button:hover {
       background-color: #c63c12;
     }
-
     .uploaded-image {
       margin-top: 20px;
       text-align: center;
     }
-
-   /* สไตล์สำหรับตัวอย่างภาพที่อัปโหลด */
-   #preview {
-            display: none;
-            margin-top: 10px;
-            max-width: 100%;
-            height: auto;
-        }
-
+    /* สไตล์สำหรับตัวอย่างภาพที่อัปโหลด */
+    #preview {
+      display: none;
+      margin-top: 10px;
+      max-width: 100%;
+      height: auto;
+    }
   </style>
 </head>
-
 <body>
   <header>
     <h1>EasyRoom Reservation System</h1>
     <nav>
       <a href="home.html">หน้าหลัก</a>
-      <a href="booking.html">จองห้อง</a>
+      <a href="Floor1.html">จองห้อง</a>
       <a href="repost.html">รายงาน</a>
       <button id="logout-btn" class="logout-btn">ออกจากระบบ</button>
     </nav>
   </header>
-
   <div class="container">
     <h2>รายงานปัญหา</h2>
-
-    <form id="reportForm" action="report_issue.php" method="POST" enctype="multipart/form-data">
+    <!-- ฟอร์มแจ้งซ่อม -->
+    <form id="reportForm">
       <div class="form-section">
         <label for="image">อัปโหลดรูปภาพ</label>
-        <input type="file" id="image" name="image" accept="image/*">
-    </div>
-
+        <input type="file" id="image" name="image" accept="image/*" />
+        <input type="hidden" id="equipment_id" name="equipment_id" />
+        <input type="hidden" id="room_id" name="room_id" />
+      </div>
       <!-- การแสดงภาพที่ถูกเลือก -->
       <div class="uploaded-image">
-        <img id="preview" src="#" alt="Preview Image" style="display: none;">
+        <img id="preview" src="#" alt="Preview Image" style="display: none;" />
       </div>
-
       <div class="form-section">
         <label for="equipment">ชื่ออุปกรณ์</label>
         <select id="equipment" name="equipment">
@@ -149,194 +131,31 @@
           <option value="เสียงไมค์">เสียงไมค์</option>
           <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
         </select>
-
         <label for="room">ห้อง</label>
         <select id="room" name="room">
-          <option value="SC2-211">SC2-211</option>
           <option value="SC2-212">SC2-212</option>
           <option value="SC2-307">SC2-307</option>
           <option value="SC2-308">SC2-308</option>
           <option value="SC2-311">SC2-311</option>
           <option value="SC2-313">SC2-313</option>
           <option value="SC2-313-1">SC2-313-1</option>
-          <option value="SC2-314">SC2-314</option>
           <option value="SC2-407">SC2-407</option>
           <option value="SC2-411">SC2-411</option>
           <option value="SC2-414">SC2-414</option>
         </select>
-
         <label for="details">รายละเอียดเพิ่มเติม</label>
         <select id="details" name="details" required>
           <option value="">-- กรุณาเลือก --</option>
         </select>
       </div>
-      
       <div class="form-section">
         <label for="additionalText">ข้อความเพิ่มเติม</label>
-        <textarea 
-          id="additionalText" 
-          name="additionalText" 
-          rows="4" 
-          placeholder="เขียนรายละเอียดเพิ่มเติมได้ที่นี่..."
-          style="resize: none;"
-        ></textarea>
+        <textarea id="additionalText" name="additionalText" rows="4" placeholder="เขียนรายละเอียดเพิ่มเติมได้ที่นี่..." style="resize: none;"></textarea>
       </div>
-
       <button type="submit">ยืนยัน</button>
     </form>
   </div>
-
-  <script src="reportscript.js"></script>
-  <script>
-    // ======================== Session Checking เหมือน home.html =========================
-    // ดึงข้อมูลผู้ใช้จากเซสชัน
-    async function fetchUserInfo() {
-      try {
-        const response = await fetch("http://localhost:3000/session", {
-          method: "GET",
-          credentials: "include",
-        });
-    
-        // ถ้า request มีปัญหา (เช่น 401/403) จะไม่ throw error ทันที
-        // แต่ให้เช็คต่อไปเองว่าจะจัดการสถานะอย่างไร
-        if (!response.ok) {
-          console.warn("ไม่เจอ session หรือ session หมดอายุ (response not ok)");
-          // จะแค่แจ้งเตือน ไม่ redirect
-          alert("⚠️ ไม่มีเซสชัน หรือเซสชันหมดอายุ คุณจะรายงานโดยไม่มีข้อมูลผู้ใช้ได้");
-          return; // ออกจากฟังก์ชัน เพื่อไม่ต้อง parse JSON ต่อ
-        }
-    
-        // ถ้าตอบ OK ให้ parse JSON
-        const userSession = await response.json();
-        console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
-    
-        // เช็คว่ามี data ใน session ไหม
-        if (!userSession.data) {
-          console.warn("session.data ไม่มีข้อมูลผู้ใช้");
-          alert("⚠️ ไม่พบข้อมูลผู้ใช้ในเซสชัน คุณจะรายงานโดยไม่มีข้อมูลผู้ใช้ได้");
-          // ไม่ redirect เช่นกัน
-          return;
-        }
-    
-      } catch (error) {
-        console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
-        alert("เกิดข้อผิดพลาดในการตรวจสอบเซสชัน");
-        // ไม่ redirect เช่นกัน
-      }
-    }
-
-    // ฟังก์ชัน Logout
-    async function logout() {
-      try {
-        const response = await fetch("http://localhost:3000/logout", {
-          method: "POST",
-          credentials: "include", // ต้องส่งคุกกี้เซสชันไปด้วย
-        });
-
-        if (response.ok) {
-          alert("ออกจากระบบสำเร็จ");
-          window.location.href = "login.html";
-        } else {
-          alert("เกิดข้อผิดพลาดในการออกจากระบบ");
-        }
-      } catch (error) {
-        console.error("❌ ไม่สามารถออกจากระบบได้:", error);
-        alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
-      }
-    }
-
-    // ======================== จัดการอัปโหลดรูป & Preview =========================
-    const imageInput = document.getElementById("image");
-    const preview = document.getElementById("preview");
-
-    imageInput.addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (!file) {
-        preview.style.display = "none";
-        preview.src = "#";
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        preview.src = e.target.result;
-        preview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // ======================== onload =========================
-    window.onload = function() {
-      fetchUserInfo();
-
-      // ตัวอย่าง: ถ้าอยากดึงรายการ detail อื่นๆ แบบไดนามิก
-      // หรือถ้ามี API ให้ไปดึงใส่ select#details ก็ทำได้ในนี้
-      document.getElementById("logout-btn").addEventListener("click", logout);
-    };
-  </script>
-  <script>
-    document.getElementById("reportForm").addEventListener("submit", async function (event) {
-      event.preventDefault(); // ป้องกันการโหลดหน้าใหม่
-  
-      // ดึงค่าจากฟอร์ม
-      const equipmentName = document.getElementById("equipment").value;
-      const roomName = document.getElementById("room").value;
-      const damagedDetails = document.getElementById("details").value;
-  
-      // ดึงเซสชันผู้ใช้เพื่อใช้ Identify_ID
-      const sessionRes = await fetch("http://localhost:3000/session", { credentials: "include" });
-      if (!sessionRes.ok) {
-        alert("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
-        window.location.href = "login.html";
-        return;
-      }
-      const userSession = await sessionRes.json();
-      const identifyID = userSession.data.Student_ID;
-  
-      // ดึง Equipments_ID
-      const equipRes = await fetch("http://localhost:3000/getEquipmentInformation");
-      const equipments = await equipRes.json();
-      const equipment = equipments.find(e => e.Equipments_name === equipmentName);
-      if (!equipment) {
-        alert("ไม่พบข้อมูลอุปกรณ์");
-        return;
-      }
-  
-      // ดึง Rooms_ID
-      const roomRes = await fetch("http://localhost:3000/getRoomInfo?room=" + roomName);
-      const roomData = await roomRes.json();
-      if (roomData.error) {
-        alert("ไม่พบข้อมูลห้อง");
-        return;
-      }
-      const roomID = roomData[0].Rooms_ID;
-  
-      // สร้างข้อมูลแจ้งปัญหา
-      const reportData = {
-        identify_id: identifyID,
-        rooms_id: roomID,
-        equipments_id: equipment.Equipments_ID,
-        damaged_details: damagedDetails,
-        repair_date: new Date().toISOString().slice(0, 19).replace("T", " "), // เวลาปัจจุบัน
-        admin_id: null,
-        repair_status: null,
-      };
-  
-      // ส่งข้อมูลไปยัง Backend
-      const res = await fetch("http://localhost:3000/reportIssue", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reportData),
-      });
-  
-      if (res.ok) {
-        alert("แจ้งปัญหาสำเร็จ");
-        window.location.reload();
-      } else {
-        alert("เกิดข้อผิดพลาดในการแจ้งปัญหา");
-      }
-    });
-  </script>
-  
+  <!-- เรียกใช้ไฟล์ JS เพื่อทำงานแจ้งซ่อม -->
+  <script src="reportequipment.js"></script>
 </body>
-
 </html>
