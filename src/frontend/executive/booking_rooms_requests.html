@@ -485,19 +485,19 @@
                       console.log(thaiDateTime);
                     });
                   
-                    const filteredData = roomsData.filter(row => {
-                      const thaiSubmittedTime = new Date(row.submitted_time); // แปลง submitted_time เป็น Date Object
-                      const today = new Date(); 
-                      today.setHours(0, 0, 0, 0); // ตั้งเวลาให้เป็น 00:00:00 ของวันนี้
+                    // const filteredData = roomsData.filter(row => {
+                    //   const thaiSubmittedTime = new Date(row.submitted_time); // แปลง submitted_time เป็น Date Object
+                    //   const today = new Date(); 
+                    //   today.setHours(0, 0, 0, 0); // ตั้งเวลาให้เป็น 00:00:00 ของวันนี้
                       
-                      const thaiToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })); // แปลงเป็นโซนไทย
+                    //   const thaiToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })); // แปลงเป็นโซนไทย
                       
-                      return (
-                          row.request_status === 'รออนุมัติ' &&
-                          row.request_type === 'นอกเวลา' &&
-                          thaiSubmittedTime >= thaiToday // เปรียบเทียบว่า submitted_time ≥ วันปัจจุบัน
-                      );
-                    });
+                    //   return (
+                    //       row.request_status === 'รออนุมัติ' &&
+                    //       row.request_type === 'นอกเวลา' &&
+                    //       thaiSubmittedTime >= thaiToday // เปรียบเทียบว่า submitted_time ≥ วันปัจจุบัน
+                    //   );
+                    // });
                   
 
                     const filteredData = roomsData.filter(row => row.request_status === 'รออนุมัติ' && row.request_type === 'นอกเวลา' && new Date(row.submitted_time).toLocaleDateString('th')>= '26/02/2568');
