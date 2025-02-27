@@ -476,7 +476,8 @@
                     const participantData = await participantResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.request_status === 'รออนุมัติ' && row.request_type === 'นอกเวลา');
+                    const filteredData = roomsData.filter(row => row.request_status === 'รออนุมัติ' && row.request_type === 'นอกเวลา' && new Date(row.submitted_time).toLocaleDateString('th')>= '26/02/2568');
+                    roomsData.forEach((x) => console.log(new Date(x.submitted_time).toLocaleDateString('th')>= '26/02/2568'));
                     
 
                     // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
@@ -522,7 +523,7 @@
                     mergedData.forEach(row => {
                         tableBody.innerHTML += `
                             <tr>
-                                <td class="text-center">${new Date(row.submitted_time).toLocaleDateString('th')}</td>
+                                <td class="text-center">${new Date(row.submitted_time).toLocaleDateString('th') }</td>
                                 <td class="text-center">${row.full_name}</td>
                                 <td class="text-center">${row.email}</td>
                                 <td class="text-center">${row.role}</td>
