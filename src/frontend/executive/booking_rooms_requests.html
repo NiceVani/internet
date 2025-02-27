@@ -457,7 +457,8 @@
               <script>
 
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // กำหนดให้เทียบเฉพาะวันที่
+                const thaiDate = today.toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
+                console.log(thaiDate);
               
                 async function fetchData() {
                 try {
@@ -476,10 +477,29 @@
                     const participantData = await participantResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.request_status === 'รออนุมัติ' && row.request_type === 'นอกเวลา');
-                    
+                    roomsData.forEach((attribute) => {
+                      const thaiDateTime = new Date(attribute.submitted_time).toLocaleString("th-TH", {
+                          timeZone: "Asia/Bangkok"
+                      });
+                      console.log(thaiDateTime);
+                    });
+                  
+                    const filteredData = roomsData.filter(row => {
+                      const thaiSubmittedTime = new Date(row.submitted_time); // แปลง submitted_time เป็น Date Object
+                      const today = new Date(); 
+                      today.setHours(0, 0, 0, 0); // ตั้งเวลาให้เป็น 00:00:00 ของวันนี้
+                      
+                      const thaiToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })); // แปลงเป็นโซนไทย
+                      
+                      return (
+                          row.request_status === 'รออนุมัติ' &&
+                          row.request_type === 'นอกเวลา' &&
+                          thaiSubmittedTime >= thaiToday // เปรียบเทียบว่า submitted_time ≥ วันปัจจุบัน
+                      );
+                    });
+                  
 
-                    // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
+                      // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
                     for (const row of filteredData) {
                         const requestDate = new Date(row.used_date);
                         requestDate.setHours(0, 0, 0, 0);
