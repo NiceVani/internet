@@ -237,17 +237,20 @@ async function updateTableForSelectedDate(date) {
       let currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + index);
       const formattedDate = getFormattedDate(currentDate);
-      const isWeekend = index === 5 || index === 6;
+      const isWeekend = index === 5 || index === 6; // เสาร์ (5), อาทิตย์ (6)
+
+      console.log(`🔍 Checking: ${day} (${formattedDate}) -> isWeekend: ${isWeekend}`);
+
       return `
-      <tr class="${
-        getISODate(currentDate) === getISODate(selectedDate) ? "highlight" : ""
-      }">
+      <tr>
         <td data-day="${index}" class="${isWeekend ? "disabled" : ""}">
           ${day} (${formattedDate})
         </td>
         ${timeSlots
-          .map(
-            () => `<td class="available" ${isWeekend ? "disabled" : ""}></td>`
+          .map(() => 
+            `<td class="available" ${
+              isWeekend ? 'style="background-color: #f0f0f0; cursor: not-allowed;"' : ""
+            }></td>`
           )
           .join("")}
       </tr>
@@ -256,35 +259,75 @@ async function updateTableForSelectedDate(date) {
     .join("");
 
   await fetchSchedule(date);
-  highlightDay(date);
 }
+
 
 /********************************
  * 8) toggleSelection(cell)
  *    - เมื่อคลิก cell ให้เลือก (available cells เท่านั้น)
  ********************************/
+let selectedDayIndex = null; // เก็บ index ของวันที่ถูกเลือกครั้งแรก
+let selectedTimeIndexes = []; // เก็บ index ของเวลาที่ถูกเลือก
+
 function toggleSelection(cell) {
   if (!cell.classList.contains("available")) {
     showAlert("ช่วงเวลานี้ไม่ว่าง!");
     return;
   }
+
   const row = cell.parentElement;
-  const selectedCells = row.querySelectorAll(".checked");
-  if (selectedCells.length > 0) {
-    const cellIndex = Array.from(row.children).indexOf(cell);
-    const selectedIndexes = Array.from(selectedCells).map((c) =>
-      Array.from(row.children).indexOf(c)
-    );
-    selectedIndexes.sort((a, b) => a - b);
-    if (Math.abs(cellIndex - selectedIndexes[selectedIndexes.length - 1]) > 1) {
+  const dayCell = row.querySelector("td");
+  const dayIndex = parseInt(dayCell.dataset.day); // ดึง index ของวันนั้น
+  const cellIndex = Array.from(row.children).indexOf(cell); // หาตำแหน่งของ cell ในแถว
+  
+  // เช็กว่าเป็นวันเสาร์หรืออาทิตย์
+  if (dayIndex === 5 || dayIndex === 6) {
+    showAlert("ไม่สามารถเลือกวันเสาร์-อาทิตย์ได้!");
+    return;
+  }
+
+  // ถ้ายังไม่มีการเลือก ให้เก็บค่า index ของวันแรกที่ถูกเลือก
+  if (selectedDayIndex === null) {
+    selectedDayIndex = dayIndex;
+  }
+
+  // ถ้าเลือกข้ามวัน (วันแรกที่เลือก != วันที่กดใหม่)
+  if (dayIndex !== selectedDayIndex) {
+    showAlert("ไม่สามารถเลือกข้ามวันได้!");
+    return;
+  }
+
+  // ถ้าไม่มีการเลือก ให้เริ่มต้นเก็บช่วงเวลาที่ถูกเลือก
+  if (selectedTimeIndexes.length === 0) {
+    selectedTimeIndexes.push(cellIndex);
+  } else {
+    // ตรวจสอบว่าเลือกข้ามช่วงเวลาหรือไม่ (ต้องเลือกช่องติดกันเท่านั้น)
+    selectedTimeIndexes.sort((a, b) => a - b);
+    const lastIndex = selectedTimeIndexes[selectedTimeIndexes.length - 1];
+
+    if (Math.abs(cellIndex - lastIndex) > 1) {
       showAlert("ไม่สามารถเลือกข้ามช่วงเวลาได้!");
       return;
     }
   }
-  cell.classList.toggle("checked");
-  cell.innerHTML = cell.classList.contains("checked")
-    ? '<i class="fas fa-check"></i>'
-    : "";
+
+  // ติ้กหรือยกเลิกช่อง
+  if (cell.classList.contains("checked")) {
+    cell.classList.remove("checked");
+    cell.innerHTML = "";
+
+    // เอา index ออกจากรายการที่เลือก
+    selectedTimeIndexes = selectedTimeIndexes.filter(index => index !== cellIndex);
+
+    // ถ้ายกเลิกติ้กทั้งหมด รีเซ็ต selectedDayIndex และ selectedTimeIndexes
+    if (selectedTimeIndexes.length === 0) {
+      selectedDayIndex = null;
+    }
+  } else {
+    cell.classList.add("checked");
+    cell.innerHTML = '<i class="fas fa-check"></i>';
+    selectedTimeIndexes.push(cellIndex);
+  }
 }
 
 /********************************
@@ -294,13 +337,21 @@ function toggleSelection(cell) {
 function highlightDay(date) {
   const selectedDate = new Date(date);
   const formattedSelected = getFormattedDate(selectedDate);
+
   document.querySelectorAll("#schedule-table tbody tr").forEach((row) => {
     const dayCell = row.querySelector("td");
     if (!dayCell) return;
+
     const dayIndex = parseInt(dayCell.dataset.day);
+    if (dayIndex === 5 || dayIndex === 6) {
+      dayCell.classList.add("disabled"); // ป้องกันการเลือกวันหยุด
+      return;
+    }
+
     const startOfWeek = getStartOfWeek(selectedDate);
     const rowDate = new Date(startOfWeek);
     rowDate.setDate(startOfWeek.getDate() + dayIndex);
+
     if (getFormattedDate(rowDate) === formattedSelected) {
       row.classList.add("highlight");
     } else {
@@ -308,6 +359,7 @@ function highlightDay(date) {
     }
   });
 }
+
 
 /********************************
  * 10) confirmBooking()
