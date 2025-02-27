@@ -1,8 +1,10 @@
 const express = require('express');
 const connection = require('./db'); // นำเข้าการเชื่อมต่อฐานข้อมูล
 const mysql = require('mysql2');
+const cors = require('cors');
+const path = require('path');
 const fs = require("fs");
-const cors = require('cors');  // เพิ่ม cors
+const util = require('util');
 
 
 const app = express();
@@ -179,8 +181,8 @@ app.get('/teacher', (req, res) => {
     });
 });
 
-app.get('/quipment_brokened', (req, res) => {
-    connection.query('SELECT * FROM quipment_brokened', (err, results) => {
+app.get('/equipment_brokened', (req, res) => {
+    connection.query('SELECT * FROM equipment_brokened', (err, results) => {
         if (err) {
             console.error('❌ Error:', err);
             res.status(500).send(err);
@@ -202,17 +204,17 @@ app.get('/equipment', (req, res) => {
     });
 });
 
-app.get("/image/:filename", async(req, res) => {
+app.get("/image/:filename", (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(__dirname, "../storage/equipment_img", filename);
-
+  
     if (fs.existsSync(filePath)) {
-        res.setHeader("Content-Type", "image/jpeg");
-        res.sendFile(filePath);
+      res.setHeader("Content-Type", "image/jpeg");
+      res.sendFile(filePath);
     } else {
-        res.status(404).json({ error: "File not found" });
+      res.status(404).json({ error: "File not found" });
     }
-});
+  });
 
 app.get('/room_request_participant', (req, res) => {
     connection.query('SELECT * FROM room_request_participant', (err, results) => {
