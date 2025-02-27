@@ -47,7 +47,7 @@ async function fetchData() {
             return acc;
         }, {});
 
-        
+
 
         console.log("📌 จำนวนผู้เข้าร่วมต่อ room_request_id:", participantCountMap);
 
@@ -57,27 +57,27 @@ async function fetchData() {
             const student = studentsData.find(s => s.student_id === room.student_id) || {};
             const teacher = teachersData.find(t => t.teacher_id === room.teacher_id) || {};
             const roomInfo = roomIDData.find(r => r.room_id === room.room_id) || {};
-        
+
             // ✅ Filter the equipment requests for this room_request_id
             const equipmentReqs = equipmentReqData.filter(e => e.room_request_id === room.room_request_id);
-        
+
             // ✅ Extract equipment names with quantities
             const equipmentDetails = equipmentReqs.map(eq => {
                 const equipment = equipmentData.find(ed => ed.equipment_id === eq.equipment_id);
                 return equipment ? `${equipment.equipment_name} (${eq.request_quantity})` : '-';
             }).join(', ');
-        
+
             // ✅ ค้นหารายชื่อผู้เข้าร่วมทั้งหมดที่มี room_request_id เดียวกัน
             const participants = participantData
                 .filter(p => p.room_request_id === room.room_request_id)
                 .map(p => {
-                const student = studentsData.find(s => s.student_id === p.student_id)?.full_name;
-                const teacher = teachersData.find(t => t.teacher_id === p.teacher_id)?.full_name;
-                return student || teacher || '-';
-            })
-            .join(', ');
+                    const student = studentsData.find(s => s.student_id === p.student_id)?.full_name;
+                    const teacher = teachersData.find(t => t.teacher_id === p.teacher_id)?.full_name;
+                    return student || teacher || '-';
+                })
+                .join(', ');
 
-        
+
             return {
                 room_request_id: room.room_request_id,
                 used_date: room.used_date,
@@ -98,7 +98,7 @@ async function fetchData() {
                 participantNames: participants || '-', // ✅ รายชื่อผู้เข้าร่วมทั้งหมด
             };
         });
-        
+
 
         console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
 
@@ -140,12 +140,18 @@ async function fetchData() {
                     <td class="text-center">${row.request_reason || '-'}</td>
                     <td class="text-center">
                         ${row.request_status === 'รออนุมัติ'
-                    ? '<span class="badge bg-warning">รออนุมัติ</span>'
-                    : ` 
-                            <button class="btn btn-success btn-sm" onclick="updateStatus(${row.room_request_id}, 'รออนุมัติ')">✅ อนุมัติ</button>
-                            <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.room_request_id}, 'ไม่อนุมัติ')">❌ ไม่อนุมัติ</button>
-                        `}
-                    </td>
+                            ? `
+                        <button class="btn btn-success btn-sm" onclick="updateStatus(${row.room_request_id}, 'รอดำเนินการ')">
+                                    ✅ อนุมัติ
+                                </button>
+                            <button class="btn btn-danger btn-sm" onclick="openRejectModal(${row.room_request_id})">
+                            ❌ ไม่อนุมัติ
+                            </button>
+        `
+                    : `<span class="badge bg-warning">${row.request_status}</span>`
+                }
+                </td>
+
                 </tr>
             `;
         });
@@ -161,15 +167,45 @@ async function updateStatus(requestId, newStatus) {
     try {
         const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ requestId, status: newStatus }),
         });
 
         if (response.ok) {
             alert(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ!`);
             fetchData(); // โหลดข้อมูลใหม่
+        } else {
+            const error = await response.json();
+            console.error("❌ Error:", error.message);
+            alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+        }
+    } catch (error) {
+        console.error("❌ Error updating status:", error);
+        alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+    }
+}
+
+async function submitReject() {
+    const requestId = document.getElementById("rejectRequestId").value;
+    const rejectReason = document.getElementById("rejectReason").value;
+    const detailRejectReason = document.getElementById("rejectDetail").value;
+
+    try {
+        const response = await fetch('http://localhost:3001/updateStatus', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                requestId, 
+                status: "ไม่อนุมัติ", 
+                rejectReason, 
+                detailRejectReason 
+            }),
+        });
+
+        if (response.ok) {
+            alert("ปฏิเสธคำขอเรียบร้อย!");
+            fetchData(); // โหลดข้อมูลใหม่
+            bootstrap.Modal.getInstance(document.getElementById("rejectModal")).hide(); // ปิด Modal
         } else {
             const error = await response.json();
             console.error("❌ Error:", error.message);
@@ -202,7 +238,10 @@ document.addEventListener("click", function (event) {
     }
 });
 
-
+function openRejectModal(requestId) {
+    document.getElementById("rejectRequestId").value = requestId;
+    new bootstrap.Modal(document.getElementById("rejectModal")).show();
+}
 
 // ฟังก์ชันแปลงวันที่เป็นวันในสัปดาห์
 function getDayOfWeek(dateString) {

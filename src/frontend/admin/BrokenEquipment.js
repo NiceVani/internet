@@ -1,84 +1,133 @@
 async function fetchData() {
     try {
-        const [brokenResponse, studentResponse, equipmentsResponse, adminResponse] = await Promise.all([
-            fetch('http://localhost:3001/data/Equipments_list_brokened'),
-            fetch('http://localhost:3001/data/Student_information'),
-            fetch('http://localhost:3001/data/Equipments_list_information'),
-            fetch('http://localhost:3001/data/Admin_information')
+        // ✅ ดึงข้อมูลจากทุกตารางที่เกี่ยวข้อง
+        const [brokenResponse, studentResponse, teachersResponse, equipmentsResponse, adminResponse] = await Promise.all([
+            fetch('http://localhost:3001/data/equipment_brokened'),
+            fetch('http://localhost:3001/data/student'),
+            fetch('http://localhost:3001/data/teacher'),
+            fetch('http://localhost:3001/data/equipment'),
+            fetch('http://localhost:3001/data/admin')
         ]);
 
         const brokenData = await brokenResponse.json();
         const studentData = await studentResponse.json();
+        const teachersData = await teachersResponse.json();
         const equipmentsData = await equipmentsResponse.json();
         const adminData = await adminResponse.json();
 
-        // ตรวจสอบว่าอยู่หน้าไหน
-        let statusFilter = [];
+        console.log("✅ Data Loaded:", { brokenData, studentData, teachersData, equipmentsData, adminData });
 
+        // ✅ ตรวจสอบว่าอยู่หน้าไหน
+        let statusFilter = [];
+        let isWaitingPage = false;
         if (window.location.pathname.includes('request_crash_equipments.html')) {
             statusFilter = ['รอซ่อม'];
-        } else if (window.location.pathname.includes('wait.html')) {
-            statusFilter = ['รับเรื่องแล้ว', 'กำลังซ่อม', 'กำลังจัดซื้อ']; // เพิ่มหลายเงื่อนไข
+            isWaitingPage = true;
+        } else if (window.location.pathname.includes('wait.html')) { 
+            statusFilter = ['รับเรื่องแล้ว', 'กำลังจัดซื้อ', 'กำลังซ่อม']; // ✅ หน้ากำลังดำเนินการ
         } else if (window.location.pathname.includes('success.html')) {
             statusFilter = ['ซ่อมสำเร็จ'];
         }
 
-        // คัดกรองตามสถานะที่กำหนด
-        const mergedData = brokenData.filter(row => statusFilter.includes(row.Repair_status)) // 🔥 กรองข้อมูลตามหน้า
+        // ✅ คัดกรองตามสถานะ และรวมข้อมูลจากหลายตาราง
+        const mergedData = brokenData
+            .filter(row => statusFilter.includes(row.repair_status))
             .map(row => {
                 try {
-                    const student = studentData.find(s => s.Student_ID === row.Identify_ID) || {};
-                    const equipment = equipmentsData.find(e => e.Equipments_ID === row.Equipments_ID) || {};
-                    const admin = adminData.find(a => a.Admin_ID === row.Admin_ID) || {};
+                    const student = studentData.find(s => s.student_id === row.student_id) || {};
+                    const teacher = teachersData.find(t => t.teacher_id === row.teacher_id) || {};
+                    const equipment = equipmentsData.find(e => e.equipment_id === row.equipment_id) || {};
+                    const admin = adminData.find(a => a.admin_id === row.admin_id) || {};
 
                     return {
                         ...row,
-                        email: student.Email || '-',
-                        studentName: student.Name || '-',
-                        equipmentName: equipment.Equipments_name || '-',
-                        equipmentType: equipment.Equipments_Type || '-',
-                        admin: admin.Name || '-',
+                        repairDate: row.repair_date ? new Date(row.repair_date).toLocaleDateString('th-TH') : '-',
+                        email: student?.email || teacher?.email || '-',
+                        person_name: student?.full_name || teacher?.full_name || '-',
+                        equipmentName: equipment?.equipment_name || '-',
+                        equipmentType: equipment?.equipment_type || '-',
+                        admin: admin?.name || '-',
+                        damageDetails: row?.damage_details || '-',
+                        imagePath: row?.image_path ? `http://localhost:3001/image/${row.image_path}` : null // ✅ เชื่อม `image_path`
                     };
                 } catch (error) {
                     console.error("❌ Error mapping row:", row, error);
-                    return row; // คืนค่าเดิมถ้ามีปัญหา
+                    return row;
                 }
             });
 
         console.log("✅ Merged Data:", mergedData);
 
-
+        // ✅ อัปเดตตาราง
         const tableBody = document.getElementById('equipment-table');
         tableBody.innerHTML = mergedData.map(row => `
-    <tr>
-        <td class="text-center">${new Date(row.Repair_date).toLocaleDateString()}</td>
-        <td class="text-center">${row.Repair_numbers}</td>
-        <td class="text-center">${row.studentName || '-'}</td>
-        <td class="text-center">${row.email || '-'}</td>
-        <td class="text-center">${row.Repair_status}</td>
-        <td class="text-center">${row.Rooms_ID || '-'}</td>
-        <td class="text-center">${row.equipmentName || '-'}</td>
-        <td class="text-center">${row.admin || '-'}</td>
-        <td class="text-center">
-            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal"
-                data-date="${new Date(row.Repair_date).toLocaleDateString()}"
-                data-id="${row.Repair_numbers}"
-                data-reporter="${row.studentName || '-'}"
-                data-email="${row.email}"
-                data-status="${row.Repair_status}"
-                data-room="${row.Rooms_ID || '-'}"
-                data-item="${row.equipmentName || '-'}"
-                data-receiver="${row.admin || '-'}"
-                data-detail="${row.Damaged_details || '-'}">
-                รายละเอียด
-            </button>
-        </td>
-    </tr>
-`).join(""); // 🔥 รวมเป็น String เดียว
+            <tr>
+                <td class="text-center">${row.repairDate}</td>
+                <td class="text-center">${row.repair_number}</td>
+                <td class="text-center">${row.person_name}</td>
+                <td class="text-center">${row.email}</td>
+                <td class="text-center">${row.repair_status}</td>
+                <td class="text-center">${row.room_id || '-'}</td>
+                <td class="text-center">${row.equipmentName}</td>
+                <td class="text-center">
+                    ${isWaitingPage ? `
+                        <button class="btn btn-warning btn-sm update-status-btn" data-id="${row.repair_number}">รับเรื่อง</button>
+                    ` : `
+                        <select class="form-select status-dropdown" data-id="${row.repair_number}">
+                            <option value="รับเรื่องแล้ว" ${row.repair_status === 'รับเรื่องแล้ว' ? 'selected' : ''}>รับเรื่องแล้ว</option>
+                            <option value="กำลังจัดซื้อ" ${row.repair_status === 'กำลังจัดซื้อ' ? 'selected' : ''}>กำลังจัดซื้อ</option>
+                            <option value="กำลังซ่อม" ${row.repair_status === 'กำลังซ่อม' ? 'selected' : ''}>กำลังซ่อม</option>
+                            <option value="ซ่อมสำเร็จ" ${row.repair_status === 'ซ่อมสำเร็จ' ? 'selected' : ''}>ซ่อมสำเร็จ</option>
+                        </select>
+                    `}
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-info btn-sm detail-btn" data-bs-toggle="modal" data-bs-target="#detailModal"
+                        data-date="${row.repairDate}"
+                        data-id="${row.repair_number}"
+                        data-reporter="${row.person_name}"
+                        data-email="${row.email}"
+                        data-status="${row.repair_status}"
+                        data-room="${row.room_id || '-'}"
+                        data-item="${row.equipmentName}"
+                        data-receiver="${row.admin}"
+                        data-detail="${row.damageDetails}"
+                        data-image="${row.imagePath || ''}">
+                        รายละเอียด
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+
+        // ✅ Event Listener ให้ปุ่ม "รายละเอียด" เปิด Modal พร้อมข้อมูล
+        document.querySelectorAll(".detail-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                document.getElementById("modal-date").textContent = this.getAttribute("data-date");
+                document.getElementById("modal-id").textContent = this.getAttribute("data-id");
+                document.getElementById("modal-reporter").textContent = this.getAttribute("data-reporter");
+                document.getElementById("modal-email").textContent = this.getAttribute("data-email");
+                document.getElementById("modal-status").textContent = this.getAttribute("data-status");
+                document.getElementById("modal-room").textContent = this.getAttribute("data-room");
+                document.getElementById("modal-item").textContent = this.getAttribute("data-item");
+                document.getElementById("modal-receiver").textContent = this.getAttribute("data-receiver");
+                document.getElementById("modal-detail").textContent = this.getAttribute("data-detail");
+
+                // ✅ อัปเดตรูปภาพใน Modal
+                const imageUrl = this.getAttribute("data-image");
+                const modalImage = document.getElementById("modal-image");
+                if (imageUrl) {
+                    modalImage.src = imageUrl;
+                    modalImage.style.display = "block"; // แสดงรูป
+                } else {
+                    modalImage.style.display = "none"; // ซ่อนถ้าไม่มีรูป
+                }
+            });
+        });
+
     } catch (error) {
         console.error('❌ Error fetching data:', error);
     }
 }
 
-// เรียกใช้ fetchData() เมื่อโหลดหน้า
-fetchData();  
+// 🚀 เรียกใช้งาน fetchData() เมื่อโหลดหน้า
+fetchData();
