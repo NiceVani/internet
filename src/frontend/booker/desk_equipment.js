@@ -10,7 +10,8 @@ let selectedDesks = new Set();
  ********************************/
 async function loadDesks() {
   try {
-    const response = await fetch("http://localhost:3000/Manage_computers");
+    const response = await fetch("http://localhost:3000/computer_management");
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -24,14 +25,14 @@ async function loadDesks() {
       deskDiv.classList.add("desk");
 
       // เช็คสถานะของคอมพิวเตอร์
-      if (desk.Computer_status === "ใช้งานได้") {
+      if (desk.computer_status === "ใช้งานได้") {
         deskDiv.classList.add("usable");
       } else {
         deskDiv.classList.add("damaged"); // ถ้าไม่ใช้งานได้ ให้ใช้คลาส 'damaged'
       }
 
-      deskDiv.textContent = `Com ${desk.Computer_ID}`;
-      deskDiv.dataset.id = desk.Computer_ID; // เก็บ ID ไว้ใน data attribute
+      deskDiv.textContent = `Com ${desk.computer_id}`;
+      deskDiv.dataset.id = desk.computer_id; // เก็บ ID ไว้ใน data attribute
 
       // เมื่อคลิกเลือกเก้าอี้ ให้เรียก toggleDesk()
       deskDiv.onclick = () => toggleDesk(deskDiv);
@@ -67,8 +68,10 @@ function toggleDesk(desk) {
  ********************************/
 async function loadEquipments() {
   try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const room = urlParams.get("room"); // ได้ค่าเป็น "08:00:00"
     const response = await fetch(
-      "http://localhost:3000/getEquipments?room=307"
+      `http://localhost:3000/getEquipments?room=${room}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -82,8 +85,8 @@ async function loadEquipments() {
       equipmentDiv.classList.add("equipment-item");
 
       // แสดงชื่ออุปกรณ์และจำนวน (เช่น "เก้าอี้ (10)")
-      equipmentDiv.textContent = `${equipment.Equipments_name} (${equipment.Equipments_amount})`;
-      equipmentDiv.dataset.id = equipment.Equipments_ID;
+      equipmentDiv.textContent = `${equipment.equipment_name} (${equipment.stock_quantity})`;
+      equipmentDiv.dataset.id = equipment.equipment_id;
 
       // สร้าง input สำหรับให้ผู้ใช้กรอกจำนวนที่จะยืม
       const input = document.createElement("input");
@@ -91,14 +94,14 @@ async function loadEquipments() {
       input.min = "0";
       input.value = "0";
       // กำหนด max ตามจำนวนที่มีในฐานข้อมูล
-      input.max = equipment.Equipments_amount;
-      input.dataset.id = equipment.Equipments_ID;
+      input.max = equipment.stock_quantity;
+      input.dataset.id = equipment.equipment_id;
 
       // สร้าง container สำหรับแสดงทั้ง label และ input
       const itemContainer = document.createElement("div");
       itemContainer.classList.add("borrow-item");
       const label = document.createElement("label");
-      label.textContent = `${equipment.Equipments_name}:`;
+      label.textContent = `${equipment.equipment_name}:`;
       itemContainer.appendChild(label);
       itemContainer.appendChild(input);
 

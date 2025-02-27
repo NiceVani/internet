@@ -2,6 +2,9 @@
 
 Separate Directory
 
-- Booker
-- Admin
-- Executive
+```bash
+src/
+├── booker/
+├── admin/
+└── executive/
+```
