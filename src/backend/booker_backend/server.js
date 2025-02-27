@@ -135,6 +135,7 @@ app.get("/session", (req, res) => {
         user_id: userId,
         student_id: data.student_id || null,
         teacher_id: data.teacher_id || null,
+        phone_number: data.phone_number,
         full_name: data.full_name,
         faculty: data.faculty,
         department: data.department,
@@ -288,22 +289,22 @@ app.get("/getEquipments", async (req, res) => {
 // ===============================
 app.get("/roomdetail", (req, res) => {
   const query = `
-    SELECT
-      rli.room_name AS full_name,
-      rli.floor,
-      rli.room_id,
-      rli.room_name,
+    SELECT 
+      r.room_id, 
+      r.room_name, 
+      r.floor, 
+      rt.type_name AS room_type,
       SUM(CASE WHEN rlr.request_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count
-    FROM room rli
-    LEFT JOIN room_request rlr ON rli.room_id = rlr.room_id
-    GROUP BY rli.room_id, rli.room_name, rli.floor, rli.room_name
-    ORDER BY Approved_Count DESC;
+    FROM room r
+    LEFT JOIN room_request rlr ON r.room_id = rlr.room_id
+    LEFT JOIN room_type rt ON r.room_type_id = rt.room_type_id
+    GROUP BY r.room_id, r.room_name, r.floor, rt.type_name
+    ORDER BY Approved_Count DESC
   `;
   connection.query(query, (err, results) => {
     if (err) {
       console.error("❌ เกิดข้อผิดพลาด:", err);
-      res.status(500).send(err);
-      return;
+      return res.status(500).send(err);
     }
     console.log("✅ ดึงข้อมูลห้องสำเร็จ:", results);
     res.json(results);
