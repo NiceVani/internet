@@ -76,14 +76,14 @@
           
             <li class="nav-item" role="presentation">
               <button
-                class="nav-link active"
+                class="nav-link"
                 id="broken-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#broken"
                 type="button"
                 role="tab"
                 aria-controls="broken"
-                aria-selected="true"
+                aria-selected="false"
               >
                 รอซ่อม
               </button>
@@ -104,19 +104,19 @@
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button
-              class="nav-link "
-                id="success-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#success"
-                type="button"
-                role="tab"
-                aria-controls="success"
-                aria-selected="false"
-              >
-               ซ่อมเสร็จ
-              </button>
-            </li>
+                <button
+                class="nav-link active"
+                  id="success-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#success"
+                  type="button"
+                  role="tab"
+                  aria-controls="success"
+                  aria-selected="true"
+                >
+                 ซ่อมเสร็จ
+                </button>
+              </li>
           </ul>
 
           <!-- ส่วนของ Filter -->
@@ -124,7 +124,7 @@
             <div class="col-12">
               <label for="typeFilter">ชนิดอุปกรณ์:</label>
               <select id="typeFilter" class="form-select d-inline-block">
-                <option value="all" >ทั้งหมด</option>
+                <option value="all">ทั้งหมด</option>
                 <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
                 <option value="เครื่องคอมพิวเตอร์">เครื่องคอมพิวเตอร์</option>
                 <option value="เก้าอี้">เก้าอี้</option>
@@ -161,7 +161,6 @@
           <div class="tab-content">
             <div class="tab-pane fade" id="broken"></div>
             <div class="tab-pane fade show active" id="accepted">
-            <div class="tab-pane fade show active" id="success"></div>
                 <div id="equipment-list"></div> <!-- ✅ Container -->
             </div>
           
@@ -170,8 +169,6 @@
 </div>
 
 <script>
-
-  
   async function fetchData() {
     try {
         console.log("🔥 Fetching data...");
@@ -190,27 +187,30 @@
 
         console.log("🔥 API Data Loaded:", brokenData);
 
-        // รวมข้อมูล equipment_brokened กับ equipment
-        let mergedData = brokenData.map(item => {
-            const student = studentData.find(s => s.student_id === item.student_id) || {};
-            const teacher = teachersData.find(t => t.teacher_id === item.teacher_id) || {};
-            const equipment = equipmentsData.find(e => e.equipment_id === item.equipment_id) || {};
+        let statusFilter = ['ซ่อมสำเร็จ'];
 
-            return {
-                ...item,
-                repairDate: item.repair_date ? new Date(item.repair_date).toLocaleDateString('th-TH') : '-',
-                email: student.email || teacher.email || '-',
-                person_name: student.full_name || teacher.full_name || '-',
-                equipmentName: equipment.equipment_name || 'ไม่พบชื่ออุปกรณ์',
-                equipmentType: equipment.equipment_type || 'ไม่ระบุประเภท',
-                damageDetails: item.damage_details || '-',
-                imagePath: item.image_path ? `http://localhost:3000/image/${item.image_path}` : null
-            };
-        });
+        const mergedData = brokenData
+            .filter(row => statusFilter.includes(row.repair_status))
+            .map(item => {
+                const student = studentData.find(s => s.student_id === item.student_id) || {};
+                const teacher = teachersData.find(t => t.teacher_id === item.teacher_id) || {};
+                const equipment = equipmentsData.find(e => e.equipment_id === item.equipment_id) || {};
+
+                return {
+                    ...item,
+                    repairDate: item.repair_date ? new Date(item.repair_date).toLocaleDateString('th-TH') : '-',
+                    email: student.email || teacher.email || '-',
+                    person_name: student.full_name || teacher.full_name || '-',
+                    equipmentName: equipment.equipment_name || '-',
+                    equipmentType: equipment.equipment_type || '-',
+                    damageDetails: item.damage_details || '-',
+                    
+                    imagePath: item.image_path ? `http://localhost:3000/image/${item.image_path}` : null
+                };
+            });
 
         console.log("🔥 Merged Data:", mergedData);
 
-        // โหลดข้อมูลทั้งหมดตอนเริ่มต้น
         filterData("all", mergedData);
 
         // ฟังก์ชันกรองข้อมูลเมื่อเปลี่ยนค่าใน Dropdown
@@ -261,24 +261,15 @@
   }
 
   document.addEventListener("DOMContentLoaded", fetchData);
+
+
 // โหลด Sidebar
 fetch("sidebar.html")
-    .then((resp) => resp.text())
-    .then((html) => {
+    .then(resp => resp.text())
+    .then(html => {
         document.getElementById("sidebar-container").innerHTML = html;
     })
-    .then(() => {
-        // ตรวจสอบให้แน่ใจว่า sidebar โหลดเสร็จก่อน แล้วไฮไลต์ปุ่ม
-        const btnEquipment = document.getElementById("btnEquipmentList"); // แก้ไขให้เป็น ID ของ "รายการอุปกรณ์ชำรุด"
-        if (btnEquipment) {
-            btnEquipment.classList.add("btn-sidebar-active"); // เพิ่มคลาสไฮไลต์
-        } else {
-            console.error("❌ btnEquipmentList not found!");
-        }
-    })
-    .catch((err) => console.error("Failed to load sidebar:", err));
-
-
+    .catch(err => console.error("Failed to load sidebar:", err));
 
 // ตั้งค่า Event Listener สำหรับเปลี่ยนเส้นทางตามแท็บ
 document.addEventListener("DOMContentLoaded", function () {
@@ -286,22 +277,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const acceptedTab = document.querySelector("#accepted-tab"); // แท็บ "กำลังดำเนินการ"
     const successTab = document.querySelector("#success-tab");
 
-    if (acceptedTab) {
-        acceptedTab.addEventListener("click", function () {
-            window.location.href = "accept_crash_equipments.html"; // ไปหน้า crash_equipments_requests.html
+    if (brokenTab) {
+        brokenTab.addEventListener("click", function () {
+            window.location.href = "crash_equipments_requests.html"; // ไปหน้า crash_equipments_requests.html
         });
     } else {
         console.error("❌ broken-tab not found!");
     }
 
-    if (successTab) {
-        successTab.addEventListener("click", function () {
-            window.location.href = "successful_equipments.html"; // ไปหน้า accept_crash_equipments.html
+    if (acceptedTab) {
+        acceptedTab.addEventListener("click", function () {
+            window.location.href = "accept_crash_equipments.html"; // ไปหน้า accept_crash_equipments.html
         });
     } else {
         console.error("❌ accepted-tab not found!");
     }
 });
+
 </script>
 </body>
 </html>

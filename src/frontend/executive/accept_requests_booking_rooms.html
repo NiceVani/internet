@@ -465,7 +465,7 @@
                     const participantData = await participantResponse.json();
                     //console.log(TeacherData);
                     // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.request_status === 'อนุมัติ' && row.request_type === 'นอกเวลา');
+                    
 
                     const participantCountMap = participantData.reduce((acc, participant) => {
                       acc[participant.room_request_id] = (acc[participant.room_request_id] || 0) + 1;
@@ -474,15 +474,19 @@
       
                   console.log("📌 จำนวนผู้เข้าร่วมต่อ room_request_id:", participantCountMap);
                     
-                    // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
-                    for (const row of filteredData) {
-                      const requestDate = new Date(row.used_date);
-                      requestDate.setHours(0, 0, 0, 0);
-
-                    if (requestDate < today) {
-                          await updateStatus(row.room_request_id, 'ไม่อนุมัติ');
-                      }
-                  }
+                  const filteredData = roomsData.filter(row => {
+                    const thaiSubmittedTime = new Date(row.submitted_time); // แปลง submitted_time เป็น Date Object
+                    const today = new Date(); 
+                    today.setHours(0, 0, 0, 0); // ตั้งเวลาให้เป็น 00:00:00 ของวันนี้
+                    
+                    const thaiToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })); // แปลงเป็นโซนไทย
+                    
+                    return (
+                        row.request_status === 'อนุมัติ' &&
+                        row.request_type === 'นอกเวลา' &&
+                        thaiSubmittedTime >= thaiToday // เปรียบเทียบว่า submitted_time ≥ วันปัจจุบัน
+                    );
+                  });
 
                       const mergedData = filteredData.map(room => {
                       const student = studentsData.find(s => s.student_id === room.student_id) || {};

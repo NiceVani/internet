@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <title>รายการอุปกรณ์รับเรื่องแล้ว</title>
+<head>
+    <meta charset="UTF-8">
+    <title>รายการอุปกรณ์ชำรุด</title>
     <!-- Bootstrap 5 Bundle CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -17,47 +17,53 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+   
     <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
+        .content-area { margin-left: 290px; }
+        @media (max-width: 576px) { .content-area { margin-left: 0; } }
 
-      .content-area {
-        /* ตำแหน่ง main contenet*/
-        margin-left: 290px; /* เว้นด้านซ้ายกันทับกับ Sidebar */
-      }
-      /* Responsive: จอเล็ก */
-      @media (max-width: 576px) {
-        .sidebar {
-          position: relative;
-          width: 100%;
-          max-width: 100%;
-          box-shadow: none;
-        }
-        .content-area {
-          margin-left: 0;
-        }
-      }
-      /* สไตล์สำหรับ Filter Area */
-      .filter-row {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-      }
-      .filter-row label {
-        margin-right: 0.5rem;
-        font-weight: bold;
-      }
-      .filter-row select,
-      .filter-row input[type="date"] {
-        width: auto;
-        display: inline-block;
-        margin-right: 1rem;
-      }
-      .card-header {
-        font-size: 1.25rem;
-      }
+          body {
+            font-family: Arial, sans-serif;
+          }
+    
+          .content-area {
+            /* ตำแหน่ง main contenet*/
+            margin-left: 290px; /* เว้นด้านซ้ายกันทับกับ Sidebar */
+          }
+          /* Responsive: จอเล็ก */
+          @media (max-width: 576px) {
+            .sidebar {
+              position: relative;
+              width: 100%;
+              max-width: 100%;
+              box-shadow: none;
+            }
+            .content-area {
+              margin-left: 0;
+            }
+          }
+          /* สไตล์สำหรับ Filter Area */
+          .filter-row {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          }
+          .filter-row label {
+            margin-right: 0.5rem;
+            font-weight: bold;
+          }
+          .filter-row select,
+          .filter-row input[type="date"] {
+            width: auto;
+            display: inline-block;
+            margin-right: 1rem;
+          }
+          .card-header {
+            font-size: 1.25rem;
+          }
+        </style>
     </style>
-  </head>
+</head>
+<body>
   <body>
     <!-- เนื้อหา -->
     <div id="sidebar-container"></div>
@@ -69,7 +75,7 @@
             <!-- แท็บ อุปกรณ์ชำรุด -->
             <li class="nav-item" role="presentation">
               <button
-                class="nav-link"
+              class="nav-link"
                 id="broken-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#broken"
@@ -78,10 +84,10 @@
                 aria-controls="broken"
                 aria-selected="false"
               >
-                อุปกรณ์ชำรุด (3)
+                รอซ่อม
               </button>
             </li>
-            <!-- แท็บ รับเรื่องแล้ว (active) -->
+            
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link active"
@@ -93,7 +99,21 @@
                 aria-controls="accepted"
                 aria-selected="true"
               >
-                รับเรื่องแล้ว (5)
+                กำลังดำเนินการ
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+              class="nav-link"
+                id="success-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#success"
+                type="button"
+                role="tab"
+                aria-controls="success"
+                aria-selected="false"
+              >
+               ซ่อมเสร็จ
               </button>
             </li>
           </ul>
@@ -109,6 +129,7 @@
                 <option value="เก้าอี้">เก้าอี้</option>
                 <option value="โต๊ะ">โต๊ะ</option>
                 <option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</option>
+                <option value="ปลั๊กไฟ">ปลั๊กไฟ</option>
               </select>
 
               <label for="roomFilter">ห้อง:</label>
@@ -136,313 +157,146 @@
             </div>
           </div>
           <!-- /Filter -->
-
+          
           <!-- Tab Contents -->
-          <div class="tab-content" id="myTabContent">
-            <!-- แท็บ อุปกรณ์ชำรุด (ไม่แสดงในหน้านี้ เพราะคลิกแล้วจะเปลี่ยนหน้า) -->
-            <div
-              class="tab-pane fade"
-              id="broken"
-              role="tabpanel"
-              aria-labelledby="broken-tab"
-            >
-              <!-- หากคลิกแล้ว ให้ไปหน้า crash_equipment.html -->
-              <p>กำลังโหลด...</p>
+          <div class="tab-content">
+            <div class="tab-pane fade" id="broken"></div>
+            <div class="tab-pane fade show active" id="accepted">
+                <div id="equipment-list"></div> <!-- ✅ Container -->
             </div>
-
-            <!-- แท็บ: รับเรื่องแล้ว (active) -->
-            <div
-              class="tab-pane fade show active"
-              id="accepted"
-              role="tabpanel"
-              aria-labelledby="accepted-tab"
-            >
-              <div id="accepted-content">
-                <!-- (1) จอคอมพิวเตอร์ -->
-                <div class="card my-3">
-                  <div class="card-header h5">จอคอมพิวเตอร์</div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <img
-                          src="https://f.ptcdn.info/808/077/000/rer9vm2jbD91GWpX0Fh-o.jpg"
-                          alt="จอคอมพิวเตอร์"
-                          class="img-fluid rounded"
-                        />
-                      </div>
-                      <div class="col-md-9">
-                        <h5 class="card-title">
-                          จอคอมพิวเตอร์เสียหรือมีอาการจอลาย
-                        </h5>
-                        <p class="mb-1"><strong>ห้อง:</strong> SC2-414</p>
-                        <p class="mb-1">
-                          <strong>ผู้แจ้ง:</strong> นายสมปอง จ้อน
-                        </p>
-                        <p class="mb-1">
-                          <strong>อีเมล:</strong> sompong@nu.ac.th
-                        </p>
-                        <p class="mb-3">
-                          <strong>รายงานเมื่อ:</strong> 29 พฤศจิกายน 2567
-                        </p>
-                        <h5
-                          style="
-                            color: green;
-                            padding: 7px;
-                            border-radius: 10px;
-                          "
-                        >
-                          <i
-                            style="
-                              height: 30px;
-                              width: 30px;
-                              border-radius: 50%;
-                              padding-top: 5px;
-                              padding-left: 6px;
-                              background-color: rgb(0, 240, 56);
-                            "
-                            class="fa-solid fa-check text-white"
-                          ></i>
-                          รับเรื่องแล้ว
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- (2) เครื่องคอมพิวเตอร์ -->
-                <div class="card my-3">
-                  <div class="card-header h5">เครื่องคอมพิวเตอร์</div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <img
-                          src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQfW73FMwRo1DKhXi2LbOkyKum1A2x67CNQElbSHWQCkrx5suYu"
-                          alt="เครื่องคอมพิวเตอร์"
-                          class="img-fluid rounded"
-                        />
-                      </div>
-                      <div class="col-md-9">
-                        <h5 class="card-title">เครื่องคอมพิวเตอร์เปิดไม่ติด</h5>
-                        <p class="mb-1"><strong>ห้อง:</strong> SC2-311</p>
-                        <p class="mb-1">
-                          <strong>ผู้แจ้ง:</strong> นางรัมภา แช่มชื่น
-                        </p>
-                        <p class="mb-1">
-                          <strong>อีเมล:</strong> rhanram65@nu.ac.th
-                        </p>
-                        <p class="mb-3">
-                          <strong>รายงานเมื่อ:</strong> 30 พฤศจิกายน 2567
-                        </p>
-                        <h5
-                          style="
-                            color: green;
-                            padding: 7px;
-                            border-radius: 10px;
-                          "
-                        >
-                          <i
-                            style="
-                              height: 30px;
-                              width: 30px;
-                              border-radius: 50%;
-                              padding-top: 5px;
-                              padding-left: 6px;
-                              background-color: rgb(0, 240, 56);
-                            "
-                            class="fa-solid fa-check text-white"
-                          ></i>
-                          รับเรื่องแล้ว
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- (3) เก้าอี้ -->
-                <div class="card my-3">
-                  <div class="card-header h5">เก้าอี้</div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8JjYxu55lvIYBPtV5wGA-72KjqoWKn73pyA&s"
-                          alt="เก้าอี้"
-                          class="img-fluid rounded"
-                        />
-                      </div>
-                      <div class="col-md-9">
-                        <h5 class="card-title">เก้าอี้ไม่สามารถใช้งานได้</h5>
-                        <p class="mb-1"><strong>ห้อง:</strong> SC2-414</p>
-                        <p class="mb-1">
-                          <strong>ผู้แจ้ง:</strong> นางอรอุมา โสรยา
-                        </p>
-                        <p class="mb-1">
-                          <strong>อีเมล:</strong> ororjuma@nu.ac.th
-                        </p>
-                        <p class="mb-3">
-                          <strong>รายงานเมื่อ:</strong> 20 พฤศจิกายน 2567
-                        </p>
-                        <h5
-                          style="
-                            color: green;
-                            padding: 7px;
-                            border-radius: 10px;
-                          "
-                        >
-                          <i
-                            style="
-                              height: 30px;
-                              width: 30px;
-                              border-radius: 50%;
-                              padding-top: 5px;
-                              padding-left: 6px;
-                              background-color: rgb(0, 240, 56);
-                            "
-                            class="fa-solid fa-check text-white"
-                          ></i>
-                          รับเรื่องแล้ว
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- (4) โต๊ะ -->
-                <div class="card my-3">
-                  <div class="card-header h5">โต๊ะ</div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxP5v6QMlf_NSsfBUsQMArjvA1XiPS_jvPQNIjYJ74ui8CKEct"
-                          alt="โต๊ะ"
-                          class="img-fluid rounded"
-                        />
-                      </div>
-                      <div class="col-md-9">
-                        <h5 class="card-title">
-                          โต๊ะคอมพิวเตอร์เลื่อนไม่สะดวก
-                        </h5>
-                        <p class="mb-1"><strong>ห้อง:</strong> SC2-414</p>
-                        <p class="mb-1">
-                          <strong>ผู้แจ้ง:</strong> นางสาวปารณี กินคำ
-                        </p>
-                        <p class="mb-1">
-                          <strong>อีเมล:</strong> phranee@nu.ac.th
-                        </p>
-                        <p class="mb-3">
-                          <strong>รายงานเมื่อ:</strong> 20 พฤศจิกายน 2567
-                        </p>
-                        <h5
-                          style="
-                            color: green;
-                            padding: 7px;
-                            border-radius: 10px;
-                          "
-                        >
-                          <i
-                            style="
-                              height: 30px;
-                              width: 30px;
-                              border-radius: 50%;
-                              padding-top: 5px;
-                              padding-left: 6px;
-                              background-color: rgb(0, 240, 56);
-                            "
-                            class="fa-solid fa-check text-white"
-                          ></i>
-                          รับเรื่องแล้ว
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- (5) เครื่องปรับอากาศ -->
-                <div class="card my-3">
-                  <div class="card-header h5">เครื่องปรับอากาศ</div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <img
-                          src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRRommf_8tKXfxAXMGSzGp_dkMckuNXphKLYJGC7K-94gJ_6SjB"
-                          alt="เครื่องปรับอากาศ"
-                          class="img-fluid rounded"
-                        />
-                      </div>
-                      <div class="col-md-9">
-                        <h5 class="card-title">เครื่องปรับอากาศเปิดไม่ได้</h5>
-                        <p class="mb-1"><strong>ห้อง:</strong> SC2-414</p>
-                        <p class="mb-1">
-                          <strong>ผู้แจ้ง:</strong> นายนวชน มูฮัมหมัด
-                        </p>
-                        <p class="mb-1">
-                          <strong>อีเมล:</strong> nawachon@nu.ac.th
-                        </p>
-                        <p class="mb-3">
-                          <strong>รายงานเมื่อ:</strong> 20 พฤศจิกายน 2567
-                        </p>
-                        <h5
-                          style="
-                            color: green;
-                            padding: 7px;
-                            border-radius: 10px;
-                          "
-                        >
-                          <i
-                            style="
-                              height: 30px;
-                              width: 30px;
-                              border-radius: 50%;
-                              padding-top: 5px;
-                              padding-left: 6px;
-                              background-color: rgb(0, 240, 56);
-                            "
-                            class="fa-solid fa-check text-white"
-                          ></i>
-                          รับเรื่องแล้ว
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- /การ์ด 5 รายการ -->
-              </div>
-            </div>
-            <!-- /แท็บ: รับเรื่องแล้ว -->
-          </div>
         </div>
-      </div>
     </div>
-    <!-- /เนื้อหา -->
+</div>
 
-    <!-- Bootstrap 5 Bundle JS -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-kY2ZevAM3psnZS9DcpeIHyNL1w2Aswrm7DhUTG+HWnRg0TICmdgT0N1A2LoDj4Mm"
-      crossorigin="anonymous"
-    ></script>
+<script>
+  async function fetchData() {
+    try {
+        console.log("🔥 Fetching data...");
 
-    <script>
-      fetch("sidebar.html")
-        .then((resp) => resp.text())
-        .then((html) => {
-          // แทรก Sidebar เข้ามา
-          document.getElementById("sidebar-container").innerHTML = html;
-        })
-        .then(() => {
-          // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
-          // ให้ Highlight ปุ่มสถิติ
-          const btnStats = document.getElementById("btnBroken");
-          btnStats.classList.add("btn-sidebar-active");
-        })
-        .catch((err) => console.error("Failed to load sidebar:", err));
-      // เปลี่ยนไปยังหน้า crash_equipment.html ถ้าคลิกแท็บ 'อุปกรณ์ชำรุด'
-      document
-        .querySelector("#broken-tab")
-        .addEventListener("click", function () {
-          window.location.href = "crash_equipments_requests.html";
+        const [brokenResponse, studentResponse, teachersResponse, equipmentsResponse] = await Promise.all([
+            fetch('http://localhost:3000/equipment_brokened'),
+            fetch('http://localhost:3000/student'),
+            fetch('http://localhost:3000/teacher'),
+            fetch('http://localhost:3000/equipment'),
+        ]);
+
+        const brokenData = await brokenResponse.json();
+        const studentData = await studentResponse.json();
+        const teachersData = await teachersResponse.json();
+        const equipmentsData = await equipmentsResponse.json();
+
+        console.log("🔥 API Data Loaded:", brokenData);
+
+        let statusFilter = ['รับเรื่องแล้ว','กำลังจัดซื้อ','กำลังซ่อม'];
+
+        const mergedData = brokenData
+            .filter(row => statusFilter.includes(row.repair_status))
+            .map(item => {
+                const student = studentData.find(s => s.student_id === item.student_id) || {};
+                const teacher = teachersData.find(t => t.teacher_id === item.teacher_id) || {};
+                const equipment = equipmentsData.find(e => e.equipment_id === item.equipment_id) || {};
+
+                return {
+                    ...item,
+                    repairDate: item.repair_date ? new Date(item.repair_date).toLocaleDateString('th-TH') : '-',
+                    email: student.email || teacher.email || '-',
+                    person_name: student.full_name || teacher.full_name || '-',
+                    equipmentName: equipment.equipment_name || '-',
+                    equipmentType: equipment.equipment_type || '-',
+                    damageDetails: item.damage_details || '-',
+                    
+                    imagePath: item.image_path ? `http://localhost:3000/image/${item.image_path}` : null
+                };
+            });
+
+        console.log("🔥 Merged Data:", mergedData);
+
+        filterData("all", mergedData);
+
+        // ฟังก์ชันกรองข้อมูลเมื่อเปลี่ยนค่าใน Dropdown
+        document.getElementById("typeFilter").addEventListener("change", function () {
+            const selectedType = this.value;
+            filterData(selectedType, mergedData);
         });
-    </script>
-  </body>
+
+    } catch (error) {
+        console.error("❌ Fetch Error:", error);
+    }
+  }
+
+  function filterData(selectedType, data) {
+      const equipmentContainer = document.getElementById("equipment-list");
+      equipmentContainer.innerHTML = "";
+
+      let filteredData = data;
+      
+      // ถ้าเลือกชนิดอุปกรณ์ที่ไม่ใช่ "ทั้งหมด" ให้กรองข้อมูล
+      if (selectedType !== "all") {
+          filteredData = data.filter(item => item.equipmentName === selectedType);
+      }
+
+      if (filteredData.length === 0) {
+          equipmentContainer.innerHTML = "<p class='text-muted'>ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>";
+          return;
+      }
+
+      filteredData.forEach((item) => {
+          const equipmentCard = `
+              <div class="card my-3">
+                  <div class="card-header h5">${item.equipmentName}</div>
+                  <div class="card-body d-flex align-items-start">
+                      ${item.imagePath ? `<img src="${item.imagePath}" alt="ภาพอุปกรณ์ชำรุด" class="img-fluid me-3" style="max-width: 200px; max-height: 200px;">` : ''}
+                      <div>
+                          <p><strong>${item.damageDetails}</strong></p>
+                          <p><strong>ห้อง:</strong> ${item.room_id}</p>
+                          <p><strong>ผู้แจ้ง:</strong> ${item.person_name}</p>
+                          <p><strong>อีเมล:</strong> ${item.email}</p>
+                          <p><strong>รายงานเมื่อ:</strong> ${item.repairDate}</p>
+                          <p><strong>สถานะ:</strong> ${item.repair_status}</p>
+                      </div>
+                  </div>
+              </div>
+          `;
+          equipmentContainer.innerHTML += equipmentCard;
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchData);
+
+// โหลด Sidebar
+fetch("sidebar.html")
+    .then(resp => resp.text())
+    .then(html => {
+        document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .catch(err => console.error("Failed to load sidebar:", err));
+
+// ตั้งค่า Event Listener สำหรับเปลี่ยนเส้นทางตามแท็บ
+document.addEventListener("DOMContentLoaded", function () {
+    const brokenTab = document.querySelector("#broken-tab"); // แท็บ "รอซ่อม"
+    const acceptedTab = document.querySelector("#accepted-tab"); // แท็บ "กำลังดำเนินการ"
+    const successTab = document.querySelector("#success-tab");
+    
+
+    if (brokenTab) {
+        brokenTab.addEventListener("click", function () {
+            window.location.href = "crash_equipments_requests.html"; // ไปหน้า crash_equipments_requests.html
+        });
+    } else {
+        console.error("❌ broken-tab not found!");
+    }
+
+    if (successTab) {
+        successTab.addEventListener("click", function () {
+            window.location.href = "successful_equipments.html"; // ไปหน้า accept_crash_equipments.html
+        });
+    } else {
+        console.error("❌ accepted-tab not found!");
+    }
+});
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>
