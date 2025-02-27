@@ -239,7 +239,9 @@ async function updateTableForSelectedDate(date) {
       const formattedDate = getFormattedDate(currentDate);
       const isWeekend = index === 5 || index === 6; // เสาร์ (5), อาทิตย์ (6)
 
-      console.log(`🔍 Checking: ${day} (${formattedDate}) -> isWeekend: ${isWeekend}`);
+      console.log(
+        `🔍 Checking: ${day} (${formattedDate}) -> isWeekend: ${isWeekend}`
+      );
 
       return `
       <tr>
@@ -247,10 +249,13 @@ async function updateTableForSelectedDate(date) {
           ${day} (${formattedDate})
         </td>
         ${timeSlots
-          .map(() => 
-            `<td class="available" ${
-              isWeekend ? 'style="background-color: #f0f0f0; cursor: not-allowed;"' : ""
-            }></td>`
+          .map(
+            () =>
+              `<td class="available" ${
+                isWeekend
+                  ? 'style="background-color: #f0f0f0; cursor: not-allowed;"'
+                  : ""
+              }></td>`
           )
           .join("")}
       </tr>
@@ -260,7 +265,6 @@ async function updateTableForSelectedDate(date) {
 
   await fetchSchedule(date);
 }
-
 
 /********************************
  * 8) toggleSelection(cell)
@@ -279,7 +283,7 @@ function toggleSelection(cell) {
   const dayCell = row.querySelector("td");
   const dayIndex = parseInt(dayCell.dataset.day); // ดึง index ของวันนั้น
   const cellIndex = Array.from(row.children).indexOf(cell); // หาตำแหน่งของ cell ในแถว
-  
+
   // เช็กว่าเป็นวันเสาร์หรืออาทิตย์
   if (dayIndex === 5 || dayIndex === 6) {
     showAlert("ไม่สามารถเลือกวันเสาร์-อาทิตย์ได้!");
@@ -317,7 +321,9 @@ function toggleSelection(cell) {
     cell.innerHTML = "";
 
     // เอา index ออกจากรายการที่เลือก
-    selectedTimeIndexes = selectedTimeIndexes.filter(index => index !== cellIndex);
+    selectedTimeIndexes = selectedTimeIndexes.filter(
+      (index) => index !== cellIndex
+    );
 
     // ถ้ายกเลิกติ้กทั้งหมด รีเซ็ต selectedDayIndex และ selectedTimeIndexes
     if (selectedTimeIndexes.length === 0) {
@@ -359,7 +365,6 @@ function highlightDay(date) {
     }
   });
 }
-
 
 /********************************
  * 10) confirmBooking()
@@ -405,6 +410,7 @@ function confirmBooking() {
     endIndex < row.children.length - 1
       ? timeSlots[endIndex]
       : addOneHour(timeSlots[endIndex - 1]);
+  console.log("📄รายละเอียดการจอง📄");
   console.log("Selected Day:", selectedDay);
   console.log("Selected Date:", selectedDate);
   console.log("Start Time:", startTime);
@@ -415,7 +421,7 @@ function confirmBooking() {
     startTime: startTime,
     endTime: endTime,
   });
-  window.location.href = `deskSC2-${roomId}.html?${urlParams.toString()}`;
+  window.location.href = `desk_equipment.html?${urlParams.toString()}`;
 }
 
 /********************************
