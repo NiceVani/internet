@@ -80,6 +80,8 @@ async function fetchRoom() {
                 end_time: room.end_time,
                 request_type: room.request_type,
                 request_reason: room.request_reason,
+                reject_reason: room.reject_reason,
+                detail_reject_reason: room.detail_reject_reason,
                 request_status: room.request_status,
                 document_path: room.document_path,
                 person_name: student.full_name || teacher.full_name || '-',
@@ -124,6 +126,8 @@ async function fetchRoom() {
                             data-document="${row.document_path || '-'}"
                             data-reason-detail="${row.detail_request_reason || '-'}"
                             data-reason="${row.request_reason || '-'}"
+                            data-reject="${row.reject_reason || '-'}"
+                            data-reject-detail="${row.detail_reject_reason || '-'}"
                             data-participants="${row.participantNames}">
                             แสดงรายละเอียด
                         </button><br>
@@ -164,5 +168,7 @@ document.addEventListener("click", function (event) {
         document.getElementById("modal-reason").textContent = event.target.getAttribute("data-reason");
         document.getElementById("modal-reason-detail").textContent = event.target.getAttribute("data-reason-detail");
         document.getElementById("modal-data-participant-names").textContent = event.target.getAttribute("data-participants");
+        document.getElementById("modal-data-reject").textContent = event.target.getAttribute("data-reject");
+        document.getElementById("modal-data-reject-detail").textContent = event.target.getAttribute("data-reject-detail");
     }
 });

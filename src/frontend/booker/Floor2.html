@@ -13,7 +13,6 @@
       .room:hover {
         transform: scale(1.05);
       }
-
       body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -60,12 +59,12 @@
         align-items: center;
         font-size: 14px;
         text-align: center;
+        border: 2px solid #000;
+        border-radius: 10px;
         background-color: #ff0000;
         color: white;
-        border: 2px solid #000; /* เพิ่มกรอบสีดำให้ห้อง */
-        border-radius: 10px; /* ทำมุมให้โค้งมน */
-        padding: 10px; /* เพิ่มระยะห่างจากกรอบ */
-        margin: 5px; /* เพิ่มระยะห่างระหว่างห้อง */
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
       }
 
       .room:hover {
@@ -357,6 +356,64 @@
       .floor-selector button.active {
         background-color: #6c3483;
       }
+
+      /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+      .available {
+        background-color: #8e8e8e !important; /* ✅ สีเขียว */
+      }
+
+      /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+      .disabled-room {
+        pointer-events: none;
+        cursor: not-allowed;
+        background-color: #8e8e8e !important; /* ❌ สีแดง */
+      }
+
+      /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+      .status-label {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        border: 2px solid white;
+      }
+
+      /* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** */
+      .no-data {
+        background-color: #ff0000 !important; /* 🔴 พื้นหลังแดง */
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+      .no-data .status-label {
+        display: none !important;
+      }
+
+      /* ✅ ป้าย "ว่าง" */
+      .available .status-label {
+        background-color: green;
+      }
+
+      /* ✅ ป้าย "ไม่ว่าง" */
+      .disabled-room .status-label {
+        background-color: red;
+      }
+
+      /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+      .available::after,
+      .disabled-room::after {
+        content: none !important;
+      }
     </style>
   </head>
   <body>
@@ -384,26 +441,26 @@
           <div class="layout">
             <div class="space large"></div>
             <div class="space small"></div>
-            <div class="room small">SC2-213</div>
+            <div class="room small disabled-room">SC2-213</div>
             <div class="space smalls"></div>
-            <div class="room large">SC2-214</div>
-            <div class="room large">SC2-215</div>
-            <div class="room men">ห้องสุขา อจ ชาย</div>
-            <div class="room women">ห้องสุขา อจ หญิง</div>
+            <div class="room large disabled-room">SC2-214</div>
+            <div class="room large disabled-room">SC2-215</div>
+            <div class="room men disabled-room">ห้องสุขา อจ ชาย</div>
+            <div class="room women disabled-room">ห้องสุขา อจ หญิง</div>
             <div class="space smalls"></div>
-            <div class="room vertical">SC2-201</div>
+            <div class="room vertical disabled-room">SC2-201</div>
             <div class="center"></div>
             <div class="room large bottom available" data-popup="true">
               <span class="status">ว่าง</span>SC2-212
             </div>
             <div class="room large bottom2 available" data-popup="true">
-              <span class="statusN">ไม่ว่าง</span>SC2-211
+              <span class="statusN disabled-room">ไม่ว่าง</span>SC2-211
             </div>
-            <div class="room large bottom3">SC2-210</div>
-            <div class="room smallss bottoms1">SC2-209</div>
-            <div class="room large bottom4">SC2-208</div>
-            <div class="room large bottom5">SC2-207</div>
-            <div class="room large bottom6">SC2-206</div>
+            <div class="room large bottom3 disabled-room">SC2-210</div>
+            <div class="room smallss bottoms1 disabled-room">SC2-209</div>
+            <div class="room large bottom4 disabled-room">SC2-208</div>
+            <div class="room large bottom5 disabled-room">SC2-207</div>
+            <div class="room large bottom6 disabled-room">SC2-206</div>
           </div>
           <div class="sidebar">
             <div class="reports">

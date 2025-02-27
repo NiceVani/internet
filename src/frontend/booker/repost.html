@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EasyRoom Reservation System - รายงานปัญหา</title>
   <style>
     * {
@@ -12,12 +11,10 @@
       box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
-
     body {
       background-color: #ffffff;
       color: #000000;
     }
-
     header {
       background-color: #e54715;
       color: #ffffff;
@@ -26,33 +23,27 @@
       justify-content: space-between;
       align-items: center;
     }
-
     header h1 {
       font-size: 24px;
     }
-
     nav a {
       color: #ffffff;
       margin-left: 15px;
       text-decoration: none;
       font-size: 18px;
     }
-
     .container {
       margin: 20px;
       max-width: 800px;
     }
-
     .form-section {
       margin-bottom: 20px;
     }
-
     .form-section label {
       display: block;
       font-weight: bold;
       margin-bottom: 8px;
     }
-
     .form-section select,
     .form-section textarea {
       width: 100%;
@@ -61,18 +52,15 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-
     .form-section textarea {
       resize: none;
       height: 80px;
     }
-
     .upload-section {
       text-align: center;
       margin: 20px 0;
       color: #ccc;
     }
-
     button {
       background-color: #e54715;
       color: #ffffff;
@@ -82,52 +70,46 @@
       cursor: pointer;
       border-radius: 4px;
     }
-
     button:hover {
       background-color: #c63c12;
     }
-
     .uploaded-image {
       margin-top: 20px;
       text-align: center;
     }
-
-   /* สไตล์สำหรับตัวอย่างภาพที่อัปโหลด */
-   #preview {
-            display: none;
-            margin-top: 10px;
-            max-width: 100%;
-            height: auto;
-        }
-
+    /* สไตล์สำหรับตัวอย่างภาพที่อัปโหลด */
+    #preview {
+      display: none;
+      margin-top: 10px;
+      max-width: 100%;
+      height: auto;
+    }
   </style>
 </head>
-
 <body>
   <header>
     <h1>EasyRoom Reservation System</h1>
     <nav>
       <a href="home.html">หน้าหลัก</a>
-      <a href="booking.html">จองห้อง</a>
+      <a href="Floor2.html">จองห้อง</a>
       <a href="repost.html">รายงาน</a>
       <button id="logout-btn" class="logout-btn">ออกจากระบบ</button>
     </nav>
   </header>
-
   <div class="container">
     <h2>รายงานปัญหา</h2>
-
-    <form id="reportForm" action="report_issue.php" method="POST" enctype="multipart/form-data">
+    <!-- ฟอร์มแจ้งซ่อม -->
+    <form id="reportForm">
       <div class="form-section">
         <label for="image">อัปโหลดรูปภาพ</label>
-        <input type="file" id="image" name="image" accept="image/*">
-    </div>
-
+        <input type="file" id="image" name="image" accept="image/*" />
+        <input type="hidden" id="equipment_id" name="equipment_id" />
+        <input type="hidden" id="room_id" name="room_id" />
+      </div>
       <!-- การแสดงภาพที่ถูกเลือก -->
       <div class="uploaded-image">
-        <img id="preview" src="#" alt="Preview Image" style="display: none;">
+        <img id="preview" src="#" alt="Preview Image" style="display: none;" />
       </div>
-
       <div class="form-section">
         <label for="equipment">ชื่ออุปกรณ์</label>
         <select id="equipment" name="equipment">
@@ -149,33 +131,39 @@
           <option value="เสียงไมค์">เสียงไมค์</option>
           <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
         </select>
-
         <label for="room">ห้อง</label>
         <select id="room" name="room">
-          <option value="SC2-211">SC2-211</option>
           <option value="SC2-212">SC2-212</option>
           <option value="SC2-307">SC2-307</option>
           <option value="SC2-308">SC2-308</option>
           <option value="SC2-311">SC2-311</option>
           <option value="SC2-313">SC2-313</option>
           <option value="SC2-313-1">SC2-313-1</option>
-          <option value="SC2-314">SC2-314</option>
           <option value="SC2-407">SC2-407</option>
           <option value="SC2-411">SC2-411</option>
           <option value="SC2-414">SC2-414</option>
         </select>
+        <!-- ส่วนเลือกคอมพิวเตอร์ (จะแสดงเฉพาะเมื่อเลือกอุปกรณ์เป็น "คอมพิวเตอร์") -->
+        <div id="computer-section" class="form-section" style="display: none;">
+          <label for="computer">ตำแหน่งคอมพิวเตอร์</label>
+          <select id="computer" name="computer">
+            <option value="">-- กรุณาเลือก --</option>
+          </select>
+        </div>
 
         <label for="details">รายละเอียดเพิ่มเติม</label>
         <select id="details" name="details" required>
           <option value="">-- กรุณาเลือก --</option>
         </select>
       </div>
-
+      <div class="form-section">
+        <label for="additionalText">ข้อความเพิ่มเติม</label>
+        <textarea id="additionalText" name="additionalText" rows="4" placeholder="เขียนรายละเอียดเพิ่มเติมได้ที่นี่..." style="resize: none;"></textarea>
+      </div>
       <button type="submit">ยืนยัน</button>
     </form>
   </div>
-
-  <script src="reportscript.js"></script>
+  <!-- เรียกใช้ไฟล์ JS เพื่อทำงานแจ้งซ่อม -->
+  <script src="reportequipment.js"></script>
 </body>
-
 </html>
