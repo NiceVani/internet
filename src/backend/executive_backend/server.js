@@ -215,7 +215,7 @@ ORDER BY stat DESC LIMIT 3 ;
 
 
 app.get('/room_request', (req, res) => {
-    connection.query('SELECT * FROM room_request', (err, results) => {
+    connection.query('SELECT * FROM room_request ORDER BY submitted_time ASC', (err, results) => {
         if (err) {
             console.error('❌ Error:', err);
             res.status(500).send(err);
@@ -735,27 +735,29 @@ GROUP BY name
         res.json(results);
     });
 });
+
 app.get('/detailsPop', (req, res) => {
     const query = `
-SELECT
-    rrp.room_request_id as requestID,
-    r.room_name as roombooking,
-    concat(rr.start_time,'-',rr.end_time) as timebooking,
-    COALESCE(s.full_name,t.full_name) as name,
-    COALESCE(s.student_id,t.teacher_id) as id,
-    COALESCE(s.email,t.email) as email,
-    COALESCE(s.phone_number,t.phone_number) as phone_number,
-    COALESCE(s.department,t.department) as department,
-    rr.request_reason as bookingreason,
-    rrp.role as role
-FROM room_request_participant as rrp
-LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
-LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
-LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
-LEFT JOIN room as r on r.room_id = rr.room_id
-WHERE rrp.role
-ORDER BY requestID
-;
+                    SELECT
+                        rrp.room_request_id as requestID,
+                        r.room_name as roombooking,
+                        concat(rr.start_time,'-',rr.end_time) as timebooking,
+                        COALESCE(s.full_name,t.full_name) as name,
+                        COALESCE(s.student_id,t.teacher_id) as id,
+                        COALESCE(s.email,t.email) as email,
+                        COALESCE(s.phone_number,t.phone_number) as phone_number,
+                        COALESCE(s.department,t.department) as department,
+                        rr.request_reason as bookingreason,
+                        rr.detail_request_reason as detailbookingreason,
+                        rrp.role as role
+                    FROM room_request_participant as rrp
+                    LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
+                    LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
+                    LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
+                    LEFT JOIN room as r on r.room_id = rr.room_id
+                    WHERE rrp.role
+                    ORDER BY requestID
+                    ;
                     `
     connection.query(query, (err, results) => {
         if (err) {
