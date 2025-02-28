@@ -1,6 +1,7 @@
 const express = require('express');
 const connection = require('./db'); // นำเข้าการเชื่อมต่อฐานข้อมูล
 const mysql = require('mysql2');
+const fs = require("fs");
 const cors = require('cors');  // เพิ่ม cors
 
 
@@ -20,7 +21,10 @@ app.get('/rooms', (req, res) => {
     });
 });
 app.get('/brokendEquipment', (req, res) => {
-    connection.query('SELECT b.Equipments_ID, (SELECT Equipments_name FROM Equipments_list_information WHERE Equipments_ID = b.Equipments_ID) AS Equipments_name, COUNT(*) AS count FROM Equipments_list_brokened b GROUP BY b.Equipments_ID ORDER BY count DESC LIMIT 3;', (err, results) => {
+    connection.query(`SELECT e.equipment_name as name , COUNT(eb.equipment_id) as total  FROM equipment_brokened as eb 
+JOIN equipment as e ON e.equipment_id = eb.equipment_id
+GROUP BY eb.equipment_id 
+ORDER BY total DESC LIMIT 3`, (err, results) => {
         if (err) {
             console.error('❌ เกิดข้อผิดพลาด:', err);
             res.status(500).send(err);
@@ -77,16 +81,82 @@ ORDER BY room_id;
         res.json(results);
     });
 });
-app.get('/daysroom', (req, res) => {
+app.get('/daysroomday', (req, res) => {
     const query = `SELECT 
-    DAYNAME(rr.used_date) AS day_of_week,  -- แปลงเป็นชื่อวัน (Monday, Tuesday, ...)
-        SUM(CASE WHEN COALESCE(s.department, t.department) = 'วิทยาการคอมพิวเตอร์' THEN 1 ELSE 0 END) AS cs_count,
-        SUM(CASE WHEN COALESCE(s.department, t.department) = 'เทคโนโลยีสารสนเทศ' THEN 1 ELSE 0 END) AS it_count
+    DAYNAME(rr.used_date) AS time,  -- ชื่อวัน
+    COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้อง
 FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
-GROUP BY day_of_week
-ORDER BY FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');`
+GROUP BY time
+ORDER BY FIELD(time, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+app.get('/daysroomweek', (req, res) => {
+    const query = `SELECT 
+    WEEK(rr.used_date, 1) AS time,  -- นับสัปดาห์โดยเริ่มจากวันอาทิตย์
+    COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละสัปดาห์
+FROM room_request AS rr
+LEFT JOIN student AS s ON rr.student_id = s.student_id
+LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+WHERE WEEK(rr.used_date, 1) BETWEEN 1 AND 48  -- กรองเฉพาะสัปดาห์ที่ 1-48
+GROUP BY time
+ORDER BY time;
+
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+app.get('/daysroommount', (req, res) => {
+    const query = `SELECT 
+    MONTH(rr.used_date) AS time,  -- นับเดือนจากวันที่ใช้ห้อง
+    COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละเดือน
+FROM room_request AS rr
+LEFT JOIN student AS s ON rr.student_id = s.student_id
+LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+WHERE MONTH(rr.used_date) BETWEEN 1 AND 12  -- กรองเฉพาะเดือนที่ 1-12
+GROUP BY time
+ORDER BY time;
+
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+app.get('/daysroomyear', (req, res) => {
+    const query = `SELECT 
+    YEAR(rr.used_date) AS time,  -- นับปีจากวันที่ใช้ห้อง
+    COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละปี
+FROM room_request AS rr
+LEFT JOIN student AS s ON rr.student_id = s.student_id
+LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+WHERE YEAR(rr.used_date) BETWEEN 2020 AND 2025  -- กรองช่วงปีที่ต้องการ
+GROUP BY time
+ORDER BY time;
+
+`
     connection.query(query, (err, results) => {
         if (err) {
             console.error('❌ เกิดข้อผิดพลาด:', err);
@@ -176,6 +246,41 @@ app.get('/teacher', (req, res) => {
         console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
         res.json(results);
     });
+});
+
+app.get('/quipment_brokened', (req, res) => {
+    connection.query('SELECT * FROM quipment_brokened', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:', results);
+        res.json(results);
+    });
+});
+app.get('/equipment', (req, res) => {
+    connection.query('SELECT * FROM equipment', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก equipment:', results);
+        res.json(results);
+    });
+});
+
+app.get("/image/:filename", async (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "../storage/equipment_img", filename);
+
+    if (fs.existsSync(filePath)) {
+        res.setHeader("Content-Type", "image/jpeg");
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: "File not found" });
+    }
 });
 
 app.get('/room_request_participant', (req, res) => {
@@ -369,7 +474,7 @@ app.get('/TableRoomListRequest', (req, res) => {
 
 
 app.get("/TableRoomBooked", async (req, res) => {
-    let roomName = req.query.room || "allroom"; 
+    let roomName = req.query.room || "allroom";
     console.log("API Received Request for Room:", roomName); // Debug
 
     let sql = `
@@ -403,7 +508,7 @@ app.get("/TableRoomBooked", async (req, res) => {
             res.json(results); // ส่งค่ากลับไปให้ frontend
         }
     });
-    
+
 });
 
 
@@ -467,6 +572,147 @@ GROUP BY eli.Equipments_name, rli.Rooms_name, eli.Equipments_amount, elb.Brokene
             console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
             res.json(results);
         });
+});
+
+app.get('/mostreport', (req, res) => {
+    const query = `SELECT 
+    COALESCE(s.full_name, t.full_name) AS name,
+    COALESCE(s.student_id,t.teacher_id) as id,
+    COUNT(eb.equipment_id) AS stat
+FROM equipment_brokened AS eb
+LEFT JOIN student AS s ON eb.student_id = s.student_id
+LEFT JOIN teacher AS t ON eb.teacher_id = t.teacher_id
+GROUP BY name,id
+ORDER BY stat DESC LIMIT 3 ;
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+
+//box 1
+app.get('/box1', (req, res) => {
+    const query = `SELECT  
+    r.room_name AS name, 
+    COUNT(rr.room_id) AS room_count,
+    ROUND((COUNT(rr.room_id) * 100.0) / (SELECT COUNT(*) FROM room_request), 2) AS percentage
+FROM room_request AS rr
+JOIN room AS r ON r.room_id = rr.room_id
+GROUP BY name
+ORDER BY percentage DESC ;
+ ;
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+
+//box 2
+app.get('/box2', (req, res) => {
+    const query = `SELECT  
+    e.equipment_name AS name, 
+    COUNT(eb.equipment_id) AS equipment_count,
+    ROUND((COUNT(eb.equipment_id) * 100.0) / (SELECT COUNT(*) FROM equipment_brokened), 2) AS percentage
+FROM equipment_brokened AS eb
+JOIN equipment AS e ON e.equipment_id = eb.equipment_id
+GROUP BY name
+ORDER BY percentage DESC ;
+
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+
+//box3
+app.get('/box3', (req, res) => {
+    const query = `SELECT  
+    CONCAT(rr.start_time ,'-',rr.end_time) as time,
+    COUNT(*) AS count_time,
+    (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM room_request)) AS percentage
+FROM room_request AS rr
+GROUP BY time
+ORDER BY count_time DESC;`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+//box 4
+app.get('/box4', (req, res) => {
+    const query = `SELECT 
+    COALESCE(s.department, t.department) AS name,
+    COUNT(*) AS d_count,
+    ROUND((COUNT(*) * 100.0) / (SELECT COUNT(*) FROM room_request), 2) AS percentage
+FROM room_request AS rr
+LEFT JOIN student AS s ON s.student_id = rr.student_id
+LEFT JOIN teacher AS t ON t.teacher_id = rr.teacher_id
+GROUP BY name
+ORDER BY percentage DESC;
+;
+
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+app.get('/detailsPop', (req, res) => {
+    const query = `SELECT
+rrp.room_request_id as requestID,
+r.room_name as roombooking,
+COALESCE(s.full_name,t.full_name) as name,
+COALESCE(s.student_id,t.teacher_id) as id,
+COALESCE(s.email,t.email) as email,
+COALESCE(s.phone_number,t.phone_number) as phone_number,
+COALESCE(s.department,t.department) as department,
+rrp.role as role
+FROM room_request_participant as rrp
+LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
+LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
+LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
+LEFT JOIN room as r on r.room_id = rr.room_id
+WHERE rrp.role
+ORDER BY requestID
+;
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
 });
 // 📌 เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
