@@ -23,9 +23,14 @@
         margin-bottom: 15px;
       }
       .form-label {
+        display: block; /* ทำให้ label ขึ้นบรรทัดใหม่ */
         font-weight: bold;
-        font-size: 16px;
       }
+
+      textarea#additional-details {
+        margin-top: 5px;
+      }
+
       input[readonly],
       select {
         background-color: #e9ecef;
@@ -290,17 +295,38 @@
               <option value="ขอใช้ห้องเพื่อติวหนังสือ">
                 ขอใช้ห้องเพื่อติวหนังสือ
               </option>
-              <option value="ขอใช้ห้องเพื่อประชุมงานกลุ่ม">
-                ขอใช้ห้องเพื่อประชุมงานกลุ่ม
+              <option value="ขขอใช้ห้องเพื่อทำงาน">ขอใช้ห้องเพื่อทำงาน</option>
+              <option value="ขอใช้ห้องเพื่อทำวิจัย">
+                ขอใช้ห้องเพื่อทำวิจัย
               </option>
               <option value="ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้">
                 ขอใช้ห้องเพื่อจัดกิจกรรมเสริมความรู้
               </option>
+              <option value="ขอใช้ห้องเพื่อกิจกรรมชมรม">
+                ขอใช้ห้องเพื่อกิจกรรมชมรม
+              </option>
+              <option value="ขอใช้ห้องเพื่อเรียนออนไลน์">
+                ขอใช้ห้องเพื่อเรียนออนไลน์
+              </option>
+              <option value="ขอใช้ห้องเพื่อถ่ายทำวิดีโอ">
+                ขอใช้ห้องเพื่อถ่ายทำวิดีโอ
+              </option>
+              <option value="ขอใช้ห้องเพื่อวัตถุประสงค์อื่น ๆ">
+                ขอใช้ห้องเพื่อวัตถุประสงค์อื่น ๆ
+              </option>
             </select>
-            <div class="textarea-container">
-              <label class="form-label">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
-              <textarea id="additional-details" class="form-control" rows="3" placeholder="กรอกรายละเอียดเพิ่มเติมที่นี่..."></textarea>
-            </div>
+          </div>
+          <br />
+          <div class="mb-3">
+            <label for="additional-details" class="form-label"
+              >รายละเอียดเพิ่มเติม (ถ้ามี)</label
+            >
+            <textarea
+              id="additional-details"
+              class="form-control"
+              rows="3"
+              placeholder="กรอกรายละเอียดเพิ่มเติมที่นี่..."
+            ></textarea>
           </div>
           <!-- <button
             class="btn-confirm"
@@ -353,22 +379,44 @@
         return hour + "." + minute;
       }
 
+      // Load equipment mapping from API /getEquipmentInformation
+      async function loadEquipmentMapping() {
+        let equipmentMapping = {};
+        try {
+          const response = await fetch(
+            "http://localhost:3000/getEquipmentInformation"
+          );
+          if (!response.ok) throw new Error("HTTP error " + response.status);
+
+          const equipData = await response.json();
+          console.log("✅ ข้อมูลอุปกรณ์จาก API:", equipData);
+
+          // แมปค่า equipment_id -> equipment_name
+          equipData.forEach((item) => {
+            equipmentMapping[item.equipment_id] = item.equipment_name;
+          });
+        } catch (err) {
+          console.error("❌ Error fetching equipment information:", err);
+        }
+        return equipmentMapping;
+      }
+
       // Load room details from API /roomdetail
       async function loadRoomDetails(roomId) {
         try {
           const response = await fetch("http://localhost:3000/roomdetail");
           if (!response.ok) throw new Error("HTTP error " + response.status);
           const rooms = await response.json();
-          // หา room ที่ Rooms_ID ตรงกับ roomId
-          const roomDetail = rooms.find((room) => room.Rooms_ID === roomId);
+
+          // หา room ที่ room_id ตรงกับ roomParam
+          const roomDetail = rooms.find((room) => room.room_id == roomId);
+          console.log("✅ Room Detail:", roomDetail);
+
           if (roomDetail) {
-            // ใช้ Room_types ถ้ามี ถ้าไม่มีให้แสดงเป็น "ชั้น " + Floors
-            const roomType = roomDetail.Room_types
-              ? roomDetail.Room_types
-              : "ชั้น " + roomDetail.Floors;
             document.getElementById("room-info").textContent =
-              roomDetail.Name || "ไม่พบข้อมูล";
-            document.getElementById("room-type-info").textContent = roomType;
+              roomDetail.room_name || "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent =
+              roomDetail.room_type || "ไม่พบข้อมูล";
           } else {
             document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
             document.getElementById("room-type-info").textContent =
@@ -381,24 +429,6 @@
         }
       }
 
-      // Load equipment mapping from API /getEquipmentInformation
-      async function loadEquipmentMapping() {
-        let equipmentMapping = {};
-        try {
-          const response = await fetch(
-            "http://localhost:3000/getEquipmentInformation"
-          );
-          if (!response.ok) throw new Error("HTTP error " + response.status);
-          const equipData = await response.json();
-          equipData.forEach((item) => {
-            equipmentMapping[item.Equipments_ID] = item.Equipments_name;
-          });
-        } catch (err) {
-          console.error("Error fetching equipment information:", err);
-        }
-        return equipmentMapping;
-      }
-
       // Main initialization
       document.addEventListener("DOMContentLoaded", async () => {
         // ดึง query parameters จาก URL
@@ -409,7 +439,7 @@
         const endTimeParam = urlParams.get("endTime"); // เช่น "17:00:00"
         const desksParam = urlParams.get("desks"); // เช่น "27,26,16"
         const equipmentsParam = urlParams.get("equipments"); // เช่น "12:1,13:1,14:1,15:1"
-
+        console.log("📌 Room Param from URL:", roomParam);
         // แสดงข้อมูลพื้นฐาน
         document.getElementById("date-info").textContent = dateParam;
         await loadRoomDetails(roomParam);
@@ -466,27 +496,72 @@
         console.log("Equipments (mapped HTML):", equipmentTableRows);
       });
 
+      async function loadEquipmentDetails() {
+        console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
+
+        // ดึงค่าพารามิเตอร์จาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const equipmentsParam = urlParams.get("equipments"); // เช่น "12:1,13:2"
+        const roomParam = urlParams.get("room"); // เช่น "307"
+
+        console.log("📌 Equipments Param:", equipmentsParam);
+        console.log("📌 Room Param:", roomParam);
+
+        if (!equipmentsParam) {
+          console.warn("❌ ไม่พบค่าอุปกรณ์จาก URL");
+          return;
+        }
+
+        // โหลดข้อมูลอุปกรณ์จาก API
+        const equipmentMapping = await loadEquipmentMapping();
+
+        let equipmentTableRows = "";
+        const equipmentItems = equipmentsParam.split(",");
+
+        equipmentItems.forEach((item) => {
+          const [id, amount] = item.split(":");
+          const name = equipmentMapping[id] || `ไม่พบข้อมูลอุปกรณ์ (${id})`;
+          equipmentTableRows += `<tr>
+                <td>${name}</td>
+                <td>SC2-${roomParam}</td>
+                <td>${amount}</td>
+            </tr>`;
+        });
+
+        console.log("✅ อุปกรณ์ที่โหลดสำเร็จ:", equipmentTableRows);
+
+        document.getElementById("equipment-table-body").innerHTML =
+          equipmentTableRows;
+      }
+      document.addEventListener("DOMContentLoaded", async function () {
+        await loadEquipmentDetails();
+      });
+
       // Fetch user info from API /user and display in input fields
       async function fetchUserInfo() {
         try {
           const response = await fetch("http://localhost:3000/session", {
             credentials: "include",
           });
+
           const userSession = await response.json();
           if (!userSession.data) {
             alert("กรุณาเข้าสู่ระบบใหม่");
             window.location.href = "login.html";
             return;
           }
+
           console.log("✅ ข้อมูลผู้ใช้จาก session:", userSession.data);
+
+          // เติมค่าลง input โดยใช้ key ที่ถูกต้อง
           document.getElementById("student-name").value =
-            userSession.data.Name || "ไม่พบข้อมูล";
+            userSession.data.full_name || "ไม่พบข้อมูล";
           document.getElementById("student-id").value =
-            userSession.data.Student_ID || "ไม่พบข้อมูล";
+            userSession.data.student_id || "ไม่พบข้อมูล";
           document.getElementById("stud-year").value =
-            userSession.data.Study_year || "ไม่พบข้อมูล";
+            userSession.data.study_year || "ไม่พบข้อมูล";
           document.getElementById("phone-number").value =
-            userSession.data.Phone_number || "ไม่พบข้อมูล";
+            userSession.data.phone_number || "ไม่พบข้อมูล"; // ตรวจสอบให้แน่ใจว่า backend ส่งค่ามา
         } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
         }
