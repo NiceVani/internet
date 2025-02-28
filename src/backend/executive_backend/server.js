@@ -324,11 +324,12 @@ app.get('/user', (req, res) => {
             COALESCE(s.phone_number, t.phone_number) AS phone_number,
             COALESCE(s.email, t.email) AS email,
             COALESCE(s.role, t.role) AS role,
-            rr.room_id AS room,
+            r.room_name AS room,
             COUNT(*) AS stat
         FROM room_request AS rr
         LEFT JOIN student AS s ON rr.student_id = s.student_id
         LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+        LEFT JOIN room AS r ON r.room_id = rr.room_id
         GROUP BY name, id, phone_number, email, role, room
         ORDER BY ${orderBy}
         ${limit};`; // ใส่ LIMIT แยกออกมา
@@ -495,18 +496,19 @@ app.get("/TableRoomBooked", async (req, res) => {
 
 
 app.get('/TableBrokenEqipment', (req, res) => {
-    connection.query(`SELECT 
-    eli.Equipments_name AS EquipmentName,
-    rli.Rooms_name AS Room,
-    eli.Equipments_amount AS TotalEquipment,
-    COUNT(elb.Equipments_ID) AS TotalBrokened,
-    (eli.Equipments_amount - COUNT(elb.Equipments_ID)) AS Balance
-FROM Equipments_list_information eli
-LEFT JOIN Equipments_list_brokened elb ON eli.Equipments_ID = elb.Equipments_ID
-LEFT JOIN Rooms_list_information rli ON elb.Rooms_ID = rli.Rooms_ID
-WHERE rli.Rooms_name IS NOT NULL
-GROUP BY eli.Equipments_name, rli.Rooms_name, eli.Equipments_amount;
-;
+    connection.query(`SELECT
+    e.equipment_name as name,
+    r.room_name as room,
+    em.stock_quantity as totalequipment,
+    COUNT(*) as totalbrokend,
+    (em.stock_quantity - COUNT(*)) as balance
+FROM equipment_brokened as eb
+LEFT JOIN equipment as e ON e.equipment_id = eb.equipment_id
+LEFT JOIN room as r ON eb.room_id = r.room_id
+LEFT JOIN equipment_management as em ON em.equipment_id = eb.equipment_id
+GROUP BY e.equipment_name, r.room_name, em.stock_quantity
+ORDER BY r.room_name, e.equipment_name;
+
  `,
         (err, results) => {
             if (err) {
@@ -520,27 +522,47 @@ GROUP BY eli.Equipments_name, rli.Rooms_name, eli.Equipments_amount;
 });
 
 app.get('/DataEquipment', (req, res) => {
-    connection.query(`
-       SELECT 
-    eli.Equipments_name AS EquipmentName,  -- ชื่ออุปกรณ์
-    rli.Rooms_name AS Room,  -- ห้องที่ขออุปกรณ์ไป (แทน Rooms_requests_ID ด้วย Rooms_name)
-    eli.Equipments_amount,  -- จำนวนอุปกรณ์ทั้งหมด
-    COALESCE(elb.BrokenedEquipment, 0) AS BrokenedEquipment,  -- อุปกรณ์ที่เสีย
-    (eli.Equipments_amount - COALESCE(elb.BrokenedEquipment, 0)) AS Balance,  -- คำนวณ Balance
-    COALESCE(SUM(elr.Equipments_amount), 0) AS BorrowAmount  -- จำนวนที่ถูกยืม
-FROM Equipments_list_information eli
-LEFT JOIN Equipments_list_requests elr 
-    ON eli.Equipments_ID = elr.Equipments_ID  -- เชื่อมข้อมูลอุปกรณ์ที่ถูกขอไป
-LEFT JOIN Rooms_list_requests rlr  
-    ON elr.Rooms_requests_ID = rlr.Rooms_requests_ID  -- ใช้ Rooms_request_ID เพื่อหาห้องที่ขอยืมไป
-LEFT JOIN Rooms_list_information rli  
-    ON rlr.Rooms_ID = rli.Rooms_ID  -- ใช้ Rooms_ID เชื่อมกับ Rooms_list_information เพื่อดึงชื่อห้อง
-LEFT JOIN (
-    SELECT Equipments_ID, COUNT(*) AS BrokenedEquipment   
-    FROM Equipments_list_brokened
-    GROUP BY Equipments_ID
-) elb ON eli.Equipments_ID = elb.Equipments_ID  
-GROUP BY eli.Equipments_name, rli.Rooms_name, eli.Equipments_amount, elb.BrokenedEquipment;
+    connection.query(`SELECT 
+    name, 
+    room, 
+    SUM(totalequipment) AS totalequipment, 
+    SUM(totalborrow) AS totalborrow, 
+    SUM(totalbrokend) AS totalbrokend, 
+    (SUM(totalequipment) - SUM(totalbrokend)) AS balance
+FROM (
+    -- ตารางอุปกรณ์ชำรุด
+    SELECT
+        e.equipment_name AS name,
+        r.room_name AS room,
+        em.stock_quantity AS totalequipment,
+        0 AS totalborrow, -- ไม่มีการยืมในชุดข้อมูลนี้
+        COUNT(*) AS totalbrokend,
+        0 AS balance -- กำหนดเป็น 0 เพราะคำนวณ balance ทีหลัง
+    FROM equipment_brokened AS eb
+    LEFT JOIN equipment AS e ON e.equipment_id = eb.equipment_id
+    LEFT JOIN room AS r ON eb.room_id = r.room_id
+    LEFT JOIN equipment_management AS em ON em.equipment_id = eb.equipment_id
+    GROUP BY e.equipment_name, r.room_name, em.stock_quantity
+
+    UNION
+
+    -- ตารางอุปกรณ์ที่ถูกยืม
+    SELECT 
+        e.equipment_name AS name, 
+        r.room_name AS room, 
+        MAX(eq.stock_quantity) AS totalequipment,  
+        SUM(rre.request_quantity) AS totalborrow,
+        0 AS totalbrokend, -- ไม่มีการชำรุดในชุดข้อมูลนี้
+        0 AS balance -- กำหนดเป็น 0 เพราะคำนวณ balance ทีหลัง
+    FROM room_request_equipment AS rre
+    LEFT JOIN equipment AS e ON rre.equipment_id = e.equipment_id
+    LEFT JOIN room AS r ON rre.room_id = r.room_id
+    LEFT JOIN equipment_management AS eq ON rre.equipment_id = eq.equipment_id
+    LEFT JOIN room_request AS rr ON rr.room_request_id = rre.room_request_id
+    WHERE rr.request_status = 'อนุมัติ'
+    GROUP BY e.equipment_name, r.room_name
+) AS combined
+GROUP BY name, room;
 
 `,
         (err, results) => {
@@ -575,6 +597,30 @@ ORDER BY stat DESC LIMIT 3 ;
         res.json(results);
     });
 });
+
+app.get('/reportTable', (req, res) => {
+    const query = `SELECT
+	COALESCE(s.student_id,t.teacher_id) as id,
+    COALESCE(s.full_name,t.full_name) as name,
+    COALESCE(s.email,t.email) as email,
+    COUNT(COALESCE(s.student_id,t.teacher_id)) as stat ,
+    COALESCE(s.role,t.role) as role
+FROM equipment_brokened as eb
+LEFT JOIN student as s on s.student_id = eb.student_id
+LEFT JOIN teacher as t  on t.teacher_id = eb.teacher_id
+GROUP BY id,name,email,role ;
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+
 
 //box 1
 app.get('/box1', (req, res) => {
@@ -652,7 +698,31 @@ LEFT JOIN student AS s ON s.student_id = rr.student_id
 LEFT JOIN teacher AS t ON t.teacher_id = rr.teacher_id
 GROUP BY name
 ORDER BY percentage DESC;
+
+
+`
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ เกิดข้อผิดพลาด:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
+        res.json(results);
+    });
+});
+
+app.get('/box42', (req, res) => {
+    const query = `SELECT 
+    COALESCE(s.department, t.department) AS name,
+    COUNT(*) AS d_count
+
+FROM room_request AS rr
+LEFT JOIN student AS s ON s.student_id = rr.student_id
+LEFT JOIN teacher AS t ON t.teacher_id = rr.teacher_id
+GROUP BY name
 ;
+
 
 `
     connection.query(query, (err, results) => {

@@ -1,159 +1,61 @@
 .container {
-    width: 80%; /* Container width */
-    margin: auto; /* Center the container horizontally */
-    padding: 20px; /* Inner spacing */
-    border: 1px solid #000000; /* Optional border */
-    background-color: rgb(255, 255, 255); /* Optional background color */
-    display: flex; /* Flexbox for layout */
-    flex-direction: column; /* จัดเรียงองค์ประกอบในแนวตั้ง */
-    border-radius: 20px;
+  width: 80%;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #000;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
 }
 
 header {
-    display: flex; /* ใช้ Flexbox */
-    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
-    justify-content: space-between;
-    padding: 10px; /* เพิ่มระยะขอบภายใน */
-    background-color: #ffffff; /* พื้นหลัง (เลือกได้) */
-   
-  }
-
-  .header-right {
-    display: flex; /* ใช้ Flexbox */
-    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
-    gap: 10px; /* ระยะห่างระหว่างปุ่มและ select */
-  }
-.h1 {
-    margin: 0; /* ลบ margin เริ่มต้น */
-    font-size: 24px; /* ขนาดตัวอักษร */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #fff;
 }
 
 table {
-    width: 100%; /* กำหนดความกว้างของตารางให้เต็ม */
-    table-layout: fixed; /* ทำให้คอลัมน์มีขนาดเท่ากัน */
-    border-collapse: collapse; /* ทำให้ขอบของเซลล์ไม่ทับซ้อนกัน */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
 }
 
 td {
-    padding: 10px; /* ระยะห่างภายในเซลล์ */
-    text-align: center; /* จัดข้อความให้กึ่งกลาง */
-    
+  padding: 10px;
 }
+
 hr {
-    border: 0;
-    border-top: 2px solid #000000; /* เส้นขีดขนาด 2px */
-    margin: 20px 0; /* เพิ่มระยะห่างจากบรรทัดก่อนหน้า */
-    position: relative;
-    z-index: 1; /* ตั้งค่า z-index ให้ต่ำ */
+  border: 0;
+  border-top: 2px solid #000;
+  margin: 20px 0;
 }
-button{
-    padding: 8px 16px; /* กำหนดขนาดปุ่ม */
-    font-size: 14px; /* ขนาดตัวอักษรในปุ่ม */
-    background-color: #4CAF50; /* สีพื้นหลังของปุ่ม */
-    color: white; /* สีตัวอักษร */
-    border: none; /* ไม่มีขอบ */
-    border-radius: 5px; /* มุมปุ่มโค้ง */
-    cursor: pointer; /* แสดงตัวชี้เมาส์เป็นมือ */
-    margin-top: 10px; /* ระยะห่างจากเนื้อหาข้างบน */
-    width: 100px; /* กำหนดความกว้าง */
-    height: 40px; /* กำหนดความสูง */
-    line-height: 30px; /* กำหนดให้เท่ากับความสูง */
-    text-align: center; /* จัดข้อความให้อยู่ตรงกลางแนวนอน */
-    align-self: left; /* จัดตำแหน่งปุ่มใน container */
+
+button {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #877bf2 ;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100px;
+  height: 40px;
+  text-align: center;
 }
+
 button:hover {
-    background-color: #45a049; /* สีพื้นหลังของปุ่มเมื่อเอาเมาส์ไปชี้ */
+  background-color: #ffb300 ;
 }
-#room{
-    border-radius: 20px;
-    size: auto;
-    width: fit-content;
-    height: auto;
+
+
+select {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 8px;
+  font-size: 16px;
 }
-#openPopup {
-    padding: 12px 24px;
-    font-size: 16px;
-    background-color: #ffffff; /* สีพื้นหลัง */
-    color: rgb(0, 0, 0); /* สีข้อความ */
-    border: 1px solid #000000;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    width: fit-content;
-    height: fit-content;
-  }
-  
-  #openPopup:hover {
-    background-color: #ffffff; /* สีพื้นหลังเมื่อ hover */
-    transform: scale(1.05); /* ขยายขนาดปุ่มเล็กน้อย */
-  }
-  
-  #openPopup:active {
-    background-color: #e65100; /* สีพื้นหลังเมื่อคลิก */
-    transform: scale(0.98); /* ลดขนาดปุ่มเล็กน้อยเมื่อคลิก */
-  }
-  
-.popup {
-    display: none; /* ซ่อน Popup โดยค่าเริ่มต้น */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .popup-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
-  /* กำหนดเฉพาะให้กับ .filter-option ที่อยู่ภายใน <li> */
-li .filter-option {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    background: transparent; /* ทำให้พื้นหลังโปร่งใส */
-    border: 2px solid #ffffff; /* เพิ่มเส้นขอบสีขาว */
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    color: #000; /* สีข้อความ */
-    text-align: center; /* จัดข้อความให้อยู่กลาง */
-    transition: border-color 0.3s, color 0.3s;
-  }
-  
-  /* เมื่อ hover */
-  li .filter-option:hover {
-    border-color: #000000; /* เปลี่ยนสีเส้นขอบเมื่อ hover */
-    color: #000000; /* เปลี่ยนสีข้อความเมื่อ hover */
-  }
-  
-  /* เมื่อคลิก */
-  li .filter-option:active {
-    border-color: #000000; /* เปลี่ยนสีเส้นขอบเมื่อคลิก */
-    color: #000000; /* เปลี่ยนสีข้อความเมื่อคลิก */
-  }
-  select {
-    border: none; /* ลบเส้นกรอบ */
-    outline: none; /* ลบเส้นขอบเมื่อเลือก */
-    background-color: transparent; /* ตั้งค่าพื้นหลังโปร่งใส (ถ้าต้องการ) */
-    padding: 8px; /* เพิ่มระยะขอบภายในให้เหมาะสม */
-    font-size: 16px; /* ปรับขนาดตัวอักษร */
-  }

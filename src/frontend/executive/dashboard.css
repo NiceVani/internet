@@ -25,9 +25,9 @@ body {
 }
 
 .card {
-    width: 250px !important; /* กำหนดความกว้างของกล่อง */
-    height: 170px !important; /* กำหนดความสูงของกล่อง */
-    padding: 20px;
+    width: 250px !important; /* กำหนดขนาดของ card */
+    height: 170px !important;
+    padding: 15px;
     border-radius: 8px;
     color: white !important;
     text-align: left;
@@ -35,6 +35,22 @@ body {
     transition: transform 0.2s ease-in-out;
     display: flex;
     flex-direction: column;
+    justify-content: space-between; /* จัดให้องค์ประกอบอยู่ในพื้นที่ที่เหมาะสม */
+}
+
+/* ควบคุมขนาดของ Chart */
+.card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.card canvas {
+    max-width: fit-content;
+    max-height: 20%; /* ปรับให้พอดีกับ card */
+    display: block;
+    margin-top: auto; /* ทำให้ canvas ลงมาชิดด้านล่าง */
 }
 
 .card:hover {
