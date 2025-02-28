@@ -135,8 +135,8 @@
               <label for="roomFilter">ห้อง:</label>
               <select id="roomFilter" class="form-select d-inline-block">
                 <option value="all">ทั้งหมด</option>
-                <option value="SC2-414">SC2-414</option>
-                <option value="SC2-311">SC2-311</option>
+                <option value="414">SC2-414</option>
+                <option value="307">SC2-307</option>
               </select>
 
               <!-- ปฏิทิน -->
@@ -209,37 +209,63 @@
                 };
             });
 
-        console.log("🔥 Merged Data:", mergedData);
+            console.log("🔥 Merged Data:", mergedData);
 
-        filterData("all", mergedData);
-
-        // ฟังก์ชันกรองข้อมูลเมื่อเปลี่ยนค่าใน Dropdown
-        document.getElementById("typeFilter").addEventListener("change", function () {
-            const selectedType = this.value;
-            filterData(selectedType, mergedData);
-        });
-
-    } catch (error) {
-        console.error("❌ Fetch Error:", error);
-    }
-  }
-
-  function filterData(selectedType, data) {
-      const equipmentContainer = document.getElementById("equipment-list");
-      equipmentContainer.innerHTML = "";
-
-      let filteredData = data;
-      
-      // ถ้าเลือกชนิดอุปกรณ์ที่ไม่ใช่ "ทั้งหมด" ให้กรองข้อมูล
-      if (selectedType !== "all") {
-          filteredData = data.filter(item => item.equipmentName === selectedType);
+            // ✅ โหลดข้อมูลทั้งหมดตอนเริ่มต้น
+            filterData("all", "all", "", mergedData);
+    
+            // ✅ ฟังก์ชันกรองข้อมูลเมื่อเปลี่ยนค่าใน Dropdown และปฏิทิน
+            document.getElementById("typeFilter").addEventListener("change", function () {
+                const selectedType = this.value;
+                const selectedRoom = document.getElementById("roomFilter").value;
+                const selectedDate = document.getElementById("reportDate").value;
+                filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+    
+            document.getElementById("roomFilter").addEventListener("change", function () {
+                const selectedType = document.getElementById("typeFilter").value;
+                const selectedRoom = this.value;
+                const selectedDate = document.getElementById("reportDate").value;
+                filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+    
+            document.getElementById("reportDate").addEventListener("change", function () {
+                const selectedType = document.getElementById("typeFilter").value;
+                const selectedRoom = document.getElementById("roomFilter").value;
+                const selectedDate = this.value;
+                filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+    
+        } catch (error) {
+            console.error("❌ Fetch Error:", error);
+        }
       }
-
-      if (filteredData.length === 0) {
-          equipmentContainer.innerHTML = "<p class='text-muted'>ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>";
-          return;
-      }
-
+    
+      function filterData(selectedType, selectedRoom, selectedDate, data) {
+        const equipmentContainer = document.getElementById("equipment-list");
+        equipmentContainer.innerHTML = "";
+    
+        let filteredData = data;
+        
+        // ✅ กรองตามชนิดอุปกรณ์
+        if (selectedType !== "all") {
+            filteredData = filteredData.filter(item => item.equipmentName === selectedType);
+        }
+    
+        // ✅ กรองตามห้อง
+        if (selectedRoom !== "all") {
+            filteredData = filteredData.filter(item => item.room_id === selectedRoom);
+        }
+    
+        // ✅ กรองตามวันที่ (ถ้าเลือก)
+        if (selectedDate) {
+            filteredData = filteredData.filter(item => item.repairDate === selectedDate);
+        }
+    
+        if (filteredData.length === 0) {
+            equipmentContainer.innerHTML = "<p class='text-muted'>ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>";
+            return;
+        }
       filteredData.forEach((item) => {
           const equipmentCard = `
               <div class="card my-3">
@@ -265,11 +291,16 @@
 
 // โหลด Sidebar
 fetch("sidebar.html")
-    .then(resp => resp.text())
-    .then(html => {
-        document.getElementById("sidebar-container").innerHTML = html;
-    })
-    .catch(err => console.error("Failed to load sidebar:", err));
+        .then((resp) => resp.text())
+        .then((html) => {
+          document.getElementById("sidebar-container").innerHTML = html;
+        })
+        .then(() => {
+          // Highlight ปุ่ม "คำขออนุมัติการจองห้อง"
+          const btnStats = document.getElementById("btnBroken");
+          btnStats.classList.add("btn-sidebar-active");
+        })
+        .catch((err) => console.error("Failed to load sidebar:", err));
 
 // ตั้งค่า Event Listener สำหรับเปลี่ยนเส้นทางตามแท็บ
 document.addEventListener("DOMContentLoaded", function () {
