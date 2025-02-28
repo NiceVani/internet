@@ -4,17 +4,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> broken equipment</title>
+  <title>อุปกรณ์ที่ชำรุด</title>
   <link rel="stylesheet" href="detailstyle.css">
+  
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-
     }
 
     .sidebar {
@@ -24,29 +27,20 @@
       left: 0;
       bottom: 0;
       width: 290px;
-      max-width: 290px;
-      /* ความกว้างของ Sidebar */
       padding: 20px;
       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
       z-index: 1000;
     }
 
     .content-area {
-
       margin-left: 290px;
-      /* ระยะเว้นตามความกว้างของ Sidebar */
       padding: 20px;
-      /* เพิ่มระยะห่างภายใน */
       background-color: #f8f9fa;
-      /* สีพื้นหลังของพื้นที่เนื้อหา */
     }
 
-    /* Responsive: จอเล็ก */
     @media (max-width: 576px) {
       .sidebar {
-        position: relative;
         width: 100%;
-        max-width: 100%;
         box-shadow: none;
       }
 
@@ -55,221 +49,145 @@
       }
     }
 
-    .sidebar .btn:last-child {
-      margin-top: auto;
-      /* ดันปุ่มให้อยู่ล่างสุด */
+    table.dataTable thead {
+      background-color: #ffcc80;
+      color: black;
     }
   </style>
 </head>
 
 <body>
   <div id="sidebar-container"></div>
-    
+
   <div class="content-area">
-    </head>
     <div class="container">
       <header>
         <h1>อุปกรณ์ที่ชำรุด</h1>
-        <div class="header-right">
-          <button id="openPopup">ทั้งหมด</button>
-
       </header>
 
-      <body>
-        <div id="popup" class="popup">
-          <div class="popup-content">
-            <span id="closePopup" class="close-btn">&times;</span>
-            <h2>เลือกตัวกรอง</h2>
-            <ul>
-              <li><button class="filter-option" data-filter="all">ทั้งหมด</button></li>
-              <li><button class="filter-option" data-filter="today">วันนี้</button></li>
-              <li><button class="filter-option" data-filter="yesterday">เมื่อวานนี้</button></li>
-              <li><button class="filter-option" data-filter="this-week">สัปดาห์นี้</button></li>
-              <li><button class="filter-option" data-filter="last-week">สัปดาห์ที่แล้ว</button></li>
-              <li><button class="filter-option" data-filter="this-month">เดือนนี้</button></li>
-              <li><button class="filter-option" data-filter="last-month">เดือนที่แล้ว</button></li>
-              <li><button class="filter-option" data-filter="this-year">ปีนี้</button></li>
-              <li><button class="filter-option" data-filter="last-year">ปีที่แล้ว</button></li>
+      <div class="d-flex align-items-center gap-2 my-3">
+        <p class="mb-0">อุปกรณ์:</p>
+        <select id="equipmentFilter" class="form-select w-auto">
+          <option value="all">ทั้งหมด</option>
+        </select>
+      </div>
+      
 
-              <!-- วันเริ่มต้น -->
-              <label for="startDate">เลือกวันเริ่มต้น:</label>
-              <input type="date" id="startDate">
-
-              <!-- วันสิ้นสุด -->
-              <label for="endDate">เลือกวันสิ้นสุด:</label>
-              <input type="date" id="endDate" style="display:none;"> <!-- ซ่อนวันสิ้นสุดจนกว่าจะเลือกวันเริ่มต้น -->
-            </ul>
-          </div>
-        </div>
-        <table>
+      <table id="equipmentTable" class="display table table-bordered">
+        <thead>
           <tr>
-              <td>
-                  <select id="equipmentFilter" onchange="fetchAndUpdateTable()">
-                      <option value="all">Equipment</option>
-                      <option value="โปรเจกเตอร์">โปรเจกเตอร์</option>
-                      <option value="วิชวลไลเซอร์">วิชวลไลเซอร์</option>
-                      <option value="TV">TV</option>
-                      <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
-                      <option value="เก้าอี้">เก้าอี้</option>
-                      <option value="โต๊ะ">โต๊ะ</option>
-                      <option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</option>
-                      <option value="สายไฟ">สายไฟ</option>
-                  </select>
-              </td>
-              <td>ชื่อห้อง</td>
-              <td>จำนวนอุปกรณ์ทั้งหมด</td>
-              <td>จำนวนอุปกรณ์ชำรุด</td>
-              <td>จำนวนอุปกรณ์สุทธิ</td>
+            <th>Equipment Name</th>
+            <th>Room</th>
+            <th>Total Equipment</th>
+            <th>Total Brokened</th>
+            <th>Balance</th>
           </tr>
-      </table>
-  
-      <hr>
-  
-      <table id="Table">
-          <tr>
-              <th>Equipment Name</th>
-              <th>Room</th>
-              <th>Total Equipment</th>
-              <th>Total Brokened</th>
-              <th>Balance</th>
-          </tr>
+        </thead>
+        <tbody></tbody>
       </table>
 
-        <button onclick="window.location.href='alldata.html'">BACK</button>
+      <button onclick="window.location.href='dashboard.html'">BACK</button>
+    </div>
+  </div>
 
-      </body>
-      <script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-fetch("sidebar.html")
-      .then((resp) => resp.text())
-      .then((html) => {
-        // แทรก Sidebar เข้ามา
+  <script>
+    // โหลด Sidebar
+    fetch("sidebar.html")
+      .then(resp => resp.text())
+      .then(html => {
         document.getElementById("sidebar-container").innerHTML = html;
+        document.getElementById("btnStatistic").classList.add("btn-sidebar-active");
       })
-      .then(() => {
-        // เมื่อตัว Sidebar ถูกโหลดเข้ามาใน DOM แล้ว
-        // ให้ Highlight ปุ่มสถิติ
-        const btnStats = document.getElementById("btnStatistic");
-        btnStats.classList.add("btn-sidebar-active");
-      })
-      .catch((err) => console.error("Failed to load sidebar:", err));
-    // end of fetch sidebar
+      .catch(err => console.error("Failed to load sidebar:", err));
 
-        // เปิดและปิด Popup
-        const openPopupBtn = document.getElementById("openPopup");
-        const popup = document.getElementById("popup");
-        const closePopupBtn = document.getElementById("closePopup");
-        const startDateInput = document.getElementById("startDate");
-        const endDateInput = document.getElementById("endDate");
+    // โหลดข้อมูล Equipment จาก API และเติมเข้า Dropdown
+    async function loadEquipmentOptions() {
+      try {
+        const response = await fetch("http://localhost:3000/TableBrokenEqipment");
+        const data = await response.json();
+        const selectElement = document.getElementById("equipmentFilter");
 
-        openPopupBtn.addEventListener("click", () => {
-          popup.style.display = "flex"; // เปิด Popup
+        // ล้างค่าทั้งหมด ยกเว้น 'all'
+        selectElement.innerHTML = '<option value="all">ทั้งหมด</option>';
+
+        // ดึงค่าอุปกรณ์ที่ไม่ซ้ำกัน
+        const uniqueEquipment = [...new Set(data.map(item => item.name))];
+
+        // สร้าง `<option>` ให้แต่ละอุปกรณ์
+        uniqueEquipment.forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          selectElement.appendChild(option);
         });
 
-        closePopupBtn.addEventListener("click", () => {
-          popup.style.display = "none"; // ปิด Popup
-        });
+      } catch (error) {
+        console.error("Error loading equipment options:", error);
+      }
+    }
 
-        window.addEventListener("click", (e) => {
-          if (e.target === popup) {
-            popup.style.display = "none"; // ปิด Popup เมื่อคลิกนอก Popup
-          }
-        });
+    // โหลดข้อมูลจาก API และอัปเดต DataTable
+    async function fetchAndUpdateTable() {
+      try {
+        const response = await fetch("http://localhost:3000/TableBrokenEqipment");
+        const data = await response.json();
+        let filteredData = data.filter(item => item.room !== null);
 
-        // เมื่อเลือกวันเริ่มต้น
-        startDateInput.addEventListener("change", () => {
-          const startDate = startDateInput.value;
-          if (startDate) {
-            // แสดงปฏิทินสำหรับเลือกวันสิ้นสุด
-            endDateInput.style.display = "inline-block";
-
-            // ตั้งค่าวันสิ้นสุดเป็นวันถัดไปจากวันเริ่มต้น
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 1); // เพิ่ม 1 วันให้กับวันเริ่มต้น
-
-            // แปลงเป็นรูปแบบที่สามารถแสดงใน input[type="date"]
-            const endDateString = endDate.toISOString().split("T")[0];
-
-            // ตั้งค่าวันสิ้นสุด
-            endDateInput.value = endDateString;
-
-            // แสดงผลข้อความในปุ่ม #openPopup
-            openPopupBtn.textContent = `เลือกช่วงเวลา: ${startDate} ถึง ${endDateString}`;
-          }
-        });
-
-        // เมื่อเลือกวันสิ้นสุด
-        endDateInput.addEventListener("change", () => {
-          const startDate = startDateInput.value;
-          const endDate = endDateInput.value;
-          if (startDate && endDate) {
-            // อัพเดตข้อความในปุ่ม
-            openPopupBtn.textContent = `เลือกช่วงเวลา: ${startDate} ถึง ${endDate}`;
-            popup.style.display = "none"; // ปิด Popup หลังจากเลือกช่วงเวลา
-          }
-        });
-
-
-        // ให้ปุ่มอื่นๆ ใน popup คลิกได้
-        const filterOptions = document.querySelectorAll(".filter-option");
-
-        filterOptions.forEach((option) => {
-          option.addEventListener("click", (e) => {
-            const selectedFilter = e.target.dataset.filter;
-            console.log("Selected Filter:", selectedFilter);
-            openPopupBtn.textContent = e.target.textContent; // เปลี่ยนข้อความในปุ่ม
-            popup.style.display = "none"; // ปิด Popup หลังจากเลือกตัวกรอง
-          });
-        });
-        async function fetchAndUpdateTable() {
-            try {
-                const response = await fetch("http://localhost:3000/TableBrokenEqipment");
-                const data = await response.json();
-
-                // คัดกรองเฉพาะรายการที่ Room ไม่เป็น null
-                let filteredData = data.filter(item => item.Room !== null);
-
-                // เรียงลำดับจากมากไปน้อยตาม TotalBrokened
-                filteredData.sort((a, b) => b.TotalBrokened - a.TotalBrokened);
-
-                // ดึงค่าเลือกจาก dropdown
-                const selectedEquipment = document.getElementById("equipmentFilter").value;
-
-                // กรองตามประเภทอุปกรณ์ถ้าเลือกค่าเฉพาะ
-                if (selectedEquipment !== "all") {
-                    filteredData = filteredData.filter(item => item.EquipmentName === selectedEquipment);
-                }
-
-                // ดึง table มาใช้งาน
-                const table = document.getElementById("Table");
-                
-                // ล้างข้อมูลเก่าออก (ยกเว้น header)
-                table.innerHTML = `
-
-                `;
-
-                // เติมข้อมูลใหม่เข้าไป
-                filteredData.forEach(item => {
-                    const row = `
-                        <tr>
-                            <td>${item.EquipmentName}</td>
-                            <td>${item.Room}</td>
-                            <td>${item.TotalEquipment}</td>
-                            <td>${item.TotalBrokened}</td>
-                            <td>${item.Balance}</td>
-                        </tr>
-                    `;
-                    table.innerHTML += row;
-                });
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
+        // ดึงค่าที่เลือกใน dropdown
+        const selectedEquipment = document.getElementById("equipmentFilter").value;
+        if (selectedEquipment !== "all") {
+          filteredData = filteredData.filter(item => item.name === selectedEquipment);
         }
 
-        // เรียกใช้งานฟังก์ชันเมื่อหน้าเว็บโหลดเสร็จ
-        window.onload = fetchAndUpdateTable;
+        // ใช้ DataTables
+        $('#equipmentTable').DataTable({
+          destroy: true,
+          data: filteredData,
+          columns: [
+            { data: 'name', orderable:false},
+            { data: 'room' },
+            { data: 'totalequipment' },
+            { data: 'totalbrokend' },
+            { data: 'balance' }
+          ],
+          pageLength: 10,
+          lengthMenu: [5, 10, 20, 50],
+          searching: true,
+          ordering: true,
+          language: {
+            search: "ค้นหา:",
+            lengthMenu: "แสดง _MENU_ รายการ",
+            info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+            paginate: {
+              first: "หน้าแรก",
+              last: "หน้าสุดท้าย",
+              next: "ถัดไป",
+              previous: "ก่อนหน้า"
+            }
+          }
+        });
 
-      </script>
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
 
+    // โหลด Dropdown และตารางเมื่อหน้าเว็บโหลดเสร็จ
+    $(document).ready(function () {
+      loadEquipmentOptions();
+      fetchAndUpdateTable();
+      $("#equipmentFilter").change(fetchAndUpdateTable);
+    });
+
+  </script>
+</body>
 </html>

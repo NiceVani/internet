@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>แบบบันทึกขอใช้ห้องนอกเวลา</title>
+
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -23,12 +24,14 @@
         margin-bottom: 15px;
       }
       .form-label {
+
         display: block;
         font-weight: bold;
       }
       textarea#additional-details {
         margin-top: 5px;
       }
+
       input[readonly],
       select {
         background-color: #e9ecef;
@@ -56,6 +59,13 @@
         border: 1px solid #dee2e6;
         height: 30px;
         font-size: 14px;
+      }
+
+      .table td span {
+        display: inline-block;
+        width: 100%;
+        background-color: transparent;
+        text-align: center;
       }
       .row-header {
         display: flex;
@@ -167,6 +177,7 @@
       }
 
       .btn-add-row {
+
         font-size: 24px;
         width: 40px;
         height: 40px;
@@ -188,6 +199,7 @@
       th.text-center {
         vertical-align: middle !important;
       }
+
       .d-flex {
         display: flex;
         justify-content: center;
@@ -288,7 +300,6 @@
             </tr>
           </tbody>
         </table>
-
         <!-- แสดงคอมพิวเตอร์ที่เลือก -->
         <h5>รายละเอียดการยืม (คอมพิวเตอร์ที่เลือก)</h5>
         <table class="table table-bordered">
@@ -302,7 +313,6 @@
             <!-- รายการคอมพิวเตอร์จะแสดงที่นี่ -->
           </tbody>
         </table>
-
         <!-- ตารางรายชื่อสมาชิก -->
         <h5 class="mt-4">รายชื่อสมาชิก</h5>
         <table class="table table-bordered">
@@ -461,7 +471,6 @@
         let hour = parts[0];
         const minute = parts[1];
         if (hour.startsWith("0")) hour = hour.substring(1);
-
         return hour + "." + minute;
       }
 
@@ -489,6 +498,7 @@
           document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
         }
       }
+
 
       // ฟังก์ชันแสดงคอมพิวเตอร์ที่เลือก
       function displaySelectedComputers() {
@@ -531,6 +541,7 @@
           const response = await fetch("http://localhost:3000/session", {
             credentials: "include",
           });
+
           const userSession = await response.json();
           if (!userSession.data) {
             alert("กรุณาเข้าสู่ระบบใหม่");
@@ -540,6 +551,7 @@
 
           console.log("✅ ข้อมูลผู้ใช้จาก session:", userSession.data);
 
+          // เติมค่าลง input โดยใช้ key ที่ถูกต้อง
           document.getElementById("student-name").value =
             userSession.data.full_name || "ไม่พบข้อมูล";
           document.getElementById("student-id").value =
@@ -547,17 +559,20 @@
           document.getElementById("stud-year").value =
             userSession.data.study_year || "ไม่พบข้อมูล";
           document.getElementById("phone-number").value =
-            userSession.data.phone_number || "ไม่พบข้อมูล";
+            userSession.data.phone_number || "ไม่พบข้อมูล"; // ตรวจสอบให้แน่ใจว่า backend ส่งค่ามา
+
         } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
         }
       }
+
 
       // ฟังก์ชันเพิ่ม-ลบแถวสมาชิก
       function addRow() {
         const tableBody = document.getElementById("members-table-body");
         const newRow = document.createElement("tr");
         newRow.innerHTML = `
+
           <td style="position: relative;">
             <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
             <div class="dropdown-list"></div>
@@ -568,16 +583,21 @@
         tableBody.appendChild(newRow);
         initializeStudentIDInput(newRow.querySelector(".student-id-input"));
       }
+
       function deleteRow(button) {
         const row = button.closest("tr");
         row.remove();
       }
+
 
       // ดึงข้อมูลนิสิตเพื่อ filter
       let studentData = [];
       async function fetchStudentData() {
         try {
           const response = await fetch("http://localhost:3000/data/student");
+
+          // สมมติว่า URL เป็น /data/student
+          // หรือจะเป็น URL อื่น ๆ ตามที่คุณสร้าง
           if (!response.ok) throw new Error("HTTP error " + response.status);
 
           studentData = await response.json();
@@ -586,6 +606,7 @@
           console.error("❌ ดึงข้อมูลล้มเหลว:", error);
         }
       }
+
 
       // ฟังก์ชัน filter รายชื่อนิสิต
       function filterStudentList(inputElement) {
@@ -603,13 +624,14 @@
         );
         if (filtered.length === 0) return;
 
+
         dropdown.style.display = "block";
         filtered.forEach((student) => {
           let option = document.createElement("div");
           option.classList.add("dropdown-item");
           option.style.padding = "5px";
-          option.innerHTML = `<span style="font-size: 16px;">${student.student_id} - ${student.full_name}</span>`;
 
+          option.innerHTML = `<span style="font-size: 16px;">${student.student_id} - ${student.full_name}</span>`;
           option.addEventListener("mouseover", () => {
             option.style.fontWeight = "bold";
             option.style.backgroundColor = "#f0f0f0";
@@ -619,6 +641,8 @@
             option.style.backgroundColor = "#fff";
           });
 
+
+          // Event ตอนคลิก -> เซ็ตค่า input
           option.addEventListener("click", () => {
             inputElement.value = student.student_id;
             nameInput.value = student.full_name;
@@ -628,6 +652,7 @@
           dropdown.appendChild(option);
         });
       }
+
 
       // ฟังก์ชันเปิดการ filter ให้ช่อง student-id
       function initializeStudentIDInput(inputElement) {
@@ -639,6 +664,7 @@
           setTimeout(() => (dropdown.style.display = "none"), 200);
         });
       }
+
 
       // ฟังก์ชันโหลดข้อมูลอุปกรณ์
       let isEquipmentLoaded = false;
@@ -700,12 +726,13 @@
           const tableBody = document.getElementById("equipment-table-body");
           tableBody.innerHTML = ""; // เคลียร์ก่อน
 
+
           equipmentDetails.forEach((equip) => {
             const equipmentInfo = equipmentList.find(
               (e) => String(e.equipment_id) === equip.id
             );
             if (!equipmentInfo) return;
-
+            
             // ตรวจสอบว่า row นี้มีแล้วหรือยัง
             if (
               !document.querySelector(
@@ -715,6 +742,7 @@
               const row = document.createElement("tr");
               row.setAttribute("data-id", equip.id);
               row.innerHTML = `
+
                 <td>${equipmentInfo.equipment_name}</td>
                 <td>SC2-${params.get("room")}</td>
                 <td>${equip.amount}</td>
@@ -737,6 +765,7 @@
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลอุปกรณ์:", error);
         }
       }
+
 
       async function loadEquipmentDetails() {
         if (isEquipmentLoaded) {
@@ -772,6 +801,7 @@
           loadRoomDetails(roomParam);
         }
 
+
         // แสดงเวลา
         if (startTimeParam && endTimeParam) {
           const formattedStartTime = formatTimeForDisplay(startTimeParam);
@@ -783,6 +813,7 @@
           document.getElementById("time-range-info").textContent =
             "ไม่พบข้อมูลเวลา";
         }
+
 
         // แสดงข้อมูลคอมพิวเตอร์
         displaySelectedComputers(desksParam);
@@ -834,7 +865,9 @@
           !endTime ||
           !reason
         ) {
+
           alert("⚠️ กรุณากรอกข้อมูลให้ครบ");
+
           return;
         }
 
@@ -844,6 +877,7 @@
           student_id: studentId,
           start_time: startTime,
           end_time: endTime,
+
           desks: desks,
           equipments: equipments,
           request_type: requestType, // ✅ เพิ่มค่า request_type
@@ -867,12 +901,15 @@
           if (response.ok) {
             alert("✅ การจองสำเร็จ!");
             window.location.href = "#";
+
           } else {
             alert("❌ " + result.error);
           }
         } catch (err) {
           console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
+
           alert("❌ เกิดข้อผิดพลาดในการจอง");
+
         }
       }
     </script>

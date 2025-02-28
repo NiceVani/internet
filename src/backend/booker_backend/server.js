@@ -292,25 +292,15 @@ app.get("/roomdetail", (req, res) => {
   const query = `
 
     SELECT
-
       rli.room_name AS full_name,
-
       rli.floor,
-
       rli.room_id,
-
       rli.room_name,
-
       SUM(CASE WHEN rlr.request_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count
-
     FROM room rli
-
     LEFT JOIN room_request rlr ON rli.room_id = rlr.room_id
-
     GROUP BY rli.room_id, rli.room_name, rli.floor, rli.room_name
-
     ORDER BY Approved_Count DESC;
-
   `;
 
   connection.query(query, (err, results) => {
@@ -319,9 +309,11 @@ app.get("/roomdetail", (req, res) => {
 
       console.error("❌ เกิดข้อผิดพลาด:", err);
 
+
       res.status(500).send(err);
 
       return;
+
 
     }
 

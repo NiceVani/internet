@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบขอใช้ห้อง</title>
+</head>
+<body>
+    <h2>กรอก Room Request ID</h2>
+    <form onsubmit="event.preventDefault(); gen();">
+        <input type="text" id="room_request_id" placeholder="ใส่ Room Request ID" required>
+        <button type="submit">สร้าง PDF</button>
+    </form>
+
+    <p id="message"></p>
+
+    <!-- เช็คว่าไฟล์โหลดสำเร็จหรือไม่ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("✅ หน้าเว็บโหลดสำเร็จ");
+        });
+    </script>
+
+    <!-- โหลด documents_script.js -->
+    <script src="documents_script.js" onerror="alert('⚠️ โหลด documents_script.js ไม่สำเร็จ! ตรวจสอบพาธไฟล์')"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof gen !== "function") {
+                alert("⚠️ ฟังก์ชัน gen() ไม่ทำงาน! ตรวจสอบไฟล์ 'documents_script.js'");
+            } else {
+                console.log("✅ ฟังก์ชัน gen() โหลดสำเร็จ");
+            }
+        });
+    </script>
+</body>
+</html>

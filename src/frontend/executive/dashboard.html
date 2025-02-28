@@ -1,140 +1,714 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="dashboard.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap JS (พร้อม Popper.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap JS (พร้อม Popper.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  <title>Dashboard</title>
 </head>
+
 <body>
-    <div id="sidebar-container"></div>
-    <div class="main-content">
-        <div class="container">
-            <div class="card blue">
-                
-            </div>
-            <div class="card sky">
-                
-            </div>
-            <div class="card yellow">
-                
-            </div>
-            <div class="card red">
-                
-            </div>
+  <div id="sidebar-container"></div>
+  <div class="main-content overflow-auto vh-100">
+    <div class="container">
+      <div class="card blue" onclick="window.location.href='detailroom.html'" >
+        <div>
+          <h3  style="font-weight: normal; opacity: 0.9;" >Most Booking Room</h3>
+          <p id="room-name" style="font-weight:bolder; font-size: 20px;">Loading...</p>
+          <canvas id='pointLineCardChart1' ></canvas>
         </div>
+      </div>
 
-        <div class="large-card">
-            <h3>ห้องที่ใช้เยอะที่สุด</h3>
-            <img src="Insert graph.jpg" alt="ใส่รูปกราฟ" width="250" height="250"><br>
-            <!-- <canvas id="bar-chart-used-room"></canvas> -->
+      <div class="card sky">
+        <div  onclick="window.location.href='broken_equipment.html'">
+          <h3 style="font-weight: normal; opacity: 0.9;" >Most Brokend Equipment</h3>
+          <p id="equipment-name" style="font-weight: bold; font-size: large;">Loading...</p>
+          <canvas id='pointLineCardChart2' ></canvas>
         </div>
-        
-        <div class="statistics-container">
-            <div class="statistics-card">
-                <h5>จำนวนคนจอง
-                    <div class="dropdown d-inline">
-                        <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                          style="color: #929292; font-size: 10px;">
-                        </i>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="#">Week</a></li>
-                          <li><a class="dropdown-item" href="#">Mouth</a></li>
-                          <li><a class="dropdown-item" href="#">Year</a></li>
-                        </ul>
-                      </div>
-                </h5>
-                <img src="Insert graph.jpg" alt="ใส่รูปกราฟ" width="250" height="250"><br>
-                <!-- <canvas id="bookingChart"></canvas> -->
-                <button class="details-btn">Details</button>
-            </div>
-
-            <div class="statistics-card">
-                <h5 style="text-align: center;">อุปกรณ์
-                    <div class="dropdown d-inline">
-                        <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                          style="color: #929292; font-size: 10px;">
-                        </i>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="#">อุปกรณ์แจ้งซ่อม</a></li>
-                          <li><a class="dropdown-item" href="#">อุปกรณ์ยืม</a></li>
-                        </ul>
-                      </div>
-                </h5>
-                <img src="Insert graph.jpg" alt="ใส่รูปกราฟ" width="250" height="250"><br>
-                <!-- <canvas id="equipmentChart"></canvas> -->
-                <button class="details-btn">Details</button>
-            </div>
-
-            <div class="statistics-card">
-                <h6 style="text-align: center;">นิสิตที่จองใช้งานห้องบ่อยที่สุด</h6>
-                <section style="margin-top: 40px;">
-                    <div class="split-container">
-                      <p3>นาย คำมี สาเก</p3>
-                      <p4>3 ครั้ง</p4>
-                    </div>
-                    <br>
-                    <div class="split-container">
-                      <p3>นางสาว อุ้งอิ้ง องค์กร</p3>
-                      <p4>2 ครั้ง</p4>
-                    </div>
-                    <br>
-                    <div class="split-container">
-                      <p3>นาย ธีรพงษ์ พาสุข</p3>
-                      <p4>1 ครั้ง</p4>
-                    </div>
-                  </section>
-                <button class="details-btn">Details</button>
-            </div>
-            <div class="statistics-card">
-                <h6 style="text-align: center;">นิสิตที่แจ้งซ่อมอุปกรณ์บ่อยที่สุด</h6>
-                <section style="margin-top: 40px;">
-                    <div class="split-container">
-                      <p3>นาย คำมี สาเก</p3>
-                      <p4>3 ครั้ง</p4>
-                    </div>
-                    <br>
-                    <div class="split-container">
-                      <p3>นางสาว อุ้งอิ้ง องค์กร</p3>
-                      <p4>2 ครั้ง</p4>
-                    </div>
-                    <br>
-                    <div class="split-container">
-                      <p3>นาย ธีรพงษ์ พาสุข</p3>
-                      <p4>1 ครั้ง</p4>
-                    </div>
-                  </section>
-                <button class="details-btn">Details</button>
-            </div>
+      </div>
+      <div class="card yellow" onclick="window.location.href='graphdetail.html'">
+        <div >
+          <h3 style="font-weight: normal; opacity: 0.9;">Most Time Used</h3>
+          <p id="time"  style="font-weight:bolder; font-size: 16px;">Loading...</p>
+          <canvas id='pointLineCardChart3' ></canvas>
         </div>
-        
+      </div>
+      <div class="card red">
+        <div onclick="window.location.href='student.html'">
+          <h3 style="font-weight: normal; opacity: 0.9;">Most Department</h3>
+          <p id="department-name" >Loading...</p>
+          <canvas id='pointLineCardChart4' ></canvas>
+        </div>
+      </div>
     </div>
 
-    
-    
-    
+    <div class="large-card" style="justify-content: center; align-items: center; ">
+      <h3>ห้องที่ใช้เยอะที่สุด</h3>
+      <div class="chart-container" style="display: flex; justify-content: center; align-items: center;">
+        <canvas id="barChart" style="height: 300px ; align-items: center;"></canvas>
+      </div>
+      <button class="details-btn" onclick="window.location.href='detailroom.html'">Details</button>
+    </div>
+
+    <div class="statistics-container">
+      <div class="statistics-card">
+        <h5>จำนวนคนจอง
+          <div class="dropdown d-inline">
+            <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+              style="color: #929292; font-size: 10px;">
+            </i>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" onclick="showChart('day')">วัน</a></li>
+              <li><a class="dropdown-item" href="#" onclick="showChart('week')">สัปดาห์</a></li>
+              <li><a class="dropdown-item" href="#" onclick="showChart('month')">เดือน</a></li>
+              <li><a class="dropdown-item" href="#" onclick="showChart('year')">ปี</a></li>
+            </ul>
+          </div>
+        </h5>
+        <div style=" width: 100%; height: 80%;display: flex;align-items: center;justify-content: center;">
+          <canvas id='pointLineChart' style=" width: 100% !important; height: 100% !important;"></canvas>
+          
+        </div>
+        <!-- <canvas id="bookingChart"></canvas> -->
+        <button class="details-btn" onclick="window.location.href='graphdetail.html'">Details</button>
+      </div>
+
+      <div class="statistics-card">
+        <h5 style="text-align: center;">อุปกรณ์
+          <div class="dropdown d-inline">
+            <i class="bi bi-caret-down-fill" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+              style="color: #929292; font-size: 10px;">
+            </i>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" onclick="showDoughnutChart(2)">อุปกรณ์แจ้งซ่อม</a></li>
+              <li><a class="dropdown-item" href="#" onclick="showDoughnutChart(1)">อุปกรณ์ยืม</a></li>
+            </ul>
+          </div>
+        </h5>
+        <!-- <img src="Insert graph.jpg" alt="ใส่รูปกราฟ" width="250" height="250"><br> -->
+        <div class="chart-container" style=" width: 100%;height: 80%;display: flex; align-items: center;justify-content: center;">
+          <canvas id="doughnutChart2" style="width: 80%;" onclick="window.location.href='broken_equipment.html'"></canvas>
+          <canvas id="doughnutChart1" style="display: none; width: 80%;" onclick="window.location.href='borrow_equipment.html'"></canvas>
+        </div>
+        <button class="details-btn" onclick="window.location.href='eqiup.html'">Details</button>
+      </div>
+
+      <div class="statistics-card">
+        <h6 style="text-align: center;">นิสิตที่จองใช้งานห้องบ่อยที่สุด</h6>
+        <section style="margin-top: 40px;">
+          <section id="userList">
+          </section>
+          <button class="details-btn" onclick="window.location.href='student.html'">Details</button>
+      </div>
+      <div class="statistics-card">
+        <h6 style="text-align: center;">นิสิตที่แจ้งซ่อมอุปกรณ์บ่อยที่สุด</h6>
+        <section style="margin-top: 40px;">
+          <section id="ReportList">
+          </section>
+          <button class="details-btn" onclick="window.location.href='reporttable.html'">Details</button>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
 </body>
 
 <script>
-    fetch("sidebar.html")
-      .then((resp) => resp.text())
-      .then((html) => {
-        // แทรก Sidebar เข้ามา
-        document.getElementById("sidebar-container").innerHTML = html;
-      })
-      .then(() => {
-        // ให้ Highlight ปุ่มสถิติ
-        const btnStats = document.getElementById("btnStatistic");
-        btnStats.classList.add("btn-sidebar-active");
-      })
-      .catch((err) => console.error("Failed to load sidebar:", err));
-  </script>
+  fetch("sidebar.html")
+    .then((resp) => resp.text())
+    .then((html) => {
+      // แทรก Sidebar เข้ามา
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .then(() => {
+      // ให้ Highlight ปุ่มสถิติ
+      const btnStats = document.getElementById("btnStatistic");
+      btnStats.classList.add("btn-sidebar-active");
+    })
+    .catch((err) => console.error("Failed to load sidebar:", err));
+
+  fetch('http://localhost:3000/mostroomalldata')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
+
+      const barCtx = document.getElementById('barChart').getContext('2d');
+      if (!barCtx) {
+        console.error("Canvas element not found!");
+        return;
+      }
+
+      // Prepare data for the Chart.js chart after fetching
+      const labels = data.map(item => `SC2-${item.room_id}`);
+      const totalCount = data.map(item => item.total_count);
+      const csCount = data.map(item => item.cs_count);
+      const itCount = data.map(item => item.it_count);
+
+      new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'จำนวนนิสิตรวม',
+              data: totalCount,
+              backgroundColor: '#E5D2BA'
+            },
+            {
+              label: 'จำนวนนิสิต สาขา วิทยาการคอมฯ',
+              data: csCount,
+              backgroundColor: '#E54715'
+            },
+            {
+              label: 'จำนวนนิสิต สาขาเทคโนโลยีฯ',
+              data: itCount,
+              backgroundColor: '#622BBE',
+              padding: {
+                top: 10,
+                bottom: 30
+              }
+            }
+          ]
+        },
+        options: {
+          // maxBarThickness:30,
+          responsive: false,
+          plugins: {
+            legend: {
+              position: 'bottom', // Position legend at the bottom
+              labels: {
+                font: {
+                  size: 16 // 🔥 ปรับขนาดฟอนต์ของ legend
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: 'ข้อมูลจำนวนนิสิต',
+              font: {
+                size: 14 // 🔥 ปรับขนาดฟอนต์ของ title
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                font: {
+                  size: 16 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน X
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return Math.floor(value); // 🔥 ปัดค่าทศนิยมออก
+                },
+                font: {
+                  size: 14 // 🔥 ปรับขนาดฟอนต์ของ labels บนแกน Y
+                }
+              }
+            }
+          }
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+  //doughnutChart
+  fetch('http://localhost:3000/borrowEquipment')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
+
+      const doughnutCtx1 = document.getElementById('doughnutChart1');
+
+
+      if (!doughnutCtx1) {
+        console.error("Canvas element donut not found!");
+        return;
+      }
+
+      new Chart(doughnutCtx1.getContext('2d'), {  // ✅ ใช้ .getContext('2d') ตรงนี้
+        type: 'doughnut',
+        data: {
+          labels: data.map(item => item.name), // ✅ ใช้คีย์ที่ถูกต้อง
+          datasets: [{
+            data: data.map(item => item.total),
+            backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '50%',
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'จำนวนอุปกรณ์ที่ยืม' }
+          }
+        }
+      });
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+    });
+  //doughtnut2
+  fetch('http://localhost:3000/brokendEquipment')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Fetched Data:", data); // 🛠 Debug: ดูข้อมูล API
+
+      const doughnutCtx1 = document.getElementById('doughnutChart2');
+
+
+      if (!doughnutCtx1) {
+        console.error("Canvas element donut not found!");
+        return;
+      }
+
+      new Chart(doughnutCtx1.getContext('2d'), {  // ✅ ใช้ .getContext('2d') ตรงนี้
+        type: 'doughnut',
+        data: {
+          labels: data.map(item => item.name), // ✅ ใช้คีย์ที่ถูกต้อง
+          datasets: [{
+            data: data.map(item => item.total),
+            backgroundColor: ['#E5D2BA', '#E54715', '#622BBE'], // ✅ กำหนดสี
+          }]
+        },
+        options: {
+          responsive: true,
+
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'จำนวนอุปกรณ์ที่แจ้งซ่อม' }
+          }
+
+        }
+      });
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+    });
+  function showDoughnutChart(chartNumber) {
+    document.getElementById('doughnutChart1').style.display = (chartNumber === 1) ? 'block' : 'none';
+    document.getElementById('doughnutChart2').style.display = (chartNumber === 2) ? 'block' : 'none';
+  }
+  //point line chart
+ let chartInstance = null; // เก็บ instance ของ Chart เพื่อล้างค่าก่อนสร้างใหม่
+
+function showChart(timeframe) {
+  // ✅ เลือก URL ตามช่วงเวลาที่ต้องการ
+  const apiUrls = {
+    day: "http://localhost:3000/daysroomday",
+    week: "http://localhost:3000/daysroomweek",
+    month: "http://localhost:3000/daysroommount",
+    year: "http://localhost:3000/daysroomyear"
+  };
+
+  const apiUrl = apiUrls[timeframe];
+
+  fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Fetched Data:", data); // Debug ดูข้อมูล API
+
+      const labels = data.map(item => item.time); // ชื่อวัน
+      const usageData = data.map(item => item.total_requests); // จำนวนครั้งการใช้ห้อง
+
+      updateChart(labels, usageData, timeframe);
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+    });
+}
+
+function updateChart(labels, values, timeframe) {
+  const ctx = document.getElementById("pointLineChart").getContext("2d");
+
+  // ✅ ถ้ามี Chart เดิมอยู่ให้ลบก่อน
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  // ✅ ชื่อ Title ตามช่วงเวลา
+  const titles = {
+    day: "จำนวนครั้งที่ใช้ห้องเรียนในแต่ละวัน",
+    week: "จำนวนครั้งที่ใช้ห้องเรียนในแต่ละสัปดาห์",
+    month: "จำนวนครั้งที่ใช้ห้องเรียนในแต่ละเดือน",
+    year: "จำนวนครั้งที่ใช้ห้องเรียนในแต่ละปี"
+  };
+
+  // ✅ สร้าง Line Chart ใหม่
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: titles[timeframe],
+        data: values,
+        borderColor: "#007BFF",  // 🔵 สีน้ำเงิน
+        backgroundColor: "rgba(0, 123, 255, 0.2)",
+        fill: false,  // 🔥 ไม่มีพื้นที่สีใต้เส้น
+        pointStyle: "circle",
+        pointRadius: 5, // จุดใหญ่ขึ้น
+        pointBackgroundColor: "#007BFF",
+      }]
+    },
+    options: {
+      responsive: false,
+      layout: {
+        padding: {
+          bottom: 0 // ✅ ลบระยะขอบล่าง
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: titles[timeframe]
+        },
+        legend: {
+          position: "bottom"
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "ช่วงเวลา"
+          }
+        },
+        y: {
+          beginAtZero: true,
+          suggestedMin: 0,
+          title: {
+            display: true,
+            text: "จำนวนครั้งที่ใช้ห้อง"
+          }
+        }
+      }
+    }
+  });
+}
+
+// ✅ โหลดค่าเริ่มต้นเป็น "วัน"
+showChart("day");
+
+  //mostuser
+
+  fetch("http://localhost:3000/useralldata")
+    .then(response => response.json()) // แปลงเป็น JSON
+    .then(data => {
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";  // ล้างข้อความเดิม
+
+      data.forEach(user => {
+        const div = document.createElement("div");
+        div.className = "split-container";
+        div.innerHTML = `<p>${user.name}</p> <p>${user.stat} ครั้ง</p>`;
+        userList.appendChild(div);
+      });
+    })
+    .catch(error => {
+      console.error("เกิดข้อผิดพลาด:", error);
+      document.getElementById("userList").innerHTML = "ไม่สามารถโหลดข้อมูลได้";
+    });
+
+  fetch("http://localhost:3000/mostreport")
+    .then(response => response.json()) // แปลงเป็น JSON
+    .then(data => {
+      const userList = document.getElementById("ReportList");
+      userList.innerHTML = "";  // ล้างข้อความเดิม
+
+      data.forEach(user => {
+        const div = document.createElement("div");
+        div.className = "split-container";
+        div.innerHTML = `<p>${user.name}</p> <p>${user.stat} ครั้ง</p>`;
+        userList.appendChild(div);
+      });
+    })
+    .catch(error => {
+      console.error("เกิดข้อผิดพลาด:", error);
+      document.getElementById("userList").innerHTML = "ไม่สามารถโหลดข้อมูลได้";
+    });
+
+  //most booking room card
+  fetch('http://localhost:3000/box1')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("✅ ดึงข้อมูลสำเร็จ:", data);
+      if (data.length > 0) {
+        document.getElementById('room-name').textContent = `${data[0].name} (${data[0].percentage}%)`;
+      } else {
+        document.getElementById('room-name').textContent = "No data available";
+      }
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+      document.getElementById('room-name').textContent = "Error loading data";
+    });
+
+  //most brokend equipment card
+  fetch('http://localhost:3000/box2')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("✅ ดึงข้อมูลสำเร็จ:", data);
+      if (data.length > 0) {
+        document.getElementById('equipment-name').textContent = `${data[0].name} (${data[0].percentage})%`;
+      } else {
+        document.getElementById('equipment-name').textContent = "No data available";
+      }
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+      document.getElementById('equipment-name').textContent = "Error loading data";
+    });
+  //most time
+  fetch('http://localhost:3000/box3')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("✅ ดึงข้อมูลสำเร็จ:", data);
+      if (data.length > 0) {
+        document.getElementById('time').textContent = `${data[0].time}(${data[0].percentage})%`;
+      } else {
+        document.getElementById('time').textContent = "No data available";
+      }
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+      document.getElementById('time').textContent = "Error loading data";
+    });
+  //most department
+  fetch('http://localhost:3000/box4')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("✅ ดึงข้อมูลสำเร็จ:", data);
+      if (data.length > 0) {
+        document.getElementById('department-name').textContent = `${data[0].name}(${data[0].percentage}%)`;
+      } else {
+        document.getElementById('department-name').textContent = "No data available";
+      }
+    })
+    .catch(error => {
+      console.error("❌ Error fetching data:", error);
+      document.getElementById('department-name').textContent = "Error loading data";
+    });
+    
+    //card chart1
+    fetch('http://localhost:3000/TableRoomBooked')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.room_name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.total);
+
+    var ctx = document.getElementById('pointLineCardChart1').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'rgba(255, 255, 255, 0.8)', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+
+    //card chart 2
+fetch('http://localhost:3000/TableBrokenEqipment')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.totalbrokend);
+
+    var ctx = document.getElementById('pointLineCardChart2').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'white', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+  //card chart 3
+  fetch('http://localhost:3000/daysroomday')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.time);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.total_requests);
+
+    var ctx = document.getElementById('pointLineCardChart3').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'black', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(0, 0, 0, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(0, 0, 0, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+//card chart4
+  fetch('http://localhost:3000/box42')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.d_count);
+
+    var ctx = document.getElementById('pointLineCardChart4').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'rgba(255, 255, 255, 0.8)', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+
+</script>
 
 </html>

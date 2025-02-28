@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายงานอุปกรณ์ชำรุด</title>
+  <link rel="stylesheet" href="detailstyle.css">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .sidebar {
+      background-color: #f0d3b8;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 290px;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .content-area {
+      margin-left: 290px;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    @media (max-width: 576px) {
+      .sidebar {
+        width: 100%;
+        box-shadow: none;
+      }
+
+      .content-area {
+        margin-left: 0;
+      }
+    }
+
+    table.dataTable thead {
+      background-color: #ffcc80;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar-container"></div>
+
+  <div class="content-area">
+    <div class="container">
+      <header>
+        <h1>รายงานอุปกรณ์ชำรุด</h1>
+      </header>
+
+      <div class="d-flex gap-3 mb-3 align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <p class="mb-0">Role:</p>
+          <select id="roleFilter" class="form-select w-auto">
+            <option value="all">ทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+
+      <table id="repotTable" class="display table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <button onclick="window.location.href='dashboard.html'">BACK</button>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // โหลด Sidebar
+    fetch("sidebar.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("sidebar-container").innerHTML = html;
+        document.getElementById("btnStatistic").classList.add("btn-sidebar-active");
+      })
+      .catch(err => console.error("Failed to load sidebar:", err));
+  
+    // โหลดข้อมูลจาก API และอัปเดต DataTable
+    async function fetchAndUpdateTable() {
+      try {
+        const response = await fetch("http://localhost:3000/reportTable");
+        const data = await response.json();
+        
+        const selectedRole = document.getElementById("roleFilter").value;
+    if (selectedRole !== "all") {
+      filteredData = filteredData.filter(item => item.role === selectedRole);
+    }
+        // ใช้ DataTables
+        $('#repotTable').DataTable({
+          destroy: true,
+          data: data, // **แก้ไขการใช้ filteredData เป็น data ตรง ๆ**
+          columns: [
+            { data: 'id', orderable: false },
+            { data: 'name' },
+            { data: 'email' },
+            { data: 'stat' },
+            { data: 'role' }
+          ],
+          pageLength: 10,
+          lengthMenu: [5, 10, 20, 50],
+          searching: true,
+          ordering: true,
+          language: {
+            search: "ค้นหา:",
+            lengthMenu: "แสดง _MENU_ รายการ",
+            info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+            paginate: {
+              first: "หน้าแรก",
+              last: "หน้าสุดท้าย",
+              next: "ถัดไป",
+              previous: "ก่อนหน้า"
+            }
+          }
+        });
+  
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  
+    // โหลดตารางเมื่อหน้าเว็บโหลดเสร็จ
+    $(document).ready(function () {
+ 
+  loadRoleOptions();
+  fetchAndUpdateTable();
+
+  // เมื่อเปลี่ยนค่าใน Room หรือ Role, อัปเดตตาราง
+  $("#roleFilter").change(fetchAndUpdateTable);
+});
+
+
+    async function loadRoleOptions() {
+  try {
+    const response = await fetch("http://localhost:3000/reportTable");
+    const data = await response.json();
+    const selectElement = document.getElementById("roleFilter");
+
+    selectElement.innerHTML = '<option value="all">ทั้งหมด</option>';
+    const uniqueRoles = [...new Set(data.map(user => user.role))];
+
+    uniqueRoles.forEach(role => {
+      const option = document.createElement("option");
+      option.value = role;
+      option.textContent = role;
+      selectElement.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error("Error loading roles:", error);
+  }
+}
+  </script>
+  
+</body>
+</html>

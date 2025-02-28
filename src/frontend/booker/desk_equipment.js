@@ -28,6 +28,7 @@ async function loadDesks() {
     // กำหนดแพทเทิร์นสำหรับแถว: 4-3-4 (รวม 11 เครื่องต่อแถว)
     const pattern = [3, 4, 3];
 
+
     const deskGrid = document.getElementById("deskGrid");
     deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
 
@@ -103,6 +104,7 @@ async function loadDesks() {
 
         rowDiv.appendChild(segContainer);
       });
+
 
       deskGrid.appendChild(rowDiv);
     }
@@ -245,6 +247,8 @@ async function submitSelection() {
   console.log("📌 โต๊ะที่เลือก:", selectedDeskArray);
   console.log("📌 อุปกรณ์ที่เลือก:", selectedEquipments);
 
+
+  // ดึงค่า startTime จาก URL
   const urlParams = new URLSearchParams(window.location.search);
   const startTime = urlParams.get("startTime");
 
@@ -252,6 +256,7 @@ async function submitSelection() {
       alert("⚠️ ไม่พบค่า startTime ใน URL!");
       return;
   }
+
 
   // ✅ แปลงเวลาเป็นชั่วโมง
   const hour = parseInt(startTime.split(":")[0], 10);
@@ -294,6 +299,7 @@ async function submitSelection() {
   const room = urlParams.get("room");
   const endTime = urlParams.get("endTime");
 
+
   // ✅ สร้าง URL ใหม่
   const newUrlParams = new URLSearchParams({
       room: room,
@@ -319,10 +325,13 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDesks();
   loadEquipments();
 
-  // ผูกปุ่ม "ยืนยัน" ให้เรียก submitSelection()
-  const confirmButton = document.querySelector(".confirm-button");
-  if (confirmButton) {
-    confirmButton.addEventListener("click", submitSelection);
+  const roomId = new URLSearchParams(window.location.search).get("room");
+
+  if (roomId) {
+    document.getElementById("room-name").textContent = `ห้อง: SC2-${roomId}`;
+    // สำหรับทำปุ่มย้อนกลับไปหน้า Schedule
+    document.getElementById("back-btn").href = `Schedule.html?room=${roomId}`;
+    console.log(`Loading schedule for room SC2-${roomId}`);
   }
 });
 
@@ -330,7 +339,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   await fetchUserInfo();
 });
 
-// ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
+// ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
 async function fetchUserInfo() {
   try {
       console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
@@ -364,11 +373,8 @@ async function fetchUserInfo() {
 }
 
 
-
-
-
-
 // ✅ ฟังก์ชันออกจากระบบ
+
 async function logout() {
   try {
     const response = await fetch("http://localhost:3000/logout", {
@@ -388,30 +394,18 @@ async function logout() {
   }
 }
 
-// เรียก loadDesks() ซ้ำ (ถ้าต้องการ reload เมื่อมีการเปลี่ยนแปลง)
-loadDesks();
+// ฟังก์ชันตรวจสอบช่วงเวลา
 function checkTimePeriod() {
   const now = new Date();
   const hour = now.getHours();
 
   if (hour >= 8 && hour < 16) {
-    return "ในเวลา"; // 🕗 08:00 - 16:00
+    return "ในเวลา";
   } else if (hour >= 17 && hour <= 20) {
-    return "นอกเวลา"; // 🌙 17:00 - 20:00
+    return "นอกเวลา";
   } else {
     return "⏳ อยู่นอกช่วงที่กำหนด (ไม่ได้เปิดให้จอง)";
   }
 }
 
-// 🔥 ตัวอย่างการใช้งาน
 console.log("📌 สถานะเวลา:", checkTimePeriod());
-
-// ถ้ามีการอัปเดตแบบเรียลไทม์ผ่าน WebSocket (ถ้ามี)
-//const socket = io("http://localhost:3000");
-//socket.on("connect", () => {
-//  console.log("WebSocket connected!");
-//});
-//socket.on("booking_update", () => {
-//  loadDesks();
-//  loadEquipments();
-//});

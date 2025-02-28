@@ -26,7 +26,7 @@
         display: block; /* ทำให้ label ขึ้นบรรทัดใหม่ */
         font-weight: bold;
       }
-      
+
       textarea#additional-details {
         margin-top: 5px;
       }
@@ -385,7 +385,6 @@
         }
         return hour + "." + minute;
       }
-      
       // Load equipment mapping from API /getEquipmentInformation
       async function loadEquipmentMapping() {
         let equipmentMapping = {};
@@ -413,7 +412,7 @@
           const response = await fetch("http://localhost:3000/roomdetail");
           if (!response.ok) throw new Error("HTTP error " + response.status);
           const rooms = await response.json();
-      
+
           // หา room ที่ room_id ตรงกับ roomParam
           const roomDetail = rooms.find((room) => room.room_id == roomId);
           console.log("✅ Room Detail:", roomDetail);
@@ -421,6 +420,7 @@
           if (roomDetail) {
             document.getElementById("room-info").textContent = roomDetail.room_name || "ไม่พบข้อมูล";
             document.getElementById("room-type-info").textContent = roomDetail.room_type || "ไม่พบข้อมูล";
+
           } else {
             document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
             document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
@@ -576,7 +576,7 @@
           const response = await fetch("http://localhost:3000/session", {
             credentials: "include",
           });
-      
+
           const userSession = await response.json();
           if (!userSession.data) {
             alert("กรุณาเข้าสู่ระบบใหม่");
@@ -586,6 +586,7 @@
       
           console.log("✅ ข้อมูลผู้ใช้จาก session:", userSession.data);
       
+
           // เติมค่าลง input โดยใช้ key ที่ถูกต้อง
           document.getElementById("student-name").value =
             userSession.data.full_name || "ไม่พบข้อมูล";

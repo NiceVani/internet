@@ -389,7 +389,6 @@
                   }
                 </script>
                 <th style="color: #929292">ชื่อ-นามสกุล</th>
-                <th style="color: #929292">อีเมล</th>
                 <th style="color: #929292">
                   ตำแหน่ง
                   <div class="dropdown d-inline">
@@ -401,8 +400,9 @@
                       style="color: #929292; font-size: 10px"
                     ></i>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">นิสิต</a></li>
-                      <li><a class="dropdown-item" href="#">อาจารย์</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('ทั้งหมด')">ทั้งหมด</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('นิสิต')">นิสิต</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('อาจารย์')">อาจารย์</a></li>
                     </ul>
                   </div>
                 </th>
@@ -417,26 +417,14 @@
                       style="color: #929292; font-size: 10px"
                     ></i>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">SC2-211</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-212</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-307</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-308</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-311</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-313</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-313-1</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-314</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-407</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-408</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-411</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-413</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-414</a></li>
-                      <li><a class="dropdown-item" href="#">SC2-415</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('ทั้งหมด')">ทั้งหมด</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('307')">307</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('414')">414</a></li>
                     </ul>
                   </div>
                 </th>
                 <th style="color: #929292">จำนวนนิสิต(คน)</th>
                 <th style="color: #929292">เวลาจอง</th>
-                <th style="color: #929292">เอกสาร</th>
                 <th style="color: #929292">ยกเลิกการอนุมัติ</th>
               </tr>
             </thead>
@@ -490,7 +478,6 @@
                       
                       return {
                           ...room,
-                          email: student.email || Teacher.email,
                           full_name: student.full_name || Teacher.full_name,
                           role: student.role || Teacher.role,
                           participantCount: participantCountMap[room.room_request_id] || 0 // ✅ ดึงค่าจำนวนผู้เข้าร่วม
@@ -510,7 +497,6 @@
                             <tr>
                                  <td class="text-center">${new Date(row.submitted_time).toLocaleDateString('th')}</td>
                                 <td class="text-center">${row.full_name}</td>
-                                <td class="text-center">${row.email}</td>
                                 <td class="text-center">${row.role}</td>
                                 <td class="text-center">${row.room_id}</td>
                                 <td class="text-center">${row.participantCount}</td>
@@ -518,11 +504,6 @@
                                     ${getDayOfWeek(row.used_date) + ' ' + new Date(row.used_date).toLocaleDateString('th')}<br>
                                     ${row.start_time.slice(0, 5) + ' - ' + row.end_time.slice(0, 5)}<br>
                                     ${'(' + row.request_type + ')'}
-                                </td>
-                                <td class="text-center">
-                                  <a href="../../backend/storage/booking_document/booking_document.pdf" target="_blank" title="เปิดเอกสาร">
-                                    <i class="fas fa-file-pdf" style="font-size: 20px; color: #E40345;"></i>
-                                  </a>
                                 </td>
                                 <td><button class="btn btn-danger btn-sm" onclick="updateStatus(${row.room_request_id}, 'ไม่อนุมัติ')">ยกเลิก</button></td>
                             </tr>
@@ -563,7 +544,6 @@
                     const button = event.relatedTarget;
                     document.getElementById('modal-date').textContent = button.getAttribute('data-date');
                     document.getElementById('modal-name').textContent = button.getAttribute('data-name');
-                    document.getElementById('modal-email').textContent = button.getAttribute('data-email');
                     document.getElementById('modal-room').textContent = button.getAttribute('data-room');
                     document.getElementById('modal-time').textContent = button.getAttribute('data-time');
                     document.getElementById('modal-reason').textContent = button.getAttribute('data-reason');
@@ -583,6 +563,46 @@
         <!-- /table-responsive -->
       </div>
     </div>
+
+    <!-- !--fillter ตำแหน่ง -->
+    <script>
+      function filterTableRole(role) {
+        const rows = document.querySelectorAll("#reservation-table tr");
+      
+        rows.forEach(row => {
+          const roleCell = row.querySelector("td:nth-child(3)"); // คอลัมน์ตำแหน่ง
+      
+          if (!roleCell) return;
+      
+          const roleText = roleCell.textContent.trim();
+      
+          if (role === "ทั้งหมด" || roleText === role) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }
+
+      function filterTableRoom(room_id) {
+        const rows = document.querySelectorAll("#reservation-table tr");
+
+        rows.forEach(row => {
+          const room_idCell = row.querySelector("td:nth-child(4)");
+
+          if (!room_idCell) return;
+
+          const room_idText = room_idCell.textContent.trim();
+
+          if (room_id === "ทั้งหมด" || room_idText === room_id) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }
+
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
