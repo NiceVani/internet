@@ -17,35 +17,35 @@
 
 <body>
   <div id="sidebar-container"></div>
-  <div class="main-content">
+  <div class="main-content overflow-auto vh-100">
     <div class="container">
-      <div class="card blue">
+      <div class="card blue" onclick="window.location.href='detailroom.html'" >
         <div>
-          <h3>Most Booking Room</h3>
-          <p id="room-name">Loading...</p>
-          <p id="room-percentage"></p>
+          <h3  style="font-weight: normal; opacity: 0.9;" >Most Booking Room</h3>
+          <p id="room-name" style="font-weight:bolder; font-size: 20px;">Loading...</p>
+          <canvas id='pointLineCardChart1' ></canvas>
         </div>
       </div>
 
       <div class="card sky">
-        <div>
-          <h3>Most Brokend Equipment</h3>
-          <p id="equipment-name">Loading...</p>
-          <p id="equipment-percentage"></p>
+        <div  onclick="window.location.href='broken_equipment.html'">
+          <h3 style="font-weight: normal; opacity: 0.9;" >Most Brokend Equipment</h3>
+          <p id="equipment-name" style="font-weight: bold; font-size: large;">Loading...</p>
+          <canvas id='pointLineCardChart2' ></canvas>
         </div>
       </div>
-      <div class="card yellow">
-        <div>
-          <h3>Most Time Used</h3>
-          <p id="time">Loading...</p>
-          <p id="time-percentage"></p>
+      <div class="card yellow" onclick="window.location.href='graphdetail.html'">
+        <div >
+          <h3 style="font-weight: normal; opacity: 0.9;">Most Time Used</h3>
+          <p id="time"  style="font-weight:bolder; font-size: 16px;">Loading...</p>
+          <canvas id='pointLineCardChart3' ></canvas>
         </div>
       </div>
       <div class="card red">
-        <div>
-          <h3>Most Department</h3>
-          <p id="department-name">Loading...</p>
-          <p id="department-percentage"></p>
+        <div onclick="window.location.href='student.html'">
+          <h3 style="font-weight: normal; opacity: 0.9;">Most Department</h3>
+          <p id="department-name" >Loading...</p>
+          <canvas id='pointLineCardChart4' ></canvas>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
       <div class="chart-container" style="display: flex; justify-content: center; align-items: center;">
         <canvas id="barChart" style="height: 300px ; align-items: center;"></canvas>
       </div>
-      <button class="details-btn">Details</button>
+      <button class="details-btn" onclick="window.location.href='detailroom.html'">Details</button>
     </div>
 
     <div class="statistics-container">
@@ -78,7 +78,7 @@
           
         </div>
         <!-- <canvas id="bookingChart"></canvas> -->
-        <button class="details-btn">Details</button>
+        <button class="details-btn" onclick="window.location.href='graphdetail.html'">Details</button>
       </div>
 
       <div class="statistics-card">
@@ -95,10 +95,10 @@
         </h5>
         <!-- <img src="Insert graph.jpg" alt="ใส่รูปกราฟ" width="250" height="250"><br> -->
         <div class="chart-container" style=" width: 100%;height: 80%;display: flex; align-items: center;justify-content: center;">
-          <canvas id="doughnutChart2" style="width: 80%;"></canvas>
-          <canvas id="doughnutChart1" style="display: none; width: 80%;"></canvas>
+          <canvas id="doughnutChart2" style="width: 80%;" onclick="window.location.href='broken_equipment.html'"></canvas>
+          <canvas id="doughnutChart1" style="display: none; width: 80%;" onclick="window.location.href='borrow_equipment.html'"></canvas>
         </div>
-        <button class="details-btn">Details</button>
+        <button class="details-btn" onclick="window.location.href='eqiup.html'">Details</button>
       </div>
 
       <div class="statistics-card">
@@ -106,14 +106,14 @@
         <section style="margin-top: 40px;">
           <section id="userList">
           </section>
-          <button class="details-btn">Details</button>
+          <button class="details-btn" onclick="window.location.href='student.html'">Details</button>
       </div>
       <div class="statistics-card">
         <h6 style="text-align: center;">นิสิตที่แจ้งซ่อมอุปกรณ์บ่อยที่สุด</h6>
         <section style="margin-top: 40px;">
           <section id="ReportList">
           </section>
-          <button class="details-btn">Details</button>
+          <button class="details-btn" onclick="window.location.href='reporttable.html'">Details</button>
       </div>
     </div>
 
@@ -473,8 +473,7 @@ showChart("day");
     .then(data => {
       console.log("✅ ดึงข้อมูลสำเร็จ:", data);
       if (data.length > 0) {
-        document.getElementById('room-name').textContent = `📌 ${data[0].name}`;
-        document.getElementById('room-percentage').textContent = `📊 ${data[0].percentage}%`;
+        document.getElementById('room-name').textContent = `${data[0].name} (${data[0].percentage}%)`;
       } else {
         document.getElementById('room-name').textContent = "No data available";
       }
@@ -495,8 +494,7 @@ showChart("day");
     .then(data => {
       console.log("✅ ดึงข้อมูลสำเร็จ:", data);
       if (data.length > 0) {
-        document.getElementById('equipment-name').textContent = `📌 ${data[0].name}`;
-        document.getElementById('equipment-percentage').textContent = `📊 ${data[0].percentage}%`;
+        document.getElementById('equipment-name').textContent = `${data[0].name} (${data[0].percentage})%`;
       } else {
         document.getElementById('equipment-name').textContent = "No data available";
       }
@@ -516,15 +514,14 @@ showChart("day");
     .then(data => {
       console.log("✅ ดึงข้อมูลสำเร็จ:", data);
       if (data.length > 0) {
-        document.getElementById('time').textContent = `📌 ${data[0].time}`;
-        document.getElementById('time-percentage').textContent = `📊 ${data[0].percentage}%`;
+        document.getElementById('time').textContent = `${data[0].time}(${data[0].percentage})%`;
       } else {
-        document.getElementById('equipment-name').textContent = "No data available";
+        document.getElementById('time').textContent = "No data available";
       }
     })
     .catch(error => {
       console.error("❌ Error fetching data:", error);
-      document.getElementById('equipment-name').textContent = "Error loading data";
+      document.getElementById('time').textContent = "Error loading data";
     });
   //most department
   fetch('http://localhost:3000/box4')
@@ -537,8 +534,7 @@ showChart("day");
     .then(data => {
       console.log("✅ ดึงข้อมูลสำเร็จ:", data);
       if (data.length > 0) {
-        document.getElementById('department-name').textContent = `📌 ${data[0].name}`;
-        document.getElementById('department-percentage').textContent = `📊 ${data[0].percentage}%`;
+        document.getElementById('department-name').textContent = `${data[0].name}(${data[0].percentage}%)`;
       } else {
         document.getElementById('department-name').textContent = "No data available";
       }
@@ -547,6 +543,172 @@ showChart("day");
       console.error("❌ Error fetching data:", error);
       document.getElementById('department-name').textContent = "Error loading data";
     });
+    
+    //card chart1
+    fetch('http://localhost:3000/TableRoomBooked')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.room_name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.total);
+
+    var ctx = document.getElementById('pointLineCardChart1').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'rgba(255, 255, 255, 0.8)', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+
+    //card chart 2
+fetch('http://localhost:3000/TableBrokenEqipment')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.totalbrokend);
+
+    var ctx = document.getElementById('pointLineCardChart2').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'white', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+  //card chart 3
+  fetch('http://localhost:3000/daysroomday')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.time);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.total_requests);
+
+    var ctx = document.getElementById('pointLineCardChart3').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'black', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(0, 0, 0, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(0, 0, 0, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+//card chart4
+  fetch('http://localhost:3000/box42')
+  .then(response => response.json())
+  .then(data => {
+    // ดึงชื่ออุปกรณ์ที่เสียมาเป็น Labels
+    const labels = data.map(item => item.name);
+    // ดึงจำนวนอุปกรณ์ที่เสียมาเป็นค่าใน Chart
+    const values = data.map(item => item.d_count);
+
+    var ctx = document.getElementById('pointLineCardChart4').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: 'rgba(255, 255, 255, 0.8)', // สีของเส้น
+          borderWidth: 3,
+          pointRadius: 2, // ซ่อนจุดข้อมูล
+          pointBackgroundColor: 'rgba(255, 255, 255, 1)', // **สีจุด (แดง)**
+            pointBorderColor: 'rgba(255, 255, 255, 1)', // ขอบของจุด (ขาว)
+          fill: false,
+          tension: 0.4 // ทำให้เส้นโค้ง
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }, // ซ่อน Legend
+          tooltip: { enabled: false } // ซ่อน Tooltip
+        },
+        scales: {
+          x: { display: false }, // ซ่อนแกน X
+          y: { display: false } // ซ่อนแกน Y
+        }
+      }
+    });
+  })
+  .catch(error => console.error("❌ Error fetching data:", error));
+
+
 </script>
 
 </html>

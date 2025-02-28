@@ -3,12 +3,37 @@ const connection = require('./db'); // Import database connection
 const cors = require('cors');
 const path = require('path');
 const fs = require("fs");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const { Server } = require("socket.io");
+const http = require("http");
 
 const util = require('util');
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // Allow frontend to access API
+app.use(cors({
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500","http://localhost:8080"], // 👈 เปลี่ยนจาก '*' เป็น origin ของ frontend
+    credentials: true // ✅ อนุญาตให้ส่งคุกกี้ไปกับคำขอ
+}));
+
+app.set("trust proxy", 1); // ✅ ให้ Express เชื่อว่ามี Proxy (เช่น Chrome DevTools)
+const MemoryStore = require('memorystore')(session); // ใช้ MemoryStore หรือ Redis สำหรับการเก็บเซสชัน
+
+app.use(
+    session({
+        secret: "supersecretkey",
+        resave: false,
+        saveUninitialized: false,
+        store: new MemoryStore({ checkPeriod: 86400000 }),  // ใช้ MemoryStore เก็บเซสชัน
+        cookie: {
+            secure: false, // ถ้าใช้ HTTPS ให้เปลี่ยนเป็น true
+            httpOnly: true,
+            sameSite: "lax",
+            maxAge: 3600000, // 1 ชั่วโมง
+        },
+    })
+);
 
 const query = util.promisify(connection.query).bind(connection);
 
@@ -17,8 +42,88 @@ const allowedTables = [
     'equipment_management', 'executive', 'room',
     'room_request', 'room_request_computer', 'room_request_equipment',
     'room_request_participant', 'room_schedule', 'room_type',
-    'student', 'teacher', 'user', 'equipment_brokened'
+    'student', 'admin', 'user', 'equipment_brokened','teacher'
 ];
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const [users] = await connection
+            .promise()
+            .query("SELECT * FROM user WHERE username = ? AND password = ?", [
+                username,
+                password,
+            ]);
+
+        if (users.length === 0) {
+            return res
+                .status(401)
+                .json({ error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
+        }
+
+        const user = users[0];
+
+        const [adminResults] = await connection
+            .promise()
+            .query("SELECT * FROM admin WHERE admin_id = ?", [user.username]);
+
+        if (adminResults.length > 0) {
+            req.session.user = { role: "ผู้ดูแลห้อง", data: adminResults[0] };
+            req.session.save((err) => {
+                if (err) {
+                    console.error("❌ เกิดข้อผิดพลาดในการบันทึกเซสชัน:", err);
+                    return res.status(500).json({ error: "บันทึกเซสชันล้มเหลว" });
+                }
+                console.log("✅ เซสชันผู้ดูแลห้องถูกบันทึก:", req.session);
+                res.cookie("connect.sid", req.sessionID, {
+                    httpOnly: true,
+                    sameSite: "lax",
+                });
+                return res.json({ success: true, role: "ผู้ดูแลห้อง" });
+            });
+            return;
+        }
+
+        res.status(404).json({ error: "ไม่พบข้อมูลผู้ใช้" });
+    } catch (err) {
+        console.error("❌ เกิดข้อผิดพลาด:", err);
+        res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
+    }
+});
+
+// API สำหรับตรวจสอบเซสชัน
+app.get("/session", (req, res) => {
+    console.log("📌 ตรวจสอบเซสชันจาก API:", req.session);  // Log ค่า session
+
+    if (req.session.user) {
+        const { role, data } = req.session.user;
+        let userId = data.admin_id || null;
+
+        if (!userId) {
+            return res.status(401).json({ error: "ไม่พบข้อมูลผู้ใช้" });
+        }
+
+        res.json({
+            role: role,
+            data: {
+                user_id: userId,
+                admin_id: data.admin_id || null,
+                admin_id: data.admin_id || null,
+                full_name: data.full_name,
+                faculty: data.faculty,
+                department: data.department,
+            },
+        });
+    } else {
+        return res.status(401).json({ error: "ไม่ได้ล็อกอิน" });
+    }
+});
+
+app.post("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.json({ success: true });
+    });
+});
 
 app.get('/data/:table', async (req, res) => {
     const { table } = req.params;
@@ -170,7 +275,7 @@ app.post('/updateEquipmentStatus', async (req, res) => {
     }
 });
 
-app.get("/image/:filename", async(req, res) => {
+app.get("/image/:filename", async (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(__dirname, "../storage/equipment_img", filename);
 
