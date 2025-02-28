@@ -1,3 +1,4 @@
+fpdf
 easyroom-backup-db.sql
 node_modules/
 src/backend/admin_backend/node_modules
@@ -5,6 +6,8 @@ src/backend/executive_backend/node_modules
 src/backend/booker_backend/node_modules
 src/shared/booking_documents/node_modules
 easyroom.sql
+
+**./node_modules
 .env
 src\backend\booker_backend\.env
 **/.env

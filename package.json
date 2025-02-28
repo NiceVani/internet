@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "mysql2": "^3.12.0",
+    "path": "^0.12.7",
+    "pdfkit": "^0.16.0"
+  }
+}
