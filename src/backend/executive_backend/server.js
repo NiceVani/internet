@@ -3,6 +3,9 @@ const connection = require('./db'); // นำเข้าการเชื่�
 const mysql = require('mysql2');
 const fs = require("fs");
 const cors = require('cors');  // เพิ่ม cors
+const { error } = require('console');
+const util = require('util');
+const path = require('path');
 
 
 const app = express();
@@ -271,17 +274,17 @@ app.get('/equipment', (req, res) => {
     });
 });
 
-app.get("/image/:filename", async (req, res) => {
+app.get("/image/:filename", (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(__dirname, "../storage/equipment_img", filename);
-
+  
     if (fs.existsSync(filePath)) {
-        res.setHeader("Content-Type", "image/jpeg");
-        res.sendFile(filePath);
+      res.setHeader("Content-Type", "image/jpeg");
+      res.sendFile(filePath);
     } else {
-        res.status(404).json({ error: "File not found" });
+      res.status(404).json({ error: "File not found" });
     }
-});
+  });
 
 app.get('/room_request_participant', (req, res) => {
     connection.query('SELECT * FROM room_request_participant', (err, results) => {
@@ -687,23 +690,23 @@ ORDER BY percentage DESC;
 });
 app.get('/detailsPop', (req, res) => {
     const query = `SELECT
-rrp.room_request_id as requestID,
-r.room_name as roombooking,
-COALESCE(s.full_name,t.full_name) as name,
-COALESCE(s.student_id,t.teacher_id) as id,
-COALESCE(s.email,t.email) as email,
-COALESCE(s.phone_number,t.phone_number) as phone_number,
-COALESCE(s.department,t.department) as department,
-rrp.role as role
-FROM room_request_participant as rrp
-LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
-LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
-LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
-LEFT JOIN room as r on r.room_id = rr.room_id
-WHERE rrp.role
-ORDER BY requestID
-;
-`
+                        rrp.room_request_id as requestID,
+                        r.room_name as roombooking,
+                        COALESCE(s.full_name,t.full_name) as name,
+                        COALESCE(s.student_id,t.teacher_id) as id,
+                        COALESCE(s.email,t.email) as email,
+                        COALESCE(s.phone_number,t.phone_number) as phone_number,
+                        COALESCE(s.department,t.department) as department,
+                        rrp.role as role
+                    FROM room_request_participant as rrp
+                    LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
+                    LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
+                    LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
+                    LEFT JOIN room as r on r.room_id = rr.room_id
+                    WHERE rrp.role
+                    ORDER BY requestID
+                    ;
+                    `
     connection.query(query, (err, results) => {
         if (err) {
             console.error('❌ เกิดข้อผิดพลาด:', err);
@@ -714,6 +717,20 @@ ORDER BY requestID
         res.json(results);
     });
 });
+
+app.get('/equipment_brokened', (req, res) => {
+    connection.query('SELECT * FROM equipment_brokened', (err, results) => {
+        if (err) {
+            console.error('❌ Error:', err);
+            res.status(500).send(err);
+            return;
+        }
+        console.log('✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:', results);
+        res.json(results);
+    });
+});
+
+
 // 📌 เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
