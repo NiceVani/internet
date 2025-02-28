@@ -12,118 +12,113 @@
         background-color: #f8f9fa;
         min-height: 100vh;
       }
-
       .header {
-        background-color: #e54715;
+        background-color: #ff5722;
         color: white;
-        padding: 40px;
-        text-align: left;
-        font-size: 20px;
-        font-weight: bold;
+        padding: 10px 20px;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
       }
-
-      .header h1,
-      .header h2 {
-        margin: 10px;
-        font-size: 30px;
+      .header h1 {
+        font-size: 1.5em;
+        margin: 0;
       }
-
       .container {
         display: flex;
         padding: 20px;
         gap: 20px;
       }
-
       .desks-section {
         flex: 3;
       }
-
       .legend {
         display: flex;
         align-items: center;
         gap: 15px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
       }
-
       .legend .box {
         width: 20px;
         height: 20px;
       }
-
       .legend .red {
         background-color: red;
       }
-
       .legend .green {
         background-color: green;
+      } /* ไม่ต้องใช้เพราะใช้ class ของ .usable computer พื้นหลัง
+      /* Global select all container */
+      #selectAllContainer {
+        margin-bottom: 10px;
       }
-
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 1fr 1fr 1fr;
-        /* กำหนดขนาดคอลัมน์ */
-        grid-template-rows: repeat(8, auto);
-        /* 8 แถว */
+      /* Grid สำหรับเก้าอี้ */
+      .desk-grid {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        flex-wrap: wrap;
       }
 
-      .column-group {
-        display: grid;
-        gap: 8px;
-        padding: 8px;
-        border-radius: 8px;
+      .desk-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
 
-      .group-1 {
-        grid-template-columns: repeat(3, 1fr);
+      .desk-row .row-select {
+        margin-right: 10px;
       }
-
-      .group-2 {
-        grid-template-columns: repeat(4, 1fr);
-      }
-
-      .group-3 {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      /* สไตล์ของโต๊ะ */
+      /* สไตล์ของแต่ละคอมพิวเตอร์ (แสดงไอคอน) */
       .desk {
         width: 70px;
         height: 70px;
         border-radius: 4px;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         cursor: pointer;
-        color: white;
-        background-color: green;
-        font-size: 13px;
+        color: black;
+        /*background-color: green;*/ /*พื้นหลังของคอมพิวเตอร์*/
+        font-size: 16px;
         text-align: center;
         border: 2px solid transparent;
         transition: 0.2s;
       }
 
-      .usable {
-        background-color: green !important;
+      .desk .computer-icon {
+        font-size: 28px;
       }
+
+      .desk .computer-id {
+        font-size: 14px;
+      }
+
+      /*.usable {
+        background-color: green !important;
+      }*/ /*พื้นหลังของคอมพิวเตอร์*/
 
       .damaged {
         background-color: red;
         cursor: not-allowed;
       }
 
+      .desk.selected {
+        /*background-color: #fde361 !important;*/
+        background-color: green !important;
+        color: #000;
+      }
+      /* สไตล์ของส่วนยืมอุปกรณ์ */
       .borrow-section {
         flex: 1;
         background-color: #dcd0bc;
         padding: 20px;
         border-radius: 8px;
         border: 1px solid #ccc;
-        max-height: 300px;
-        overflow-y: auto;
+        max-height: 400px;
+        display: flex;
+        flex-direction: column;
       }
 
       .borrow-section h3 {
@@ -138,11 +133,23 @@
         margin-bottom: 10px;
       }
 
-      .borrow-section input[type="number"] {
-        width: 60px;
+      .borrow-item label {
+        font-size: 16px;
+        flex: 1;
+      }
+
+      .borrow-item input[type="number"] {
+        width: 50px;
         padding: 5px;
         font-size: 16px;
         text-align: center;
+      }
+
+      .borrow-item button {
+        font-size: 16px;
+        padding: 5px 10px;
+        margin: 0 5px;
+        cursor: pointer;
       }
 
       .confirm-button {
@@ -153,50 +160,75 @@
         font-size: 16px;
         border-radius: 4px;
         cursor: pointer;
+        align-self: flex-end;
+        margin-top: auto;
       }
 
       .confirm-button:hover {
         background-color: #bf3c12;
       }
 
-      .desk.selected {
-        background-color: #fde361 !important;
-        /* สีพื้นหลังเป็นสีส้ม */
+      .logout-btn {
+        background-color: #ff6347;
+        border: none;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-left: auto; /* ✅ ทำให้ปุ่มอยู่ขวาสุด */
+      }
+
+      /* ขยายขนาดของ checkbox */
+      input[type="checkbox"] {
+        width: 20px; /* กำหนดความกว้าง */
+        height: 20px; /* กำหนดความสูง */
+        transform: scale(1.5); /* ปรับขนาดให้ใหญ่ขึ้น */
+      }
+
+      .desk-segment {
+        display: flex;
+        gap: 10px;
       }
     </style>
   </head>
-
   <body>
     <div class="header">
-      <h2>ห้อง SC2-307</h2>
+      <a href="#" id="back-btn" style="text-decoration: none; color: white"
+        >&#8592;</a
+      >
+      <h2 id="room-name">ห้อง SC2: ...</h2>
       <h1>ห้องปฏิบัติการคอมพิวเตอร์</h1>
-      <button id="logout-btn" class="logout-btn">ออกจากระบบ</button>
+      <button id="logout-btn" class="logout-btn" onclick="logout()">
+        ออกจากระบบ
+      </button>
     </div>
 
     <div class="container">
       <div class="desks-section">
         <div class="legend">
           <div class="box red"></div>
-          อุปกรณ์ชำรุดเสียหาย
-          <div class="box green"></div>
-          ใช้งานได้
+          คอมพิวเตอร์ใช้ไม่ได้
+          <!-- <div class="box green"></div>
+          ใช้งานได้ -->
+          <input type="checkbox" id="selectAllCheckbox" name="select-com-all" />
+          <label for="selectAllCheckbox" name="select-com-all"
+            >เลือกทั้งหมด</label
+          >
         </div>
-        <div class="grid" id="deskGrid">
-          <div class="column-group group-1" id="group-1"></div>
-          <div class="column-group group-2" id="group-2"></div>
-          <div class="column-group group-3" id="group-3"></div>
+
+        <div class="desk-grid" id="deskGrid">
+          <!-- รายการคอมพิวเตอร์จะแสดงในรูปแบบแถว (แต่ละแถวมี checkbox เลือกทั้งแถว) -->
         </div>
       </div>
       <div class="borrow-section">
         <h3>ยืมอุปกรณ์</h3>
-        <!-- รายการอุปกรณ์จะถูกโหลดโดย loadEquipments() -->
         <div id="equipmentContainer"></div>
-        <!-- หากมีรายการอุปกรณ์เพิ่มเติมจาก input แบบคงที่ (สามารถคงไว้หรือเอาออกได้) -->
-        <button class="confirm-button" onclick="submitBorrow()">ยืนยัน</button>
+        <button class="confirm-button" onclick="submitSelection()">
+          ยืนยัน
+        </button>
       </div>
     </div>
-
     <script src="desk_equipment.js"></script>
   </body>
-  -
 </html>

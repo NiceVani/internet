@@ -5,38 +5,134 @@ let selectedDesks = new Set();
 
 /********************************
  * 2) ฟังก์ชัน loadDesks()
- *    - ดึงข้อมูลจาก endpoint "Manage_computers"
- *    - สร้าง element สำหรับเก้าอี้ใน grid
+ *    - ดึงข้อมูลจาก endpoint "computer_management"
+ *    - สร้าง element สำหรับเก้าอี้ใน grid พร้อมจัดกลุ่มเป็นแถวและเพิ่ม checkbox เลือกทั้งแถว
  ********************************/
+
 async function loadDesks() {
   try {
     const response = await fetch("http://localhost:3000/computer_management");
-
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-
     const desks = await response.json();
+
+    // ดึงค่า room จาก URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const room = urlParams.get("room");
+    console.log("Room:", room);
+
+    // กรองข้อมูลเฉพาะคอมพิวเตอร์ที่อยู่ในห้องที่เลือก
+    const filteredDesks = desks.filter((desk) => desk.room_id === room);
+
+    // กำหนดแพทเทิร์นสำหรับแถว: 4-3-4 (รวม 11 เครื่องต่อแถว)
+    const pattern = [3, 4, 3];
+
     const deskGrid = document.getElementById("deskGrid");
-    deskGrid.innerHTML = ""; // ล้างข้อมูลเก่าออกก่อน
+    deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
 
-    desks.forEach((desk) => {
-      const deskDiv = document.createElement("div");
-      deskDiv.classList.add("desk");
+    let index = 0;
+    while (index < filteredDesks.length) {
+      // สร้าง container สำหรับแต่ละแถว
+      const rowDiv = document.createElement("div");
+      rowDiv.classList.add("desk-row");
 
-      // เช็คสถานะของคอมพิวเตอร์
-      if (desk.computer_status === "ใช้งานได้") {
-        deskDiv.classList.add("usable");
-      } else {
-        deskDiv.classList.add("damaged"); // ถ้าไม่ใช้งานได้ ให้ใช้คลาส 'damaged'
-      }
+      // สร้าง checkbox สำหรับเลือกทั้งแถว
+      const rowCheckbox = document.createElement("input");
+      rowCheckbox.type = "checkbox";
+      rowCheckbox.classList.add("row-select");
+      // เก็บ desk element ทั้งหมดในแถวไว้ใน array เพื่อใช้กับ row checkbox
+      let rowDeskElements = [];
 
-      deskDiv.textContent = `Com ${desk.computer_id}`;
-      deskDiv.dataset.id = desk.computer_id; // เก็บ ID ไว้ใน data attribute
+      rowCheckbox.addEventListener("change", function () {
+        rowDeskElements.forEach((deskElem) => {
+          if (deskElem && !deskElem.classList.contains("damaged")) {
+            if (
+              rowCheckbox.checked &&
+              !deskElem.classList.contains("selected")
+            ) {
+              deskElem.classList.add("selected");
+              selectedDesks.add(deskElem.dataset.id);
+            } else if (
+              !rowCheckbox.checked &&
+              deskElem.classList.contains("selected")
+            ) {
+              deskElem.classList.remove("selected");
+              selectedDesks.delete(deskElem.dataset.id);
+            }
+          }
+        });
+      });
+      rowDiv.appendChild(rowCheckbox);
 
-      // เมื่อคลิกเลือกเก้าอี้ ให้เรียก toggleDesk()
-      deskDiv.onclick = () => toggleDesk(deskDiv);
-      deskGrid.appendChild(deskDiv);
+      // สำหรับแต่ละส่วนในแพทเทิร์น (4-3-4)
+      pattern.forEach((segCount, segIndex) => {
+        // สร้าง container สำหรับ segment นี้ เพื่อเป็นช่องว่าง (gap) ระหว่างส่วน
+        const segContainer = document.createElement("div");
+        segContainer.classList.add("desk-segment");
+        // กำหนด margin-right เป็น gap (ยกเว้นส่วนสุดท้าย)
+        if (segIndex < pattern.length - 1) {
+          segContainer.style.marginRight = "50px";
+        }
+
+        // ดึงคอมพิวเตอร์สำหรับ segment นี้ (ถ้าจำนวนที่เหลือไม่พอจะครบ segCount ก็จะใช้ที่มีอยู่)
+        const segmentDesks = filteredDesks.slice(index, index + segCount);
+        index += segCount;
+
+        segmentDesks.forEach((desk) => {
+          const deskDiv = document.createElement("div");
+          deskDiv.classList.add("desk");
+          // เก็บ room_id และ id ไว้ใน data attribute
+          deskDiv.dataset.room = desk.room_id;
+          deskDiv.dataset.id = desk.computer_id;
+          // ตั้งค่า innerHTML ให้แสดงไอคอนและหมายเลขคอมพิวเตอร์
+          deskDiv.innerHTML = `<span class="computer-icon">🖥️</span><span class="computer-id">${desk.computer_id}</span>`;
+
+          if (desk.computer_status === "ใช้งานได้") {
+            deskDiv.classList.add("usable");
+          } else {
+            deskDiv.classList.add("damaged");
+          }
+
+          // เมื่อคลิกเลือกคอมพิวเตอร์ ให้เรียก toggleDesk()
+          deskDiv.onclick = () => toggleDesk(deskDiv);
+
+          segContainer.appendChild(deskDiv);
+          rowDeskElements.push(deskDiv);
+        });
+
+        rowDiv.appendChild(segContainer);
+      });
+
+      deskGrid.appendChild(rowDiv);
+    }
+
+    // ตั้งค่า event listener สำหรับ select all checkbox (เหมือนเดิม)
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    selectAllCheckbox.addEventListener("change", function () {
+      const allDesks = document.querySelectorAll(".desk");
+      allDesks.forEach((deskElem) => {
+        if (!deskElem.classList.contains("damaged")) {
+          if (
+            selectAllCheckbox.checked &&
+            !deskElem.classList.contains("selected")
+          ) {
+            deskElem.classList.add("selected");
+            selectedDesks.add(deskElem.dataset.id);
+          } else if (
+            !selectAllCheckbox.checked &&
+            deskElem.classList.contains("selected")
+          ) {
+            deskElem.classList.remove("selected");
+            selectedDesks.delete(deskElem.dataset.id);
+          }
+        }
+      });
+      // ปรับสถานะของ row checkboxesให้สอดคล้อง
+      const rowCheckboxes = document.querySelectorAll(".row-select");
+      rowCheckboxes.forEach((checkbox) => {
+        checkbox.checked = selectAllCheckbox.checked;
+      });
     });
   } catch (error) {
     console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
@@ -46,17 +142,17 @@ async function loadDesks() {
 /********************************
  * 3) ฟังก์ชัน toggleDesk(desk)
  *    - เมื่อคลิกเก้าอี้ หากไม่ใช่ 'damaged'
- *      ให้ toggle คลาส "checked" และอัปเดต selectedDesks
+ *      ให้ toggle คลาส "selected" และอัปเดต selectedDesks
  ********************************/
 function toggleDesk(desk) {
   if (!desk.classList.contains("damaged")) {
-    desk.classList.toggle("selected"); // ใช้คลาส .selected แทนการเปลี่ยนสีโดยตรง
+    desk.classList.toggle("selected");
     const deskId = desk.dataset.id;
 
     if (desk.classList.contains("selected")) {
-      selectedDesks.add(deskId); // เพิ่มโต๊ะที่ถูกเลือก
+      selectedDesks.add(deskId);
     } else {
-      selectedDesks.delete(deskId); // ลบโต๊ะที่ยกเลิกการเลือก
+      selectedDesks.delete(deskId);
     }
   }
 }
@@ -65,11 +161,12 @@ function toggleDesk(desk) {
  * 4) ฟังก์ชัน loadEquipments()
  *    - ดึงข้อมูลอุปกรณ์จาก endpoint /getEquipments?room=307
  *    - สร้าง element สำหรับแสดงรายการอุปกรณ์ใน container ที่มี id "equipmentContainer"
+ *    - เพิ่มปุ่มเพิ่ม/ลด จำนวนให้ใช้งานง่ายขึ้น
  ********************************/
 async function loadEquipments() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    const room = urlParams.get("room"); // ได้ค่าเป็น "08:00:00"
+    const room = urlParams.get("room");
     const response = await fetch(
       `http://localhost:3000/getEquipments?room=${room}`
     );
@@ -81,29 +178,43 @@ async function loadEquipments() {
     equipmentContainer.innerHTML = ""; // ล้างข้อมูลเก่า
 
     equipments.forEach((equipment) => {
-      const equipmentDiv = document.createElement("div");
-      equipmentDiv.classList.add("equipment-item");
+      const itemContainer = document.createElement("div");
+      itemContainer.classList.add("borrow-item");
 
-      // แสดงชื่ออุปกรณ์และจำนวน (เช่น "เก้าอี้ (10)")
-      equipmentDiv.textContent = `${equipment.equipment_name} (${equipment.stock_quantity})`;
-      equipmentDiv.dataset.id = equipment.equipment_id;
+      const label = document.createElement("label");
+      label.textContent = `${equipment.equipment_name} (คงเหลือ ${equipment.stock_quantity}):`;
+      itemContainer.appendChild(label);
 
-      // สร้าง input สำหรับให้ผู้ใช้กรอกจำนวนที่จะยืม
+      // สร้างปุ่มลด
+      const minusBtn = document.createElement("button");
+      minusBtn.textContent = "-";
+      minusBtn.addEventListener("click", () => {
+        let currentVal = parseInt(input.value);
+        if (currentVal > 0) {
+          input.value = currentVal - 1;
+        }
+      });
+      itemContainer.appendChild(minusBtn);
+
+      // สร้าง input สำหรับจำนวนที่จะยืม
       const input = document.createElement("input");
       input.type = "number";
       input.min = "0";
       input.value = "0";
-      // กำหนด max ตามจำนวนที่มีในฐานข้อมูล
       input.max = equipment.stock_quantity;
       input.dataset.id = equipment.equipment_id;
-
-      // สร้าง container สำหรับแสดงทั้ง label และ input
-      const itemContainer = document.createElement("div");
-      itemContainer.classList.add("borrow-item");
-      const label = document.createElement("label");
-      label.textContent = `${equipment.equipment_name}:`;
-      itemContainer.appendChild(label);
       itemContainer.appendChild(input);
+
+      // สร้างปุ่มเพิ่ม
+      const plusBtn = document.createElement("button");
+      plusBtn.textContent = "+";
+      plusBtn.addEventListener("click", () => {
+        let currentVal = parseInt(input.value);
+        if (currentVal < equipment.stock_quantity) {
+          input.value = currentVal + 1;
+        }
+      });
+      itemContainer.appendChild(plusBtn);
 
       equipmentContainer.appendChild(itemContainer);
     });
@@ -116,86 +227,90 @@ async function loadEquipments() {
  * 5) ฟังก์ชัน submitSelection()
  *    - ส่งข้อมูลการเลือกเก้าอี้และอุปกรณ์ไปแสดงใน console
  ********************************/
-function submitSelection() {
+async function submitSelection() {
   const selectedDeskArray = Array.from(selectedDesks);
-
-  // ดึงข้อมูลจาก input ในแต่ละ .borrow-item
   const equipmentInputs = document.querySelectorAll(".borrow-item input");
   const selectedEquipments = [];
+
   equipmentInputs.forEach((input) => {
-    const value = parseInt(input.value);
-    if (value > 0) {
-      selectedEquipments.push({
-        id: input.dataset.id,
-        amount: value,
-      });
-    }
+      const value = parseInt(input.value);
+      if (value > 0) {
+          selectedEquipments.push({
+              id: input.dataset.id,
+              amount: value,
+          });
+      }
   });
 
-  console.log("โต๊ะที่เลือก:", selectedDeskArray);
-  console.log("อุปกรณ์ที่เลือก:", selectedEquipments);
+  console.log("📌 โต๊ะที่เลือก:", selectedDeskArray);
+  console.log("📌 อุปกรณ์ที่เลือก:", selectedEquipments);
 
-  // ✅ ดึงค่า startTime จาก URL
   const urlParams = new URLSearchParams(window.location.search);
-  const startTime = urlParams.get("startTime"); // ได้ค่าเป็น "08:00:00"
+  const startTime = urlParams.get("startTime");
 
   if (!startTime) {
-    alert("⚠️ ไม่พบค่า startTime ใน URL!");
-    return;
+      alert("⚠️ ไม่พบค่า startTime ใน URL!");
+      return;
   }
 
-  // ✅ แปลง startTime เป็นตัวเลขชั่วโมง
-  const hour = parseInt(startTime.split(":")[0], 10); // แปลง "08:00:00" → 8
+  // ✅ แปลงเวลาเป็นชั่วโมง
+  const hour = parseInt(startTime.split(":")[0], 10);
+
+  // ✅ ดึง Role จาก fetchUserInfo()
+  const userRole = await fetchUserInfo();
+  console.log("🔍 ตรวจสอบ userRole:", userRole);
+
+  if (!userRole) {
+      alert("⛔ ไม่สามารถดึงข้อมูลบทบาทของผู้ใช้ได้ กรุณาลองใหม่");
+      return;
+  }
 
   let targetPage = "";
 
-  // 🕗 เช็คช่วงเวลา
-  if (hour >= 8 && hour < 16) {
-    targetPage = "TimeIn.html"; // **ในเวลา**
-  } else if (hour >= 17 && hour <= 20) {
-    targetPage = "TimeOut3.html"; // **นอกเวลา**
+  if (userRole === "นิสิต") {
+      if (hour >= 8 && hour < 16) {
+          targetPage = "TimeIn.html"; // **ในเวลา (นิสิต)**
+      } else if (hour >= 17 && hour <= 20) {
+          targetPage = "TimeOut.html"; // **นอกเวลา (นิสิต)**
+      } else {
+          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
+          return;
+      }
+  } else if (userRole === "อาจารย์") {
+      if (hour >= 8 && hour < 16) {
+          targetPage = "TimeInTeacher.html"; // **ในเวลา (อาจารย์)**
+      } else if (hour >= 17 && hour <= 20) {
+          targetPage = "TimeOutTeacher.html"; // **นอกเวลา (อาจารย์)**
+      } else {
+          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
+          return;
+      }
   } else {
-    alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
-    return;
+      alert("⛔ ไม่สามารถระบุบทบาทของคุณได้");
+      return;
   }
 
   const date = urlParams.get("date");
   const room = urlParams.get("room");
   const endTime = urlParams.get("endTime");
 
-  // แสดงค่าบนหน้าเว็บ
+  // ✅ สร้าง URL ใหม่
   const newUrlParams = new URLSearchParams({
-    room: room,
-    date: date,
-    startTime: startTime,
-    endTime: endTime,
-    desks: selectedDeskArray.join(","),
-    equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
+      room: room,
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      desks: selectedDeskArray.join(","),
+      equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
   });
 
-  console.log(
-    "🔗 กำลังเปลี่ยนไปที่:",
-    targetPage + "?" + newUrlParams.toString()
-  );
+  console.log("🔗 กำลังเปลี่ยนไปที่:", targetPage + "?" + newUrlParams.toString());
   window.location.href = `${targetPage}?${newUrlParams.toString()}`;
-
-  //   alert(
-  //     "โต๊ะที่เลือก: " +
-  //       selectedDeskArray.join(", ") +
-  //       "\n" +
-  //       "อุปกรณ์ที่เลือก: " +
-  //       selectedEquipments.map((e) => `ID: ${e.id} (x${e.amount})`).join(", ")
-  //   );
-
-  // หากต้องการส่งข้อมูลผ่าน URL (ตัวอย่าง)
-  //   const urlParams = new URLSearchParams({
-  //     room: "307",
-  //     desks: selectedDeskArray.join(","),
-  //     equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
-  //   });
-  //   console.log("Query Parameters to Send:", urlParams.toString());
-  //   window.location.href = `nextPage.html?${urlParams.toString()}`;
 }
+
+
+
+
 
 /********************************
  * 6) เรียกใช้โค้ดเมื่อหน้าโหลดเสร็จ
@@ -218,38 +333,40 @@ document.addEventListener("DOMContentLoaded", async function () {
 // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
 async function fetchUserInfo() {
   try {
-    console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
-    const response = await fetch("http://localhost:3000/session", {
-      method: "GET",
-      credentials: "include",
-    });
+      console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
+      const response = await fetch("http://localhost:3000/session", {
+          method: "GET",
+          credentials: "include",
+      });
 
-    console.log("📡 API ตอบกลับ:", response.status);
-    if (!response.ok) {
-      throw new Error("Session expired");
-    }
+      if (!response.ok) throw new Error("Session expired");
 
-    const userSession = await response.json();
-    console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
+      const userSession = await response.json();
+      console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
 
-    // ตรวจสอบว่า userSession มีข้อมูลที่ถูกต้อง
-    if (!userSession || !userSession.data) {
-      alert("กรุณาเข้าสู่ระบบใหม่");
-      window.location.href = "login.html";
-      return;
-    }
+      if (!userSession || !userSession.role) {  // ✅ เช็ค role โดยตรง
+          alert("กรุณาเข้าสู่ระบบใหม่");
+          window.location.href = "login.html";
+          return null;
+      }
 
-    // ✅ ถ้าไม่มี `id="user-name"` ให้ข้ามไปเลย (ไม่แสดง warning)
-    const userNameElement = document.getElementById("user-name");
-    if (userNameElement) {
-      userNameElement.textContent = userSession.data.Name;
-    }
+      // ✅ ใช้ path `role` ตรงจาก API
+      const role = userSession.role.trim();
+      console.log("👤 บทบาทผู้ใช้หลังจากตรวจสอบ:", role);
+
+      return role;
   } catch (error) {
-    console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
-    alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
-    window.location.href = "login.html";
+      console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
+      alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+      window.location.href = "login.html";
+      return null;
   }
 }
+
+
+
+
+
 
 // ✅ ฟังก์ชันออกจากระบบ
 async function logout() {
