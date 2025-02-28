@@ -422,32 +422,10 @@ app.get('/TableBorrowEquipment', (req, res) => {
 
 
 app.get('/TableRoomListRequest', (req, res) => {
-    const { role, room, dateFilter } = req.query;
-
-    let whereClause = [];
-
-    // 📌 เงื่อนไขกรอง role (อาจารย์ / นิสิต)
-    if (role && role !== "all") {
-        whereClause.push(`COALESCE(s.role, t.role) = '${role}'`);
-    }
-
-    // 📌 เงื่อนไขกรองห้อง (เช่น SC2-211)
-    if (room && room !== "allroom") {
-        whereClause.push(`r.room_name = '${room}'`);
-    }
-
-    // 📌 เงื่อนไขกรองวันที่ (วัน/เดือน/ปี)
-    let dateFormat = "DATE_FORMAT(rr.used_date, '%d/%m/%Y')"; // Default: วัน/เดือน/ปี
-    if (dateFilter === "months") {
-        dateFormat = "DATE_FORMAT(rr.used_date, '%m/%Y')"; // เดือน/ปี
-    } else if (dateFilter === "years") {
-        dateFormat = "DATE_FORMAT(rr.used_date, '%Y')"; // ปี
-    }
-
     // 🛠 สร้างคำสั่ง SQL ตามเงื่อนไขที่เลือก
     const sql = `
         SELECT 
-            ${dateFormat} as date,
+            DATE_FORMAT(rr.used_date, '%Y/%m/%d') as date,
             CONCAT_WS('-', rr.start_time, rr.end_time) as time,
             r.room_name as room,
             COALESCE(s.full_name, t.full_name) as name,
@@ -457,8 +435,7 @@ app.get('/TableRoomListRequest', (req, res) => {
         LEFT JOIN room as r ON r.room_id = rr.room_id
         LEFT JOIN student AS s ON s.student_id = rr.student_id
         LEFT JOIN teacher AS t ON t.teacher_id = rr.teacher_id
-        ${whereClause.length > 0 ? "WHERE " + whereClause.join(" AND ") : ""}
-        ORDER BY rr.used_date DESC;
+        ORDER BY rr.used_date DESC, rr.end_time DESC;
     `;
 
     // 📌 Query ข้อมูลจาก Database
@@ -689,23 +666,26 @@ ORDER BY percentage DESC;
     });
 });
 app.get('/detailsPop', (req, res) => {
-    const query = `SELECT
-                        rrp.room_request_id as requestID,
-                        r.room_name as roombooking,
-                        COALESCE(s.full_name,t.full_name) as name,
-                        COALESCE(s.student_id,t.teacher_id) as id,
-                        COALESCE(s.email,t.email) as email,
-                        COALESCE(s.phone_number,t.phone_number) as phone_number,
-                        COALESCE(s.department,t.department) as department,
-                        rrp.role as role
-                    FROM room_request_participant as rrp
-                    LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
-                    LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
-                    LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
-                    LEFT JOIN room as r on r.room_id = rr.room_id
-                    WHERE rrp.role
-                    ORDER BY requestID
-                    ;
+    const query = `
+SELECT
+    rrp.room_request_id as requestID,
+    r.room_name as roombooking,
+    concat(rr.start_time,'-',rr.end_time) as timebooking,
+    COALESCE(s.full_name,t.full_name) as name,
+    COALESCE(s.student_id,t.teacher_id) as id,
+    COALESCE(s.email,t.email) as email,
+    COALESCE(s.phone_number,t.phone_number) as phone_number,
+    COALESCE(s.department,t.department) as department,
+    rr.request_reason as bookingreason,
+    rrp.role as role
+FROM room_request_participant as rrp
+LEFT JOIN room_request as rr on rr.room_request_id = rrp.room_request_id
+LEFT JOIN teacher as t on t.teacher_id = COALESCE(rrp.teacher_id,rr.teacher_id)
+LEFT JOIN student as s on s.student_id = COALESCE(rrp.student_id,rr.student_id)
+LEFT JOIN room as r on r.room_id = rr.room_id
+WHERE rrp.role
+ORDER BY requestID
+;
                     `
     connection.query(query, (err, results) => {
         if (err) {
