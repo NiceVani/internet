@@ -279,7 +279,6 @@
           <thead>
             <tr>
               <th>ชื่ออุปกรณ์</th>
-              <th>ห้องที่จอง</th>
               <th>จำนวน</th>
             </tr>
           </thead>
@@ -287,6 +286,19 @@
             <!-- รายการอุปกรณ์จะแสดงที่นี่ -->
           </tbody>
         </table>
+      </table>
+      <h5>รายละเอียดการยืม (คอมพิวเตอร์ที่เลือก)</h5>
+      <table class="table table-bordered">
+      <thead>
+          <tr>
+          <th>แถว</th>
+          <th>คอมพิวเตอร์ที่จอง</th>
+          </tr>
+      </thead>
+      <tbody id="computer-table-body">
+          <!-- รายการคอมพิวเตอร์จะแสดงที่นี่ -->
+      </tbody>
+      </table>
         <!-- Usage Information -->
         <div class="textarea-container">
           <label class="form-label">ความประสงค์การใช้ห้อง</label>
@@ -295,7 +307,9 @@
               <option value="ขอใช้ห้องเพื่อติวหนังสือ">
                 ขอใช้ห้องเพื่อติวหนังสือ
               </option>
-              <option value="ขขอใช้ห้องเพื่อทำงาน">ขอใช้ห้องเพื่อทำงาน</option>
+              <option value="ขขอใช้ห้องเพื่อทำงาน">
+                ขอใช้ห้องเพื่อทำงาน
+              </option>
               <option value="ขอใช้ห้องเพื่อทำวิจัย">
                 ขอใช้ห้องเพื่อทำวิจัย
               </option>
@@ -316,17 +330,10 @@
               </option>
             </select>
           </div>
-          <br />
+          <br/>
           <div class="mb-3">
-            <label for="additional-details" class="form-label"
-              >รายละเอียดเพิ่มเติม (ถ้ามี)</label
-            >
-            <textarea
-              id="additional-details"
-              class="form-control"
-              rows="3"
-              placeholder="กรอกรายละเอียดเพิ่มเติมที่นี่..."
-            ></textarea>
+            <label for="additional-details" class="form-label">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
+            <textarea id="additional-details" class="form-control" rows="3" placeholder="กรอกรายละเอียดเพิ่มเติมที่นี่..."></textarea>
           </div>
           <!-- <button
             class="btn-confirm"
@@ -340,7 +347,7 @@
             class="btn-confirm"
             type="button"
             style="margin-left: auto; display: block"
-            onclick="submitBooking()"
+            onclick="submitBookingA()"
           >
             ยืนยัน
           </button>
@@ -378,29 +385,27 @@
         }
         return hour + "." + minute;
       }
-
       // Load equipment mapping from API /getEquipmentInformation
       async function loadEquipmentMapping() {
         let equipmentMapping = {};
         try {
-          const response = await fetch(
-            "http://localhost:3000/getEquipmentInformation"
-          );
-          if (!response.ok) throw new Error("HTTP error " + response.status);
-
-          const equipData = await response.json();
-          console.log("✅ ข้อมูลอุปกรณ์จาก API:", equipData);
-
-          // แมปค่า equipment_id -> equipment_name
-          equipData.forEach((item) => {
-            equipmentMapping[item.equipment_id] = item.equipment_name;
-          });
+            const response = await fetch("http://localhost:3000/getEquipmentInformation");
+            if (!response.ok) throw new Error("HTTP error " + response.status);
+            
+            const equipData = await response.json();
+            console.log("✅ ข้อมูลอุปกรณ์จาก API:", equipData);
+    
+            // แมปค่า equipment_id -> equipment_name
+            equipData.forEach((item) => {
+                equipmentMapping[item.equipment_id] = item.equipment_name;
+            });
+    
         } catch (err) {
-          console.error("❌ Error fetching equipment information:", err);
+            console.error("❌ Error fetching equipment information:", err);
         }
         return equipmentMapping;
-      }
-
+    }
+    
       // Load room details from API /roomdetail
       async function loadRoomDetails(roomId) {
         try {
@@ -411,22 +416,53 @@
           // หา room ที่ room_id ตรงกับ roomParam
           const roomDetail = rooms.find((room) => room.room_id == roomId);
           console.log("✅ Room Detail:", roomDetail);
-
+      
           if (roomDetail) {
-            document.getElementById("room-info").textContent =
-              roomDetail.room_name || "ไม่พบข้อมูล";
-            document.getElementById("room-type-info").textContent =
-              roomDetail.room_type || "ไม่พบข้อมูล";
+            document.getElementById("room-info").textContent = roomDetail.room_name || "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent = roomDetail.room_type || "ไม่พบข้อมูล";
+
           } else {
             document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
-            document.getElementById("room-type-info").textContent =
-              "ไม่พบข้อมูล";
+            document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
           }
         } catch (err) {
           console.error("Error fetching room details:", err);
           document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
           document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
         }
+      }
+      
+
+      function displaySelectedComputers() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const desksParam = urlParams.get("desks"); // รับค่า desks
+        const computerTableBody = document.getElementById("computer-table-body");
+      
+        if (!desksParam) {
+          computerTableBody.innerHTML = `<tr><td colspan="3">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
+          return;
+        }
+      
+        const deskItems = desksParam.split(",");
+        const rowPattern = [3, 4, 3]; // รูปแบบแถว 3 - 4 - 3
+        let computerTableRows = "";
+        let startIndex = 0;
+      
+        for (let i = 0; startIndex < deskItems.length; i++) {
+          const count = rowPattern[i % rowPattern.length]; // วนซ้ำ pattern
+          const rowItems = deskItems.slice(startIndex, startIndex + count);
+      
+          if (rowItems.length > 0) {
+            computerTableRows += `<tr>
+              <td>แถวที่ ${i + 1}</td>
+              <td>${rowItems.map((desk) => `${desk}`).join(", ")}</td>
+            </tr>`;
+          }
+      
+          startIndex += count;
+        }
+      
+        computerTableBody.innerHTML = computerTableRows;
       }
 
       // Main initialization
@@ -443,6 +479,7 @@
         // แสดงข้อมูลพื้นฐาน
         document.getElementById("date-info").textContent = dateParam;
         await loadRoomDetails(roomParam);
+        displaySelectedComputers(desksParam);
         const formattedStartTime = formatTimeForDisplay(startTimeParam);
         const formattedEndTime = formatTimeForDisplay(endTimeParam);
         document.getElementById(
@@ -476,7 +513,6 @@
             const name = equipmentMapping[id] || id;
             equipmentTableRows += `<tr>
               <td>${name}</td>
-              <td>SC2-${roomParam}</td>
               <td>${amount}</td>
             </tr>`;
           });
@@ -487,7 +523,6 @@
         // Debug logging
         console.log("Received parameters:");
         console.log("Date:", dateParam);
-        console.log("Room:", roomParam);
         console.log("Start Time:", startTimeParam);
         console.log("End Time:", endTimeParam);
         console.log("Desks:", desksParam);
@@ -498,44 +533,42 @@
 
       async function loadEquipmentDetails() {
         console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
-
+    
         // ดึงค่าพารามิเตอร์จาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const equipmentsParam = urlParams.get("equipments"); // เช่น "12:1,13:2"
-        const roomParam = urlParams.get("room"); // เช่น "307"
-
+    
         console.log("📌 Equipments Param:", equipmentsParam);
-        console.log("📌 Room Param:", roomParam);
-
+    
         if (!equipmentsParam) {
-          console.warn("❌ ไม่พบค่าอุปกรณ์จาก URL");
-          return;
+            console.warn("❌ ไม่พบค่าอุปกรณ์จาก URL");
+            return;
         }
-
+    
         // โหลดข้อมูลอุปกรณ์จาก API
         const equipmentMapping = await loadEquipmentMapping();
-
+        
         let equipmentTableRows = "";
         const equipmentItems = equipmentsParam.split(",");
-
+        
         equipmentItems.forEach((item) => {
-          const [id, amount] = item.split(":");
-          const name = equipmentMapping[id] || `ไม่พบข้อมูลอุปกรณ์ (${id})`;
-          equipmentTableRows += `<tr>
+            const [id, amount] = item.split(":");
+            const name = equipmentMapping[id] || `ไม่พบข้อมูลอุปกรณ์ (${id})`;
+            equipmentTableRows += `<tr>
                 <td>${name}</td>
-                <td>SC2-${roomParam}</td>
                 <td>${amount}</td>
             </tr>`;
         });
-
+    
         console.log("✅ อุปกรณ์ที่โหลดสำเร็จ:", equipmentTableRows);
-
-        document.getElementById("equipment-table-body").innerHTML =
-          equipmentTableRows;
-      }
+        
+        document.getElementById("equipment-table-body").innerHTML = equipmentTableRows;
+    }
       document.addEventListener("DOMContentLoaded", async function () {
         await loadEquipmentDetails();
-      });
+    });
+    
+    
 
       // Fetch user info from API /user and display in input fields
       async function fetchUserInfo() {
@@ -550,8 +583,9 @@
             window.location.href = "login.html";
             return;
           }
-
+      
           console.log("✅ ข้อมูลผู้ใช้จาก session:", userSession.data);
+      
 
           // เติมค่าลง input โดยใช้ key ที่ถูกต้อง
           document.getElementById("student-name").value =
@@ -566,6 +600,7 @@
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
         }
       }
+      
 
       window.onload = fetchUserInfo;
 
@@ -578,81 +613,66 @@
       }
 
       // ฟังก์ชันสำหรับส่งข้อมูลการจองไปยัง backend
-      async function submitBooking() {
-        try {
-          // ดึงข้อมูล session ของผู้ใช้ที่ล็อกอินไว้
-          const sessionResponse = await fetch("http://localhost:3000/session", {
-            credentials: "include",
-          });
-          if (!sessionResponse.ok) {
-            throw new Error("Session expired or not logged in");
-          }
-          const userSession = await sessionResponse.json();
-          const studentId = userSession.data.Student_ID; // ดึงรหัสนิสิตจาก session
+      async function submitBookingA() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const room_id = urlParams.get("room");
+        const used_date = urlParams.get("date");
+        const start_time = urlParams.get("startTime");
+        const end_time = urlParams.get("endTime");
 
-          // ดึงข้อมูลจาก URL parameters
-          const urlParams = new URLSearchParams(window.location.search);
-          const roomId = urlParams.get("room");
-          const usedDate = urlParams.get("date");
-          const startTime = urlParams.get("startTime");
-          const endTime = urlParams.get("endTime");
-          const reason = document.querySelector("select[name='usage']").value;
-          const requestType = document.querySelector(
-            "input[name='booking-type']:checked"
-          ).value;
+        const request_type = window.location.pathname.includes("TimeOut") ? "นอกเวลา" : "ในเวลา";
+        const request_reason = document.querySelector("select[name='usage']").value;
+        const detail_request_reason = document.getElementById("additional-details").value || null;
 
-          // ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
-          if (
-            !studentId ||
-            !roomId ||
-            !usedDate ||
-            !startTime ||
-            !endTime ||
-            !reason ||
-            !requestType
-          ) {
-            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        // ✅ ดึงค่าของโต๊ะคอมจาก URL
+        const desks = urlParams.get("desks") ? urlParams.get("desks").split(",").map(Number) : [];
+
+        // ✅ ดึงค่าของอุปกรณ์จาก URL
+        const equipments = urlParams.get("equipments") || "";
+
+        // ✅ ดึงข้อมูลนิสิตจากฟอร์ม (เพิ่มสำหรับ TimeIn)
+        const student_name = document.getElementById("student-name")?.value || null;
+        const phone_number = document.getElementById("phone-number")?.value || null;
+      
+
+        if (!room_id || !used_date || !start_time || !end_time || !request_reason) {
+            alert("⚠️ กรุณากรอกข้อมูลให้ครบ");
             return;
-          }
-
-          // สร้างอ็อบเจ็กต์ bookingData โดยใช้ studentId จาก session
-          const bookingData = {
-            room_id: roomId,
-            used_date: usedDate,
-            student_id: studentId,
-            start_time: startTime,
-            end_time: endTime,
-            reason: reason,
-            request_type: requestType,
-          };
-
-          // Debug: แสดงข้อมูล bookingData
-          for (const key in bookingData) {
-            if (bookingData.hasOwnProperty(key)) {
-              console.log(`${key}: ${bookingData[key]}`);
-            }
-          }
-
-          // ส่งข้อมูลไปยัง backend
-          const response = await fetch("http://localhost:3000/bookRoom", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bookingData),
-            credentials: "include",
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            alert("✅ การจองสำเร็จ!");
-            window.location.href = "home.html"; // กลับไปหน้าแรก
-          } else {
-            alert("❌ " + result.error);
-          }
-        } catch (err) {
-          console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
-          alert("เกิดข้อผิดพลาดในการจอง");
         }
-      }
+
+        console.log("📌 ข้อมูลที่ส่งไป API:", {
+          room_id, used_date, start_time, end_time, request_type, request_reason, detail_request_reason,
+          desks, equipments, student_name, phone_number
+        });
+      
+
+        try {
+            const response = await fetch("http://localhost:3000/submitBookingA", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    room_id, used_date, start_time, end_time,
+                    request_type, request_reason, detail_request_reason, desks, equipments,
+                    student_name, phone_number
+                })
+            });
+
+            const result = await response.json();
+            console.log("📌 ผลลัพธ์จาก API:", result);
+
+            if (result.success) {
+                alert("✅ จองห้องสำเร็จ!");
+                window.location.href = "home.html";
+            } else {
+                alert("❌ เกิดข้อผิดพลาด: " + result.error);
+            }
+        } catch (error) {
+            console.error("❌ เกิดข้อผิดพลาด:", error);
+            alert("❌ ไม่สามารถบันทึกการจองได้");
+        }
+    }
+    
 
       // ผูกฟังก์ชันกับปุ่มกดยืนยัน
     </script>

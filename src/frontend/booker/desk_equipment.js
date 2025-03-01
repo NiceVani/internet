@@ -28,6 +28,7 @@ async function loadDesks() {
     // กำหนดแพทเทิร์นสำหรับแถว: 4-3-4 (รวม 11 เครื่องต่อแถว)
     const pattern = [3, 4, 3];
 
+
     const deskGrid = document.getElementById("deskGrid");
     deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
 
@@ -103,6 +104,7 @@ async function loadDesks() {
 
         rowDiv.appendChild(segContainer);
       });
+
 
       deskGrid.appendChild(rowDiv);
     }
@@ -227,62 +229,94 @@ async function loadEquipments() {
  * 5) ฟังก์ชัน submitSelection()
  *    - ส่งข้อมูลการเลือกเก้าอี้และอุปกรณ์ไปแสดงใน console
  ********************************/
-function submitSelection() {
+async function submitSelection() {
   const selectedDeskArray = Array.from(selectedDesks);
-
-  // ดึงข้อมูลจาก input ในแต่ละ .borrow-item
   const equipmentInputs = document.querySelectorAll(".borrow-item input");
   const selectedEquipments = [];
+
   equipmentInputs.forEach((input) => {
-    const value = parseInt(input.value);
-    if (value > 0) {
-      selectedEquipments.push({
-        id: input.dataset.id,
-        amount: value,
-      });
-    }
+      const value = parseInt(input.value);
+      if (value > 0) {
+          selectedEquipments.push({
+              id: input.dataset.id,
+              amount: value,
+          });
+      }
   });
 
-  console.log("โต๊ะที่เลือก:", selectedDeskArray);
-  console.log("อุปกรณ์ที่เลือก:", selectedEquipments);
+  console.log("📌 โต๊ะที่เลือก:", selectedDeskArray);
+  console.log("📌 อุปกรณ์ที่เลือก:", selectedEquipments);
+
 
   // ดึงค่า startTime จาก URL
   const urlParams = new URLSearchParams(window.location.search);
   const startTime = urlParams.get("startTime");
+
   if (!startTime) {
-    alert("⚠️ ไม่พบค่า startTime ใน URL!");
-    return;
+      alert("⚠️ ไม่พบค่า startTime ใน URL!");
+      return;
   }
+
+
+  // ✅ แปลงเวลาเป็นชั่วโมง
   const hour = parseInt(startTime.split(":")[0], 10);
+
+  // ✅ ดึง Role จาก fetchUserInfo()
+  const userRole = await fetchUserInfo();
+  console.log("🔍 ตรวจสอบ userRole:", userRole);
+
+  if (!userRole) {
+      alert("⛔ ไม่สามารถดึงข้อมูลบทบาทของผู้ใช้ได้ กรุณาลองใหม่");
+      return;
+  }
+
   let targetPage = "";
-  if (hour >= 8 && hour < 16) {
-    targetPage = "TimeIn.html";
-  } else if (hour >= 17 && hour <= 20) {
-    targetPage = "TimeOut.html";
+
+  if (userRole === "นิสิต") {
+      if (hour >= 8 && hour < 16) {
+          targetPage = "TimeIn.html"; // **ในเวลา (นิสิต)**
+      } else if (hour >= 17 && hour <= 20) {
+          targetPage = "TimeOut.html"; // **นอกเวลา (นิสิต)**
+      } else {
+          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
+          return;
+      }
+  } else if (userRole === "อาจารย์") {
+      if (hour >= 8 && hour < 16) {
+          targetPage = "TimeInTeacher.html"; // **ในเวลา (อาจารย์)**
+      } else if (hour >= 17 && hour <= 20) {
+          targetPage = "TimeOutTeacher.html"; // **นอกเวลา (อาจารย์)**
+      } else {
+          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
+          return;
+      }
   } else {
-    alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
-    return;
+      alert("⛔ ไม่สามารถระบุบทบาทของคุณได้");
+      return;
   }
 
   const date = urlParams.get("date");
   const room = urlParams.get("room");
   const endTime = urlParams.get("endTime");
 
+
+  // ✅ สร้าง URL ใหม่
   const newUrlParams = new URLSearchParams({
-    room: room,
-    date: date,
-    startTime: startTime,
-    endTime: endTime,
-    desks: selectedDeskArray.join(","),
-    equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
+      room: room,
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      desks: selectedDeskArray.join(","),
+      equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
   });
 
-  console.log(
-    "🔗 กำลังเปลี่ยนไปที่:",
-    targetPage + "?" + newUrlParams.toString()
-  );
+  console.log("🔗 กำลังเปลี่ยนไปที่:", targetPage + "?" + newUrlParams.toString());
   window.location.href = `${targetPage}?${newUrlParams.toString()}`;
 }
+
+
+
+
 
 /********************************
  * 6) เรียกใช้โค้ดเมื่อหน้าโหลดเสร็จ
@@ -308,38 +342,39 @@ document.addEventListener("DOMContentLoaded", async function () {
 // ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
 async function fetchUserInfo() {
   try {
-    console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
-    const response = await fetch("http://localhost:3000/session", {
-      method: "GET",
-      credentials: "include",
-    });
+      console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
+      const response = await fetch("http://localhost:3000/session", {
+          method: "GET",
+          credentials: "include",
+      });
 
-    console.log("📡 API ตอบกลับ:", response.status);
-    if (!response.ok) {
-      throw new Error("Session expired");
-    }
+      if (!response.ok) throw new Error("Session expired");
 
-    const userSession = await response.json();
-    console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
+      const userSession = await response.json();
+      console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
 
-    if (!userSession || !userSession.data) {
-      alert("กรุณาเข้าสู่ระบบใหม่");
-      window.location.href = "login.html";
-      return;
-    }
+      if (!userSession || !userSession.role) {  // ✅ เช็ค role โดยตรง
+          alert("กรุณาเข้าสู่ระบบใหม่");
+          window.location.href = "login.html";
+          return null;
+      }
 
-    const userNameElement = document.getElementById("user-name");
-    if (userNameElement) {
-      userNameElement.textContent = userSession.data.Name;
-    }
+      // ✅ ใช้ path `role` ตรงจาก API
+      const role = userSession.role.trim();
+      console.log("👤 บทบาทผู้ใช้หลังจากตรวจสอบ:", role);
+
+      return role;
   } catch (error) {
-    console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
-    alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
-    window.location.href = "login.html";
+      console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
+      alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+      window.location.href = "login.html";
+      return null;
   }
 }
 
-// ฟังก์ชันออกจากระบบ
+
+// ✅ ฟังก์ชันออกจากระบบ
+
 async function logout() {
   try {
     const response = await fetch("http://localhost:3000/logout", {

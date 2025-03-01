@@ -349,10 +349,10 @@ function highlightDay(date) {
     if (!dayCell) return;
 
     const dayIndex = parseInt(dayCell.dataset.day);
-    if (dayIndex === 5 || dayIndex === 6) {
-      dayCell.classList.add("disabled"); // ป้องกันการเลือกวันหยุด
-      return;
-    }
+    // if (dayIndex === 5 || dayIndex === 6) {
+    //   dayCell.classList.add("disabled"); // ป้องกันการเลือกวันหยุด
+    //   return;
+    // }
 
     const startOfWeek = getStartOfWeek(selectedDate);
     const rowDate = new Date(startOfWeek);
@@ -442,6 +442,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     datePicker.min = formattedDate;
     await updateTableForSelectedDate(formattedDate);
     highlightDay(formattedDate);
+
+    // กำหนด EventListener สำหรับปุ่มย้อนกลับ
+    document
+      .getElementById("schedule-back")
+      .addEventListener("click", function () {
+        window.location.href = `Floor${roomId.charAt(0)}.html`;
+      });
+
+    document.getElementById("schedule-back").style.cursor = "pointer";
   } catch (error) {
     console.error("เกิดข้อผิดพลาดขณะโหลดตาราง:", error);
   }
