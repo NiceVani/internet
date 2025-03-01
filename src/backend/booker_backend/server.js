@@ -21,8 +21,8 @@ const io = new Server(server, {
 app.use(express.json()); // รองรับ JSON request body
 app.use(
   cors({
-    origin: "http://localhost:5501", // เปลี่ยนเป็นพอร์ตของ Frontend
-    credentials: true, // ต้องเปิดเพื่อให้เบราว์เซอร์ส่ง Cookie
+    origin: ["http://localhost:5501", "http://localhost:3000"], // เพิ่ม origin ที่ใช้
+    credentials: true,
   })
 );
 
@@ -288,28 +288,44 @@ app.get("/getEquipments", async (req, res) => {
 // roomdetail (รวมฟิลด์ room_name)
 // ===============================
 app.get("/roomdetail", (req, res) => {
+
   const query = `
-    SELECT 
-      r.room_id, 
-      r.room_name, 
-      r.floor, 
-      rt.type_name AS room_type,
+
+    SELECT
+      rli.room_name AS full_name,
+      rli.floor,
+      rli.room_id,
+      rli.room_name,
       SUM(CASE WHEN rlr.request_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count
-    FROM room r
-    LEFT JOIN room_request rlr ON r.room_id = rlr.room_id
-    LEFT JOIN room_type rt ON r.room_type_id = rt.room_type_id
-    GROUP BY r.room_id, r.room_name, r.floor, rt.type_name
-    ORDER BY Approved_Count DESC
+    FROM room rli
+    LEFT JOIN room_request rlr ON rli.room_id = rlr.room_id
+    GROUP BY rli.room_id, rli.room_name, rli.floor, rli.room_name
+    ORDER BY Approved_Count DESC;
   `;
+
   connection.query(query, (err, results) => {
+
     if (err) {
+
       console.error("❌ เกิดข้อผิดพลาด:", err);
-      return res.status(500).send(err);
+
+
+      res.status(500).send(err);
+
+      return;
+
+
     }
+
     console.log("✅ ดึงข้อมูลห้องสำเร็จ:", results);
+
     res.json(results);
+
   });
+
 });
+
+
 
 // ===============================
 // ดึงข้อมูล student
@@ -461,7 +477,8 @@ app.get("/userBookings/:userId", async (req, res) => {
         SELECT 
           rlr.room_request_id, 
           rlr.room_id, 
-          rli.room_name, 
+          rli.room_name,  
+          CONVERT_TZ(rlr.submitted_time, '+00:00', '+07:00') AS Submitted_date, 
           CONVERT_TZ(rlr.used_date, '+00:00', '+07:00') AS Used_date, 
           rlr.start_time, 
           rlr.end_time, 
@@ -577,8 +594,10 @@ app.get("/getEquipmentInformation", async (req, res) => {
 // ดึงข้อมูลอุปกรณ์ที่เสีย (ของผู้ใช้แต่ละคน)
 // ===============================
 app.get("/getBrokenEquipments", async (req, res) => {
+  console.log("🔍 DEBUG: ตรวจสอบเซสชัน", req.session);
+
   if (!req.session.user || !req.session.user.data) {
-    return res.status(401).json({ error: "กรุณาเข้าสู่ระบบ" });
+      return res.status(401).json({ error: "กรุณาเข้าสู่ระบบ" });
   }
 
   const { role, data } = req.session.user;
@@ -587,51 +606,76 @@ app.get("/getBrokenEquipments", async (req, res) => {
   let values = [];
 
   if (role === "นิสิต") {
-    userId = data.student_id;
-    query = `
-      SELECT 
-        DATE_FORMAT(eb.repair_date	, '%Y-%m-%d %H:%i:%s') AS repair_date, 
-        ei.equipment_name, 
-        eb.damage_details, 
-        eb.room_id, 
-        ai.full_name AS Admin_Name,
-        eb.repair_status	
-      FROM equipment_brokened eb
-      JOIN equipment ei ON eb.equipment_id = ei.equipment_id
-      JOIN admin ai ON eb.Admin_ID = ai.Admin_ID
-      WHERE eb.student_id = ?  
-      ORDER BY eb.repair_date DESC;
-    `;
-    values = [userId];
+      userId = data.student_id;
+      console.log("🎯 ดึงข้อมูลแจ้งซ่อมของนิสิต student_id:", userId);
+
+      query = `
+          SELECT 
+              DATE_FORMAT(eb.repair_date, '%Y-%m-%d %H:%i:%s') AS repair_date, 
+              ei.equipment_name, 
+              eb.damage_details, 
+              eb.room_id, 
+              CASE 
+                  WHEN eb.admin_id IS NULL THEN 'รอผู้รับแจ้งซ่อม' 
+                  ELSE ai.full_name 
+              END AS Admin_Name, 
+              eb.repair_status,
+              eb.image_path,
+              eb.repair_number,
+              damage
+          FROM equipment_brokened eb
+          LEFT JOIN equipment ei ON eb.equipment_id = ei.equipment_id
+          LEFT JOIN admin ai ON eb.admin_id = ai.admin_id
+          WHERE eb.student_id = ?
+          ORDER BY eb.repair_date DESC;
+      `;
+      values = [userId];
+
   } else if (role === "อาจารย์") {
-    userId = data.teacher_id;
-    query = `
-      SELECT 
-        DATE_FORMAT(eb.repair_date, '%Y-%m-%d %H:%i:%s') AS repair_date, 
-        ei.equipment_name, 
-        eb.damage_details, 
-        eb.room_id, 
-        ai.full_name AS Admin_Name,
-        eb.repair_status	
-      FROM equipment_brokened eb
-      JOIN equipment ei ON eb.equipment_id = ei.equipment_id
-      JOIN admin ai ON eb.Admin_ID = ai.Admin_ID
-      WHERE eb.teacher_id = ?  
-      ORDER BY eb.repair_date DESC;
-    `;
-    values = [userId];
+      userId = data.teacher_id;
+      console.log("🎯 ดึงข้อมูลแจ้งซ่อมของอาจารย์ teacher_id:", userId);
+
+      query = `
+          SELECT 
+              DATE_FORMAT(eb.repair_date, '%Y-%m-%d %H:%i:%s') AS repair_date, 
+              ei.equipment_name, 
+              eb.damage_details, 
+              eb.room_id, 
+              CASE 
+                  WHEN eb.admin_id IS NULL THEN 'รอผู้รับแจ้งซ่อม' 
+                  ELSE ai.full_name 
+              END AS Admin_Name, 
+              eb.repair_status
+              eb.image_path,
+              eb.repair_number,
+              damage
+          FROM equipment_brokened eb
+          LEFT JOIN equipment ei ON eb.equipment_id = ei.equipment_id
+          LEFT JOIN admin ai ON eb.admin_id = ai.admin_id
+          WHERE eb.teacher_id = ?
+          ORDER BY eb.repair_date DESC;
+      `;
+      values = [userId];
+
   } else {
-    return res.status(400).json({ error: "บทบาทไม่ถูกต้อง" });
+      return res.status(400).json({ error: "บทบาทไม่ถูกต้อง" });
   }
 
   try {
-    const [results] = await connection.promise().query(query, values);
-    res.json(results);
+      console.log("🚀 รัน SQL Query:", query);
+      console.log("📌 ค่าที่ใช้ใน Query:", values);
+
+      const [results] = await connection.promise().query(query, values);
+      console.log("✅ ข้อมูลที่ดึงจากฐานข้อมูล:", results);
+
+      res.json(results);
   } catch (err) {
-    console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", err);
-    res.status(500).json({ error: "ดึงข้อมูลล้มเหลว" });
+      console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", err);
+      res.status(500).json({ error: "ดึงข้อมูลล้มเหลว" });
   }
 });
+
+
 
 // ===============================
 // ดึง room_id จาก room_name
@@ -713,7 +757,7 @@ io.on("connection", (socket) => {
 });
 
 // ===============================
-// จองห้อง (ในเวลาปกติ)
+// จองห้อง (ในเวลาปกติ) ไม่น่าได้ใช้แล้ว
 // ===============================
 app.post("/bookRoom", async (req, res) => {
   const {
@@ -786,7 +830,7 @@ app.post("/bookRoom", async (req, res) => {
 });
 
 // ===============================
-// จองห้อง (นอกเวลา) + สมาชิก
+// จองห้อง (นอกเวลา) + สมาชิก ไม่น่าได้ใช้แล้ว
 // ===============================
 app.post("/bookRoomOut", async (req, res) => {
   const {
@@ -974,6 +1018,20 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // จำกัดขนาดไฟล์ 5MB
 });
 
+////// ✅ Route สำหรับดึงรูปภาพ  ///////
+app.get("/image/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, "../storage/equipment_img", filename);
+  
+  if (fs.existsSync(filePath)) {
+      res.setHeader("Content-Type", "image/jpeg");
+      res.sendFile(filePath);
+  } else {
+      res.status(404).json({ error: "File not found" });
+  }
+});
+
+
 // API อัปโหลดไฟล์รูป
 app.post("/uploadReportImage", upload.single("image"), (req, res) => {
   try {
@@ -1115,6 +1173,371 @@ app.get("/getComputersByRoom", async (req, res) => {
   } catch (err) {
     console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลคอมพิวเตอร์:", err);
     res.status(500).json({ error: "ดึงข้อมูลล้มเหลว" });
+  }
+});
+//////////////////////////////////////////////////////////////////-TimeIn,TimeInTeacher,TimeOut
+// API นี้จะทำการบันทึกข้อมูลลงฐานข้อมูล หน้า TimeIn,TimeOut นิสิต อาจารย์
+app.post("/submitBookingA", async (req, res) => {
+  if (!req.session.user || !req.session.user.data) {
+    return res.status(401).json({ error: "กรุณาเข้าสู่ระบบ" });
+  }
+
+  const { role, data } = req.session.user;
+  let userId = role === "นิสิต" ? data.student_id : data.teacher_id;
+
+  if (!userId) {
+    return res.status(400).json({ error: "ไม่พบรหัสผู้ใช้" });
+  }
+
+  const {
+    room_id,
+    used_date,
+    start_time,
+    end_time,
+    request_type,
+    request_reason,
+    detail_request_reason,
+    desks,
+    equipments,
+  } = req.body;
+
+  if (
+    !room_id ||
+    !used_date ||
+    !start_time ||
+    !end_time ||
+    !request_type ||
+    !request_reason
+  ) {
+    return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  const connectionPromise = connection.promise();
+
+  try {
+    // ✅ เริ่ม Transaction
+    await connectionPromise.beginTransaction();
+
+    // ✅ ค้นหา room_request_id ล่าสุด และเพิ่มค่าใหม่
+    const [lastRequest] = await connectionPromise.query(
+      "SELECT MAX(room_request_id) AS last_id FROM room_request"
+    );
+    const newRequestId = (lastRequest[0].last_id || 0) + 1;
+
+    // ✅ เวลาที่กดยืนยัน (บวก 7 ชั่วโมงเป็น GMT+7)
+    const submitted_time = new Date();
+    submitted_time.setHours(submitted_time.getHours() + 7);
+    const formattedSubmittedTime = submitted_time
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
+    const requestStatus = "รอดำเนินการ";
+
+    console.log("📌 ข้อมูลที่กำลังจะบันทึก:", {
+      room_request_id: newRequestId,
+      submitted_time: formattedSubmittedTime,
+      room_id,
+      student_id: role === "นิสิต" ? userId : null,
+      teacher_id: role === "อาจารย์" ? userId : null,
+      used_date,
+      start_time,
+      end_time,
+      request_type,
+      request_reason,
+      detail_request_reason,
+      desks,
+      equipments,
+      request_status: requestStatus,
+    });
+
+    // ✅ เพิ่มข้อมูลลงตาราง room_request
+    await connectionPromise.query(
+      `INSERT INTO room_request 
+          (room_request_id, submitted_time, room_id, student_id, teacher_id, used_date, 
+          start_time, end_time, request_type, request_reason, detail_request_reason, 
+          reject_reason, detail_reject_reason, request_status) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)`,
+      [
+        newRequestId,
+        formattedSubmittedTime,
+        room_id,
+        role === "นิสิต" ? userId : null,
+        role === "อาจารย์" ? userId : null,
+        used_date,
+        start_time,
+        end_time,
+        request_type,
+        request_reason,
+        detail_request_reason,
+        requestStatus,
+      ]
+    );
+
+    // ✅ เพิ่มข้อมูลลงตาราง room_request_participant
+    const [lastParticipant] = await connectionPromise.query(
+      "SELECT MAX(room_request_participant_id) AS last_id FROM room_request_participant"
+    );
+    const newParticipantId = (lastParticipant[0].last_id || 0) + 1;
+
+    await connectionPromise.query(
+      `INSERT INTO room_request_participant 
+          (room_request_participant_id, room_request_id, student_id, teacher_id, role) 
+          VALUES (?, ?, ?, ?, ?)`,
+      [
+        newParticipantId,
+        newRequestId,
+        role === "นิสิต" ? userId : null,
+        role === "อาจารย์" ? userId : null,
+        "ผู้ขอใช้",
+      ]
+    );
+
+    console.log(
+      `✅ เพิ่มข้อมูลลง room_request_participant สำเร็จ ID: ${newParticipantId}`
+    );
+
+    // ✅ บันทึกโต๊ะคอมพิวเตอร์ที่เลือก (ถ้ามี)
+    if (desks && desks.length > 0) {
+      console.log(`🖥️ กำลังเพิ่มโต๊ะคอมพิวเตอร์: ${desks.join(", ")}`);
+
+      const deskArray = Array.isArray(desks)
+        ? desks
+        : desks.split(",").map(Number);
+      const deskValues = deskArray.map((computer_id) => [
+        newRequestId,
+        computer_id,
+        room_id,
+      ]);
+
+      await connectionPromise.query(
+        `INSERT INTO room_request_computer (room_request_id, computer_id, room_id) VALUES ?`,
+        [deskValues]
+      );
+
+      console.log(`✅ บันทึกโต๊ะคอมสำเร็จ: ${deskArray.join(", ")}`);
+    }
+
+    // ✅ บันทึกอุปกรณ์ที่เลือก (ถ้ามี)
+    if (equipments && equipments.length > 0) {
+      console.log(`🛠️ กำลังเพิ่มอุปกรณ์: ${equipments}`);
+
+      const equipmentArray = equipments.split(",").map((item) => {
+        const [equipment_id, quantity] = item.split(":").map(Number);
+        return [newRequestId, equipment_id, quantity, room_id];
+      });
+
+      await connectionPromise.query(
+        `INSERT INTO room_request_equipment (room_request_id, equipment_id, request_quantity, room_id) VALUES ?`,
+        [equipmentArray]
+      );
+
+      console.log(`✅ บันทึกอุปกรณ์สำเร็จ: ${equipments}`);
+    }
+
+    // ✅ ถ้าทุกอย่างสำเร็จ ให้ Commit Transaction
+    await connectionPromise.commit();
+    console.log(`✅ บันทึกข้อมูลจองสำเร็จ ID: ${newRequestId}`);
+    res.json({ success: true, message: "จองห้องสำเร็จ!" });
+  } catch (err) {
+    // ❌ ถ้ามีข้อผิดพลาด Rollback Transaction
+    await connectionPromise.rollback();
+    console.error("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล:", err);
+    res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
+  }
+});
+
+//////////////////////////////////////////////////////////////////
+
+// API นี้จะทำการบันทึกข้อมูลลงฐานข้อมูล หน้า TimeIn,TimeOut นิสิต อาจารย์
+app.post("/submitBooking", async (req, res) => {
+  if (!req.session.user || !req.session.user.data) {
+    return res.status(401).json({ error: "กรุณาเข้าสู่ระบบ" });
+  }
+
+  const { role, data } = req.session.user;
+  let userId = role === "นิสิต" ? data.student_id : data.teacher_id;
+
+  if (!userId) {
+    return res.status(400).json({ error: "ไม่พบรหัสผู้ใช้" });
+  }
+
+  const {
+    room_id,
+    used_date,
+    start_time,
+    end_time,
+    request_type,
+    request_reason,
+    detail_request_reason,
+    desks,
+    equipments,
+    members,
+  } = req.body; // ✅ เพิ่ม members มาด้วย
+
+  if (!room_id || !used_date || !start_time || !end_time) {
+    return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  // ✅ ป้องกัน `request_type` และ `request_reason` เป็น `undefined`
+  const requestType = request_type || "ไม่ระบุ";
+  const requestReason = request_reason || "ไม่ระบุ";
+
+  const connectionPromise = connection.promise();
+
+  try {
+    // ✅ เริ่ม Transaction
+    await connectionPromise.beginTransaction();
+
+    // ✅ ค้นหา room_request_id ล่าสุด และเพิ่มค่าใหม่
+    const [lastRequest] = await connectionPromise.query(
+      "SELECT MAX(room_request_id) AS last_id FROM room_request"
+    );
+    const newRequestId = (lastRequest[0].last_id || 0) + 1;
+
+    // ✅ เวลาที่กดยืนยัน (บวก 7 ชั่วโมงเป็น GMT+7)
+    const submitted_time = new Date();
+    submitted_time.setHours(submitted_time.getHours() + 7);
+    const formattedSubmittedTime = submitted_time
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
+    const requestStatus = "รอดำเนินการ";
+
+    console.log("📌 ข้อมูลที่กำลังจะบันทึก:", {
+      room_request_id: newRequestId,
+      members, // ✅ Debug ดูค่าของ members
+    });
+
+    // ✅ เพิ่มข้อมูลลงตาราง room_request
+    await connectionPromise.query(
+      `INSERT INTO room_request 
+          (room_request_id, submitted_time, room_id, student_id, teacher_id, used_date, 
+          start_time, end_time, request_type, request_reason, detail_request_reason, 
+          reject_reason, detail_reject_reason, request_status) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)`,
+      [
+        newRequestId,
+        formattedSubmittedTime,
+        room_id,
+        role === "นิสิต" ? userId : null,
+        role === "อาจารย์" ? userId : null,
+        used_date,
+        start_time,
+        end_time,
+        request_type,
+        request_reason,
+        detail_request_reason,
+        requestStatus,
+      ]
+    );
+
+    // ✅ เพิ่มข้อมูลลงตาราง room_request_participant สำหรับผู้ขอใช้
+    const [lastParticipant] = await connectionPromise.query(
+      "SELECT MAX(room_request_participant_id) AS last_id FROM room_request_participant"
+    );
+    let newParticipantId = (lastParticipant[0].last_id || 0) + 1;
+
+    await connectionPromise.query(
+      `INSERT INTO room_request_participant 
+          (room_request_participant_id, room_request_id, student_id, teacher_id, role) 
+          VALUES (?, ?, ?, ?, ?)`,
+      [
+        newParticipantId,
+        newRequestId,
+        role === "นิสิต" ? userId : null,
+        role === "อาจารย์" ? userId : null,
+        "ผู้ขอใช้",
+      ]
+    );
+
+    console.log(
+      `✅ เพิ่มข้อมูลผู้ขอใช้ลง room_request_participant สำเร็จ ID: ${newParticipantId}`
+    );
+
+    // ✅ เพิ่มสมาชิกที่เข้าร่วม (ถ้ามี)
+    if (Array.isArray(members) && members.length > 0) {
+      console.log(`👥 กำลังเพิ่มสมาชิก ${members.length} คน`);
+
+      // ✅ ตรวจสอบค่าของ `members` ให้แน่ใจว่าเป็น Array ของรหัสนิสิตจริงๆ
+      const validMembers = members.filter(
+        (member) => typeof member === "string" && member.trim() !== ""
+      );
+
+      if (validMembers.length > 0) {
+        const memberValues = validMembers.map((memberId) => {
+          newParticipantId++;
+          return [
+            newParticipantId,
+            newRequestId,
+            memberId,
+            null,
+            "ผู้เข้าร่วม",
+          ];
+        });
+
+        await connectionPromise.query(
+          `INSERT INTO room_request_participant 
+                  (room_request_participant_id, room_request_id, student_id, teacher_id, role) 
+                  VALUES ?`,
+          [memberValues]
+        );
+
+        console.log(`✅ บันทึกสมาชิกสำเร็จ: ${validMembers.join(", ")}`);
+      }
+    }
+    // ✅ บันทึกโต๊ะคอมพิวเตอร์ที่เลือก (ถ้ามี)
+    // ✅ บันทึกโต๊ะคอมพิวเตอร์ที่เลือก (ถ้ามี)
+    if (Array.isArray(desks) && desks.length > 0) {
+      console.log(`🖥️ กำลังเพิ่มโต๊ะคอมพิวเตอร์: ${desks.join(", ")}`);
+
+      const deskValues = desks.map((computer_id) => [
+        newRequestId,
+        computer_id,
+        room_id,
+      ]);
+
+      await connectionPromise.query(
+        `INSERT INTO room_request_computer (room_request_id, computer_id, room_id) VALUES ?`,
+        [deskValues]
+      );
+
+      console.log(`✅ บันทึกโต๊ะคอมสำเร็จ: ${desks.join(", ")}`);
+    } else {
+      console.log("⚠️ ไม่มีโต๊ะคอมพิวเตอร์ที่เลือก");
+    }
+
+    // ✅ บันทึกอุปกรณ์ที่เลือก (ถ้ามี)
+    if (typeof equipments === "string" && equipments.trim() !== "") {
+      console.log(`🛠️ กำลังเพิ่มอุปกรณ์: ${equipments}`);
+
+      const equipmentArray = equipments.split(",").map((item) => {
+        const [equipment_id, quantity] = item.split(":").map(Number);
+        return [newRequestId, equipment_id, quantity, room_id];
+      });
+
+      if (equipmentArray.length > 0) {
+        await connectionPromise.query(
+          `INSERT INTO room_request_equipment (room_request_id, equipment_id, request_quantity, room_id) VALUES ?`,
+          [equipmentArray]
+        );
+
+        console.log(`✅ บันทึกอุปกรณ์สำเร็จ: ${equipments}`);
+      } else {
+        console.log("⚠️ ไม่มีอุปกรณ์ที่เลือก");
+      }
+    }
+
+    // ✅ ถ้าทุกอย่างสำเร็จ ให้ Commit Transaction
+    await connectionPromise.commit();
+    console.log(`✅ บันทึกข้อมูลจองสำเร็จ ID: ${newRequestId}`);
+    res.json({ success: true, message: "จองห้องสำเร็จ!" });
+  } catch (err) {
+    // ❌ ถ้ามีข้อผิดพลาด Rollback Transaction
+    await connectionPromise.rollback();
+    console.error("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล:", err);
+    res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
   }
 });
 

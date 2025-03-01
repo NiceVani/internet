@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>แบบบันทึกขอใช้ห้องในเวลา (TimeIn)</title>
+    <title>แบบบันทึกขอใช้ห้องนอกเวลา</title>
+
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -23,10 +24,10 @@
         margin-bottom: 15px;
       }
       .form-label {
-        display: block; /* ทำให้ label ขึ้นบรรทัดใหม่ */
+
+        display: block;
         font-weight: bold;
       }
-
       textarea#additional-details {
         margin-top: 5px;
       }
@@ -59,6 +60,7 @@
         height: 30px;
         font-size: 14px;
       }
+
       .table td span {
         display: inline-block;
         width: 100%;
@@ -175,29 +177,27 @@
       }
 
       .btn-add-row {
-        font-size: 24px; /* ขยายขนาดตัวอักษร */
-        width: 40px; /* กำหนดความกว้าง */
-        height: 40px; /* กำหนดความสูง */
-        line-height: 40px; /* จัดให้ตัวอักษรอยู่ตรงกลาง */
-        border-radius: 50%; /* ทำให้ปุ่มเป็นวงกลม */
-        background-color: #28a745; /* ใช้สีเขียวแบบ Bootstrap */
-        color: white; /* สีตัวอักษร */
-        border: none; /* เอาขอบออก */
+
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        background-color: #28a745;
+        color: white;
+        border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer; /* ทำให้เป็นเมาส์ชี้ */
-        transition: 0.3s; /* เพิ่มเอฟเฟกต์เวลา hover */
+        cursor: pointer;
+        transition: 0.3s;
       }
-
       .btn-add-row:hover {
-        background-color: #218838; /* เปลี่ยนสีเมื่อ hover */
-        transform: scale(1.1); /* ทำให้ปุ่มใหญ่ขึ้นเล็กน้อย */
+        background-color: #218838;
+        transform: scale(1.1);
       }
-
-      /* จัดให้ปุ่มอยู่กึ่งกลางของเซลล์ */
       th.text-center {
-        vertical-align: middle !important; /* บังคับให้เนื้อหาในเซลล์อยู่ตรงกลางแนวตั้ง */
+        vertical-align: middle !important;
       }
 
       .d-flex {
@@ -217,8 +217,9 @@
         <h4>ประเภทการจอง</h4>
         <label>
           <input type="radio" name="booking-type" value="นอกเวลา" checked />
-          นอกเวลา </label
-        ><br />
+          นอกเวลา
+        </label>
+        <br />
         <label>
           <input type="radio" name="booking-type" value="ในเวลา" />
           ในเวลา
@@ -299,7 +300,19 @@
             </tr>
           </tbody>
         </table>
-
+        <!-- แสดงคอมพิวเตอร์ที่เลือก -->
+        <h5>รายละเอียดการยืม (คอมพิวเตอร์ที่เลือก)</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>แถว</th>
+              <th>คอมพิวเตอร์ที่จอง</th>
+            </tr>
+          </thead>
+          <tbody id="computer-table-body">
+            <!-- รายการคอมพิวเตอร์จะแสดงที่นี่ -->
+          </tbody>
+        </table>
         <!-- ตารางรายชื่อสมาชิก -->
         <h5 class="mt-4">รายชื่อสมาชิก</h5>
         <table class="table table-bordered">
@@ -323,7 +336,7 @@
                   type="text"
                   class="form-control student-id-input"
                   placeholder="กรอกรหัสนิสิต"
-                  pattern="\d*"
+                  pattern="\\d*"
                   title="กรุณากรอกเฉพาะตัวเลข"
                 />
                 <div class="dropdown-list"></div>
@@ -427,7 +440,7 @@
     </div>
 
     <script>
-      // ฟังก์ชัน toggle sidebar
+      // Toggle sidebar
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
@@ -435,40 +448,41 @@
         overlay.classList.toggle("active");
       }
 
+      // เปลี่ยนเส้นทางตาม Radio Button เมื่อเปลี่ยนสถานะ
+      document
+        .querySelectorAll('input[name="booking-type"]')
+        .forEach(function (radio) {
+          radio.addEventListener("change", function () {
+            if (this.value === "นอกเวลา") {
+              window.location.href = "./TimeOut.html";
+            } else if (this.value === "ในเวลา") {
+              window.location.href = "./TimeIn.html";
+            }
+          });
+        });
+
       // ฟังก์ชันแปลงเวลา เช่น "08:00:00" -> "8.00"
       function formatTimeForDisplay(timeStr) {
-        if (!timeStr) {
-          return "ไม่พบข้อมูล"; // กรณีไม่มีค่าให้แสดงข้อความแจ้งเตือน
-        }
+        if (!timeStr) return "ไม่พบข้อมูล";
 
         const parts = timeStr.split(":");
-        if (parts.length < 2) {
-          return "ไม่พบข้อมูล"; // ป้องกันข้อผิดพลาดหากข้อมูลไม่ถูกต้อง
-        }
+        if (parts.length < 2) return "ไม่พบข้อมูล";
 
         let hour = parts[0];
         const minute = parts[1];
-
-        if (hour.startsWith("0")) {
-          hour = hour.substring(1);
-        }
-
+        if (hour.startsWith("0")) hour = hour.substring(1);
         return hour + "." + minute;
       }
 
-      // ดึงรายละเอียดห้องจาก API /getRoomInfo
+      // ดึงรายละเอียดห้อง
       async function loadRoomDetails(roomId) {
         try {
-          // เรียกใช้ /roomdetail
           const response = await fetch("http://localhost:3000/roomdetail");
           if (!response.ok) throw new Error("HTTP error " + response.status);
-
           const rooms = await response.json();
-          // find ห้องที่มี room_id ตรงกับค่า roomParam
-          const roomDetail = rooms.find((room) => room.room_id == roomId);
 
+          const roomDetail = rooms.find((room) => room.room_id == roomId);
           if (roomDetail) {
-            // ตัวอย่างสตักค่าที่ได้จาก server.js
             document.getElementById("room-info").textContent =
               roomDetail.room_name || "ไม่พบข้อมูล";
             document.getElementById("room-type-info").textContent =
@@ -483,6 +497,42 @@
           document.getElementById("room-info").textContent = "ไม่พบข้อมูล";
           document.getElementById("room-type-info").textContent = "ไม่พบข้อมูล";
         }
+      }
+
+
+      // ฟังก์ชันแสดงคอมพิวเตอร์ที่เลือก
+      function displaySelectedComputers() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const desksParam = urlParams.get("desks"); // รับค่าเช่น "31,32,33,..."
+        const computerTableBody = document.getElementById(
+          "computer-table-body"
+        );
+
+        if (!desksParam) {
+          computerTableBody.innerHTML = `<tr><td colspan="2">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
+          return;
+        }
+
+        const deskItems = desksParam.split(",");
+        const rowPattern = [3, 4, 3]; // รูปแบบแถว 3 - 4 - 3
+        let computerTableRows = "";
+        let startIndex = 0;
+
+        for (let i = 0; startIndex < deskItems.length; i++) {
+          // i จะเป็นเลขบอกว่า "แถวที่เท่าไร"
+          const count = rowPattern[i % rowPattern.length];
+          const rowItems = deskItems.slice(startIndex, startIndex + count);
+
+          if (rowItems.length > 0) {
+            computerTableRows += `<tr>
+              <td>แถวที่ ${i + 1}</td>
+              <td>${rowItems.join(", ")}</td>
+            </tr>`;
+          }
+          startIndex += count;
+        }
+
+        computerTableBody.innerHTML = computerTableRows;
       }
 
       // ฟังก์ชันดึงข้อมูลผู้ใช้จากเซสชัน
@@ -510,23 +560,26 @@
             userSession.data.study_year || "ไม่พบข้อมูล";
           document.getElementById("phone-number").value =
             userSession.data.phone_number || "ไม่พบข้อมูล"; // ตรวจสอบให้แน่ใจว่า backend ส่งค่ามา
+
         } catch (error) {
           console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:", error);
         }
       }
 
-      // ฟังก์ชันเพิ่มแถวสมาชิก
+
+      // ฟังก์ชันเพิ่ม-ลบแถวสมาชิก
       function addRow() {
         const tableBody = document.getElementById("members-table-body");
         const newRow = document.createElement("tr");
         newRow.innerHTML = `
-        <td style="position: relative;">
-          <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
-          <div class="dropdown-list"></div>
-        </td>
-        <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
-        <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
-      `;
+
+          <td style="position: relative;">
+            <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
+            <div class="dropdown-list"></div>
+          </td>
+          <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
+          <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
+        `;
         tableBody.appendChild(newRow);
         initializeStudentIDInput(newRow.querySelector(".student-id-input"));
       }
@@ -536,11 +589,13 @@
         row.remove();
       }
 
-      // ดึงข้อมูลนิสิตเพื่อใช้ใน dropdown
+
+      // ดึงข้อมูลนิสิตเพื่อ filter
       let studentData = [];
       async function fetchStudentData() {
         try {
           const response = await fetch("http://localhost:3000/data/student");
+
           // สมมติว่า URL เป็น /data/student
           // หรือจะเป็น URL อื่น ๆ ตามที่คุณสร้าง
           if (!response.ok) throw new Error("HTTP error " + response.status);
@@ -551,52 +606,32 @@
           console.error("❌ ดึงข้อมูลล้มเหลว:", error);
         }
       }
-      document.addEventListener("DOMContentLoaded", async () => {
-        await fetchStudentData();
-        // 2) จัดการกับ input ตัวแรก ๆ
-        document
-          .querySelectorAll(".student-id-input")
-          .forEach(initializeStudentIDInput);
-      });
-      // ฟังก์ชัน filter รายชื่อนิสิตใน dropdown
-      // ฟังก์ชันสำหรับ Filter เมื่อพิมพ์ในช่อง student-id
+
+
+      // ฟังก์ชัน filter รายชื่อนิสิต
       function filterStudentList(inputElement) {
         let value = inputElement.value.trim();
-        // ค่านี้คือสิ่งที่ผู้ใช้พิมพ์
-
         let dropdown = inputElement.nextElementSibling;
-        // <div class="dropdown-list"></div> ที่ตามหลัง input
-
         let row = inputElement.closest("tr");
-        // <tr> ปัจจุบัน
         let nameInput = row.querySelector(".student-name-input");
-        // ช่องชื่อ-นามสกุล
 
-        // เคลียร์ dropdown เดิม
         dropdown.innerHTML = "";
         dropdown.style.display = "none";
+        if (value === "") return;
 
-        if (value === "") return; // ถ้าพิมพ์ค่าว่าง ก็ไม่ต้องโชว์
-
-        // Filter: เอาเฉพาะ student ที่รหัสนิสิต (student_id) ขึ้นต้นด้วย value
-        let filtered = studentData.filter(
-          (student) => student.student_id.startsWith(value) // startsWith หรือบางทีใช้ includes ก็ได้
+        let filtered = studentData.filter((student) =>
+          student.student_id.startsWith(value)
         );
         if (filtered.length === 0) return;
 
-        // มีนักศึกษาที่ตรง -> สร้าง div ตัวเลือก
+
         dropdown.style.display = "block";
         filtered.forEach((student) => {
           let option = document.createElement("div");
           option.classList.add("dropdown-item");
           option.style.padding = "5px";
 
-          // แสดง ID และชื่อ
-          option.innerHTML = `
-            <span style="font-size: 16px;">${student.student_id} - ${student.full_name}</span>
-          `;
-
-          // Event ตอน mouseover -> hover ให้ขยาย/เปลี่ยนสี
+          option.innerHTML = `<span style="font-size: 16px;">${student.student_id} - ${student.full_name}</span>`;
           option.addEventListener("mouseover", () => {
             option.style.fontWeight = "bold";
             option.style.backgroundColor = "#f0f0f0";
@@ -605,6 +640,7 @@
             option.style.fontWeight = "normal";
             option.style.backgroundColor = "#fff";
           });
+
 
           // Event ตอนคลิก -> เซ็ตค่า input
           option.addEventListener("click", () => {
@@ -617,126 +653,26 @@
         });
       }
 
-      // ฟังก์ชัน initialize student-id Input
-      function initializeStudentIDInput(inputElement) {
-        let dropdown = inputElement.nextElementSibling; // div.dropdown-list
 
+      // ฟังก์ชันเปิดการ filter ให้ช่อง student-id
+      function initializeStudentIDInput(inputElement) {
+        let dropdown = inputElement.nextElementSibling;
         inputElement.addEventListener("input", function () {
           filterStudentList(inputElement);
         });
-
-        // ถ้า blur ออกจากช่อง ให้ซ่อน dropdown
         inputElement.addEventListener("blur", () => {
           setTimeout(() => (dropdown.style.display = "none"), 200);
         });
       }
 
-      // เรียกใช้เมื่อต้องการสร้าง row ใหม่
-      function addRow() {
-        const tableBody = document.getElementById("members-table-body");
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-          <td style="position: relative;">
-            <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
-            <div class="dropdown-list"></div>
-          </td>
-          <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
-          <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
-        `;
-        tableBody.appendChild(newRow);
 
-        // จับ input ใหม่ ให้มี event filter
-        initializeStudentIDInput(newRow.querySelector(".student-id-input"));
-      }
-
-      function deleteRow(button) {
-        const row = button.closest("tr");
-        row.remove();
-      }
-
-      async function loadEquipmentDetails() {
-        if (isEquipmentLoaded) {
-          console.log("⚠️ ข้อมูลอุปกรณ์โหลดแล้ว ไม่โหลดซ้ำ");
-          return;
-        }
-
-        console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
-        isEquipmentLoaded = true;
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const equipmentsParam = urlParams.get("equipments");
-        const roomParam = urlParams.get("room");
-
-        if (!equipmentsParam) {
-          console.warn("❌ ไม่มีข้อมูลอุปกรณ์ใน URL");
-          return;
-        }
-
-        const equipmentMapping = await loadEquipmentMapping();
-        let equipmentTableRows = "";
-
-        const equipmentItems = equipmentsParam.split(",");
-        equipmentItems.forEach((item) => {
-          const [id, amount] = item.split(":");
-          const name = equipmentMapping[id] || `อุปกรณ์ ${id}`;
-          equipmentTableRows += `<tr>
-                  <td>${name}</td>
-                  <td>SC2-${roomParam}</td>
-                  <td>${amount}</td>
-              </tr>`;
-        });
-
-        console.log("✅ อุปกรณ์ที่โหลดสำเร็จ:", equipmentTableRows);
-
-        document.getElementById("equipment-table-body").innerHTML =
-          equipmentTableRows;
-        const equipmentTable = document.getElementById("equipment-table-body");
-
-        if (equipmentTable) {
-          const observer = new MutationObserver((mutationsList) => {
-            mutationsList.forEach((mutation) => {
-              console.log("🔄 มีการเปลี่ยนแปลงข้อมูลอุปกรณ์:", mutation);
-            });
-          });
-
-          observer.observe(equipmentTable, { childList: true, subtree: true });
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", async function () {
-        await loadEquipmentDetails();
-      });
-
-      async function loadEquipmentMapping() {
-        let equipmentMapping = {};
-
-        try {
-          const response = await fetch(
-            "http://localhost:3000/getEquipmentInformation"
-          );
-          if (!response.ok) throw new Error("HTTP error " + response.status);
-          const equipData = await response.json();
-
-          console.log("✅ API ส่งข้อมูลอุปกรณ์มาแล้ว:", equipData);
-
-          equipData.forEach((item) => {
-            equipmentMapping[item.equipment_id] = item.equipment_name;
-          });
-        } catch (err) {
-          console.error("❌ โหลดข้อมูลอุปกรณ์ล้มเหลว:", err);
-        }
-        return equipmentMapping;
-      }
-
-      // ดึงข้อมูลอุปกรณ์เพิ่มเติม
-      let isEquipmentLoaded = false; // ป้องกันโหลดซ้ำ
-
+      // ฟังก์ชันโหลดข้อมูลอุปกรณ์
+      let isEquipmentLoaded = false;
       async function fetchEquipmentInfo() {
         if (isEquipmentLoaded) {
           console.log("⚠️ ข้อมูลอุปกรณ์โหลดแล้ว ไม่โหลดซ้ำ");
           return;
         }
-
         isEquipmentLoaded = true;
         console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
 
@@ -788,13 +724,16 @@
           console.log("✅ ข้อมูลอุปกรณ์จากฐานข้อมูล:", equipmentList);
 
           const tableBody = document.getElementById("equipment-table-body");
+          tableBody.innerHTML = ""; // เคลียร์ก่อน
+
 
           equipmentDetails.forEach((equip) => {
             const equipmentInfo = equipmentList.find(
               (e) => String(e.equipment_id) === equip.id
             );
             if (!equipmentInfo) return;
-
+            
+            // ตรวจสอบว่า row นี้มีแล้วหรือยัง
             if (
               !document.querySelector(
                 `#equipment-table-body tr[data-id='${equip.id}']`
@@ -803,11 +742,11 @@
               const row = document.createElement("tr");
               row.setAttribute("data-id", equip.id);
               row.innerHTML = `
-                          <td>${equipmentInfo.equipment_name}</td>
-                          <td>SC2-${params.get("room")}</td>
-                          <td>${equip.amount}</td>
-                      `;
 
+                <td>${equipmentInfo.equipment_name}</td>
+                <td>SC2-${params.get("room")}</td>
+                <td>${equip.amount}</td>
+              `;
               console.log(
                 "✅ เพิ่มอุปกรณ์:",
                 equipmentInfo.equipment_name,
@@ -827,33 +766,43 @@
         }
       }
 
-      // เมื่อ DOM โหลดเสร็จ
-      document.addEventListener("DOMContentLoaded", async function () {
-        document
-          .querySelectorAll(".student-id-input")
-          .forEach(initializeStudentIDInput);
 
-        await fetchUserInfo();
-        await fetchStudentData();
+      async function loadEquipmentDetails() {
+        if (isEquipmentLoaded) {
+          console.log("⚠️ ข้อมูลอุปกรณ์โหลดแล้ว ไม่โหลดซ้ำ");
+          return;
+        }
+        console.log("🔄 กำลังโหลดข้อมูลอุปกรณ์...");
+        isEquipmentLoaded = true;
+
+        // โค้ดส่วนนี้จะไปเรียก fetchEquipmentInfo() หรือทำการโหลดเองก็ได้
         await fetchEquipmentInfo();
+      }
 
-        // ดึงข้อมูลการจองจาก URL
+      // ฟังก์ชันเริ่มต้นเมื่อ DOM โหลดแล้ว
+      document.addEventListener("DOMContentLoaded", async function () {
+        // โหลดข้อมูลผู้ใช้
+        await fetchUserInfo();
+        // โหลดข้อมูลนิสิตสำหรับ filter
+        await fetchStudentData();
+        // โหลดอุปกรณ์
+        await fetchEquipmentInfo();
+        await loadEquipmentDetails();
+
+        // ดึงค่าพารามฯ
         const params = new URLSearchParams(window.location.search);
         const roomParam = params.get("room");
-        const startTimeParam = params.get("startTime"); // ตัวอย่าง "10:00:00"
-        const endTimeParam = params.get("endTime"); // ตัวอย่าง "12:00:00"
+        const startTimeParam = params.get("startTime");
+        const endTimeParam = params.get("endTime");
+        const desksParam = params.get("desks");
 
-        if (!startTimeParam || !endTimeParam) {
-          console.warn("⚠️ ไม่พบค่าเวลา startTime หรือ endTime จาก URL");
-        }
-
+        // โหลดรายละเอียดห้อง
         if (roomParam) {
           loadRoomDetails(roomParam);
         }
 
-        console.log("✅ Start Time:", startTimeParam);
-        console.log("✅ End Time:", endTimeParam);
 
+        // แสดงเวลา
         if (startTimeParam && endTimeParam) {
           const formattedStartTime = formatTimeForDisplay(startTimeParam);
           const formattedEndTime = formatTimeForDisplay(endTimeParam);
@@ -865,46 +814,48 @@
             "ไม่พบข้อมูลเวลา";
         }
 
-        // ✅ โหลดข้อมูลอุปกรณ์อีกครั้งหลังจาก 2 วินาที เพื่อป้องกันการเด้งหาย
+
+        // แสดงข้อมูลคอมพิวเตอร์
+        displaySelectedComputers(desksParam);
+
+        // จัดการ event สำหรับ student-id-input
+        document
+          .querySelectorAll(".student-id-input")
+          .forEach((inputElement) => {
+            initializeStudentIDInput(inputElement);
+          });
+
+        // ป้องกันกรณีข้อมูลอุปกรณ์หาย ให้โหลดซ้ำอีกครั้ง
         setTimeout(async () => {
           console.log("🔄 โหลดข้อมูลอุปกรณ์ซ้ำเพื่อป้องกันหาย");
           await fetchEquipmentInfo();
-        }, 2000); // โหลดใหม่หลังจาก 2 วินาที
+        }, 2000);
       });
 
-      // เปลี่ยนเส้นทางตาม Radio Button เมื่อเปลี่ยนสถานะ
-      document
-        .querySelectorAll('input[name="booking-type"]')
-        .forEach(function (radio) {
-          radio.addEventListener("change", function () {
-            if (this.value === "นอกเวลา") {
-              window.location.href = "./TimeOut.html";
-            } else if (this.value === "ในเวลา") {
-              window.location.href = "./TimeIn.html";
-            }
-          });
-        });
-
+      // ฟังก์ชันส่งข้อมูลจอง (นอกเวลา)
       async function submitBookingOut() {
         const studentId = document.getElementById("student-id").value;
-        const roomId = new URLSearchParams(window.location.search).get("room");
-        const usedDate = new URLSearchParams(window.location.search).get(
-          "date"
-        );
-        const startTime = new URLSearchParams(window.location.search).get(
-          "startTime"
-        );
-        const endTime = new URLSearchParams(window.location.search).get(
-          "endTime"
-        );
-        const reason = document.querySelector("select[name='usage']").value;
-        const requestType = "นอกเวลา"; // ตั้งค่าเป็น "นอกเวลา" เสมอ
-
-        // ✅ ดึงข้อมูลสมาชิกที่เข้าร่วม
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get("room");
+        const usedDate = urlParams.get("date");
+        const startTime = urlParams.get("startTime");
+        const endTime = urlParams.get("endTime");
+        const desks = urlParams.get("desks")
+          ? urlParams.get("desks").split(",").map(Number)
+          : [];
+        const equipments = urlParams.get("equipments") || "";
+        const reasonElement = document.querySelector("select[name='usage']");
+        const reason = reasonElement ? reasonElement.value.trim() : "ไม่ระบุ"; // ✅ ป้องกัน `undefined`
+        const detail_request_reason =
+          document.getElementById("additional-details").value || null;
+        const requestType = "นอกเวลา"; // ✅ กำหนดค่าเริ่มต้น
+        // ✅ ดึงข้อมูล "เพื่อนที่เข้าร่วม" จาก input
         const memberInputs = document.querySelectorAll(".student-id-input");
         const members = Array.from(memberInputs)
-          .map((input) => input.value.trim())
-          .filter((id) => id !== "");
+          .map((input) => input.value.trim()) // รับค่ารหัสนิสิตจาก input
+          .filter((id) => id !== "" && id !== studentId); // กรองค่าที่ไม่ใช่ของผู้จองเอง
+
+        console.log("📌 สมาชิกที่ส่งไป:", members); // ✅ Debug ตรวจสอบค่าที่ส่งไป
 
         if (
           !studentId ||
@@ -914,7 +865,9 @@
           !endTime ||
           !reason
         ) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+
+          alert("⚠️ กรุณากรอกข้อมูลให้ครบ");
+
           return;
         }
 
@@ -924,29 +877,39 @@
           student_id: studentId,
           start_time: startTime,
           end_time: endTime,
-          reason: reason,
-          request_type: requestType,
-          // members: members, // ✅ ส่งข้อมูลสมาชิกไปที่ backend
+
+          desks: desks,
+          equipments: equipments,
+          request_type: requestType, // ✅ เพิ่มค่า request_type
+          request_reason: reason, // ✅ เพิ่มค่า request_reason
+          detail_request_reason: detail_request_reason, // ✅ เพิ่มค่า detail_request_reason
+          members: members,
         };
+        console.log("📌 ข้อมูลที่ส่งไป API:", bookingData); // ✅ Debug ดูค่าที่ส่ง
 
         try {
-          const response = await fetch("http://localhost:3000/bookRoomOut", {
+          const response = await fetch("http://localhost:3000/submitBooking", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bookingData),
             credentials: "include",
+            body: JSON.stringify(bookingData),
           });
 
           const result = await response.json();
+          console.log("📌 ผลลัพธ์จาก API:", result);
+
           if (response.ok) {
             alert("✅ การจองสำเร็จ!");
-            window.location.href = "home.html"; // กลับไปหน้าแรก
+            window.location.href = "#";
+
           } else {
             alert("❌ " + result.error);
           }
         } catch (err) {
           console.error("❌ เกิดข้อผิดพลาดในการส่งข้อมูล:", err);
-          alert("เกิดข้อผิดพลาดในการจอง");
+
+          alert("❌ เกิดข้อผิดพลาดในการจอง");
+
         }
       }
     </script>
