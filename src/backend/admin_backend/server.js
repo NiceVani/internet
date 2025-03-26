@@ -13,7 +13,7 @@ const util = require('util');
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5500","http://localhost:8080"], // 👈 เปลี่ยนจาก '*' เป็น origin ของ frontend
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500","http://localhost:8080","http://localhost:5501"], // 👈 เปลี่ยนจาก '*' เป็น origin ของ frontend
     credentials: true // ✅ อนุญาตให้ส่งคุกกี้ไปกับคำขอ
 }));
 
@@ -146,15 +146,29 @@ app.post('/updateStatus', async (req, res) => {
     const { requestId, status, rejectReason, detailRejectReason } = req.body;
 
     try {
+        // 🔍 ดึง request_type ของ room_request_id ที่ต้องการอัปเดต
+        const [request] = await query(`SELECT request_type FROM room_request WHERE room_request_id = ?`, [requestId]);
+
+        if (!request) {
+            return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
+        }
+
+        let finalStatus = status;
+
+        // ✅ ตรวจสอบ request_type และกำหนดสถานะที่ถูกต้อง
+        if (status === "อนุมัติ" || status === "รออนุมัติ") {
+            finalStatus = request.request_type === "ในเวลา" ? "อนุมัติ" : "รออนุมัติ";
+        }
+
         let sql;
         let params;
 
-        if (status === "ไม่อนุมัติ") {
+        if (finalStatus === "ไม่อนุมัติ") {
             sql = `UPDATE room_request SET request_status = ?, reject_reason = ?, detail_reject_reason = ? WHERE room_request_id = ?`;
-            params = [status, rejectReason, detailRejectReason, requestId];
+            params = [finalStatus, rejectReason, detailRejectReason, requestId];
         } else {
             sql = `UPDATE room_request SET request_status = ? WHERE room_request_id = ?`;
-            params = [status, requestId];
+            params = [finalStatus, requestId];
         }
 
         const result = await query(sql, params);
@@ -163,8 +177,9 @@ app.post('/updateStatus', async (req, res) => {
             return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
         }
 
-        console.log(`✅ สถานะอัปเดตสำเร็จ: ${status}`);
-        res.json({ message: "สถานะอัปเดตเรียบร้อย", updatedStatus: status });
+        console.log(`✅ สถานะอัปเดตสำเร็จ: ${finalStatus}`);
+        res.json({ message: "สถานะอัปเดตเรียบร้อย", updatedStatus: finalStatus });
+
     } catch (error) {
         console.error("❌ Database error:", error);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตสถานะ", error: error.message });
