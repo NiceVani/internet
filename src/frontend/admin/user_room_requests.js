@@ -139,17 +139,19 @@ async function fetchData() {
                     </td>
                     <td class="text-center">${row.request_reason || '-'}</td>
                     <td class="text-center">
-                        ${row.request_status === 'รออนุมัติ'
-                            ? `
-                        <button class="btn btn-success btn-sm" onclick="updateStatus(${row.room_request_id}, 'รอดำเนินการ')">
-                                    ✅ อนุมัติ
-                                </button>
-                            <button class="btn btn-danger btn-sm" onclick="openRejectModal(${row.room_request_id})">
+                    ${row.request_status === 'รอดำเนินการ'
+                        ? `
+                        <button class="btn btn-success btn-sm" 
+                                onclick="updateStatus(${row.room_request_id}, '${row.request_type}')">
+                            ✅ อนุมัติ
+                        </button>
+                        <button class="btn btn-danger btn-sm" 
+                                onclick="openRejectModal(${row.room_request_id})">
                             ❌ ไม่อนุมัติ
-                            </button>
-        `
-                    : `<span class="badge bg-warning">${row.request_status}</span>`
-                }
+                        </button>
+                        `
+                        : `<span class="badge bg-warning">${row.request_status}</span>`
+                    }
                 </td>
 
                 </tr>
@@ -163,8 +165,11 @@ async function fetchData() {
 }
 
 // อัปเดตสถานะการจอง
-async function updateStatus(requestId, newStatus) {
+async function updateStatus(requestId, requestType) {
     try {
+        // ✅ ตรวจสอบ request_type เพื่อกำหนดสถานะที่ถูกต้อง
+        const newStatus = requestType === "ในเวลา" ? "อนุมัติ" : "รออนุมัติ";
+
         const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -194,11 +199,11 @@ async function submitReject() {
         const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                requestId, 
-                status: "ไม่อนุมัติ", 
-                rejectReason, 
-                detailRejectReason 
+            body: JSON.stringify({
+                requestId,
+                status: "ไม่อนุมัติ",
+                rejectReason,
+                detailRejectReason
             }),
         });
 
