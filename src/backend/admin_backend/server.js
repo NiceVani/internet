@@ -268,12 +268,21 @@ app.get('/data/equipment_brokened', async (req, res) => {
         res.status(500).json({ error: 'Database query failed' });
     }
 });
+
 app.post('/updateEquipmentStatus', async (req, res) => {
     const { repair_id, new_status } = req.body;
 
+    if (!req.session.user || req.session.user.role !== "ผู้ดูแลห้อง") {
+        return res.status(403).json({ error: "ไม่มีสิทธิ์เข้าถึง" });
+    }
+
+    const admin_id = req.session.user.data.admin_id; // ดึง admin_id จาก session
+
     try {
-        const sql = `UPDATE equipment_brokened SET repair_status = ? WHERE repair_number = ?`;
-        const params = [new_status, repair_id];
+        const sql = `UPDATE equipment_brokened 
+                     SET repair_status = ?, admin_id = ? 
+                     WHERE repair_number = ?`;
+        const params = [new_status, admin_id, repair_id];
 
         const result = await query(sql, params);
 
@@ -281,7 +290,7 @@ app.post('/updateEquipmentStatus', async (req, res) => {
             return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
         }
 
-        console.log(`✅ สถานะของแจ้งซ่อม ${repair_id} อัปเดตเป็น: ${new_status}`);
+        console.log(`✅ สถานะของแจ้งซ่อม ${repair_id} อัปเดตเป็น: ${new_status} โดย Admin: ${admin_id}`);
         res.json({ message: "สถานะอัปเดตเรียบร้อย", updatedStatus: new_status });
 
     } catch (error) {
