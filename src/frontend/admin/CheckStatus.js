@@ -15,6 +15,8 @@ async function checkSession() {
       console.log("✅ Session Data:", data);
   } catch (error) {
       console.error("❌ Session error:", error);
+      alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+      window.location.href = "login.html";
   }
 }
 
