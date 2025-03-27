@@ -204,19 +204,19 @@
             <thead>
                 <tr>
                     <th>วัน</th>
-                    <th>08.00-09.00</th>
-                    <th>09.00-10.00</th>
-                    <th>10.00-11.00</th>
-                    <th>11.00-12.00</th>
-                    <th>12.00-13.00</th>
-                    <th>13.00-14.00</th>
-                    <th>14.00-15.00</th>
-                    <th>15.00-16.00</th>
-                    <th>16.00-17.00</th>
-                    <th>17.00-18.00</th>
-                    <th>18.00-19.00</th>
-                    <th>19.00-20.00</th>
-                    <th>20.00-21.00</th>
+                    <th data-time-index="0">08.00-09.00</th>
+                    <th data-time-index="1">09.00-10.00</th>
+                    <th data-time-index="2">10.00-11.00</th>
+                    <th data-time-index="3">11.00-12.00</th>
+                    <th data-time-index="4">12.00-13.00</th>
+                    <th data-time-index="5">13.00-14.00</th>
+                    <th data-time-index="6">14.00-15.00</th>
+                    <th data-time-index="7">15.00-16.00</th>
+                    <th data-time-index="8">16.00-17.00</th>
+                    <th data-time-index="9">17.00-18.00</th>
+                    <th data-time-index="10">18.00-19.00</th>
+                    <th data-time-index="11">19.00-20.00</th>
+                    <th data-time-index="12">20.00-21.00</th>
                 </tr>
             </thead>
             <tbody>
@@ -339,7 +339,10 @@
         <button class="btn-confirm" type="button" onclick="confirmBooking()">ยืนยัน</button>
 
     </div>
+
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="Schedule.js"></script>
     <script>
         // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
@@ -395,6 +398,9 @@
         // ✅ โหลดข้อมูลเซสชันเมื่อหน้าเว็บโหลด
         window.onload = fetchUserInfo;
     </script>
+    
+
+
 
 
 </body>

@@ -503,37 +503,64 @@
       // ฟังก์ชันแสดงคอมพิวเตอร์ที่เลือก
       function displaySelectedComputers() {
         const urlParams = new URLSearchParams(window.location.search);
-        const desksParam = urlParams.get("desks"); // รับค่าเช่น "31,32,33,..."
-        const computerTableBody = document.getElementById(
-          "computer-table-body"
-        );
-
+        const desksParam = urlParams.get("desks"); // เช่น "11,12,13,14,..." 
+        const computerTableBody = document.getElementById("computer-table-body");
+    
         if (!desksParam) {
-          computerTableBody.innerHTML = `<tr><td colspan="2">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
-          return;
+            computerTableBody.innerHTML = `<tr><td colspan="2">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
+            return;
         }
-
-        const deskItems = desksParam.split(",");
-        const rowPattern = [3, 4, 3]; // รูปแบบแถว 3 - 4 - 3
-        let computerTableRows = "";
-        let startIndex = 0;
-
-        for (let i = 0; startIndex < deskItems.length; i++) {
-          // i จะเป็นเลขบอกว่า "แถวที่เท่าไร"
-          const count = rowPattern[i % rowPattern.length];
-          const rowItems = deskItems.slice(startIndex, startIndex + count);
-
-          if (rowItems.length > 0) {
-            computerTableRows += `<tr>
-              <td>แถวที่ ${i + 1}</td>
-              <td>${rowItems.join(", ")}</td>
-            </tr>`;
-          }
-          startIndex += count;
-        }
-
-        computerTableBody.innerHTML = computerTableRows;
-      }
+    
+        // 1) แปลงเป็น Array ของตัวเลข และ sort จากน้อย→มาก (กันผู้ใช้เลือกข้ามลำดับ)
+        const deskItems = desksParam.split(",").map(Number).sort((a, b) => a - b);
+    
+        // 2) ประกาศ pattern และหาค่า rowSize = ผลรวมของ pattern (3+4+3=10)
+        const rowPattern = [3, 4, 3]; 
+        const rowSize = rowPattern.reduce((sum, val) => sum + val, 0);
+    
+        // 3) จัดกลุ่มโต๊ะเป็น { rowIndex: [deskNumbers...] } 
+        //    rowIndex = floor((desk-1)/10)+1  เช่น desk=11→ row=2, desk=25→ row=3
+        const rowMap = {}; 
+        deskItems.forEach(desk => {
+            const rowIndex = Math.floor((desk - 1) / rowSize) + 1;
+            if (!rowMap[rowIndex]) {
+                rowMap[rowIndex] = [];
+            }
+            rowMap[rowIndex].push(desk);
+        });
+    
+        // 4) เรียง key ของ rowMap (rowIndex) จากน้อยไปมาก
+        const sortedRows = Object.keys(rowMap).map(Number).sort((a, b) => a - b);
+    
+        let htmlContent = "";
+    
+        // 5) วนตามลำดับ rowIndex
+        sortedRows.forEach(rowIndex => {
+            // เอาโต๊ะใน rowIndex นี้มาแบ่งตาม pattern
+            const rowDesks = rowMap[rowIndex];
+    
+            let pointer = 0;
+            const segments = rowPattern.map(segCount => {
+                const segmentSlice = rowDesks.slice(pointer, pointer + segCount);
+                pointer += segCount;
+                // เช่น [11,12,13] → "11, 12, 13"
+                return segmentSlice.join(", ");
+            });
+    
+            // ต่อทั้ง 3 ส่วน เช่น "11,12,13 , 14,15,16,17 , 18,19,20"
+            const rowDeskString = segments.join(" , ");
+    
+            htmlContent += `
+                <tr>
+                    <td>แถวที่ ${rowIndex}</td>
+                    <td>${rowDeskString}</td>
+                </tr>
+            `;
+        });
+    
+        // 6) แสดงผล
+        computerTableBody.innerHTML = htmlContent;
+    }
 
       // ฟังก์ชันดึงข้อมูลผู้ใช้จากเซสชัน
       async function fetchUserInfo() {
