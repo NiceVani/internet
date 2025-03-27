@@ -381,6 +381,35 @@
         .elevator i {
             font-size: 24px;
         }
+
+        .hall {
+            grid-column: 3 / span 9;
+            grid-row: 3 / span 3;
+            background-color: #cbcbcb;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            border-radius: 10px;
+        }
+
+        .sc1-down {
+            grid-column: 4;
+            grid-row: 7;
+            background-color: #f5b041;
+            border: 2px dashed #000;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -413,13 +442,16 @@
                     <div class="room large sc2-308 available" data-room="308">SC2-308</div>
 
                     <div class="stair" style="grid-column: 10; grid-row: 1;"><i class="fas fa-stairs"></i></div>
-
+                    <div class="hall">โถงกลาง</div>
                     <div class="room red vertical_2">ห้องน้ำ</div>
                     <div class="room red vertical_3">ห้องน้ำ</div>
                     <div class="room red vertical_4" data-room="310">SC2-310</div>
                     <div class="room red vertical_5" data-room="301">SC2-301</div>
                     <div class="room red vertical_6" data-room="302">SC2-302</div>
                     <div class="room red vertical_7" data-room="303">SC2-303</div>
+                    <div class="room sc1-down">
+                        ↓<br>SC1
+                      </div>
                     <div class="room red vertical_8" data-room="314">SC2-314</div>
                     <div class="room vertical_9 small available" data-room="313-1">SC2-313-1</div>
                     <div class="room vertical_10 room large sc2-313 available" data-room="313">SC2-313</div>
