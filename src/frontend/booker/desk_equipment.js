@@ -23,91 +23,102 @@ async function loadDesks() {
     console.log("Room:", room);
 
     // กรองข้อมูลเฉพาะคอมพิวเตอร์ที่อยู่ในห้องที่เลือก
-    const filteredDesks = desks.filter((desk) => desk.room_id === room);
+    const filteredDesks = desks
+      .filter((desk) => desk.room_id === room)
+      .sort((a, b) => a.computer_id - b.computer_id);
 
-    // กำหนดแพทเทิร์นสำหรับแถว: 4-3-4 (รวม 11 เครื่องต่อแถว)
-    const pattern = [3, 4, 3];
 
-
-    const deskGrid = document.getElementById("deskGrid");
-    deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
-
-    let index = 0;
-    while (index < filteredDesks.length) {
-      // สร้าง container สำหรับแต่ละแถว
-      const rowDiv = document.createElement("div");
-      rowDiv.classList.add("desk-row");
-
-      // สร้าง checkbox สำหรับเลือกทั้งแถว
-      const rowCheckbox = document.createElement("input");
-      rowCheckbox.type = "checkbox";
-      rowCheckbox.classList.add("row-select");
-      // เก็บ desk element ทั้งหมดในแถวไว้ใน array เพื่อใช้กับ row checkbox
-      let rowDeskElements = [];
-
-      rowCheckbox.addEventListener("change", function () {
-        rowDeskElements.forEach((deskElem) => {
-          if (deskElem && !deskElem.classList.contains("damaged")) {
-            if (
-              rowCheckbox.checked &&
-              !deskElem.classList.contains("selected")
-            ) {
-              deskElem.classList.add("selected");
-              selectedDesks.add(deskElem.dataset.id);
-            } else if (
-              !rowCheckbox.checked &&
-              deskElem.classList.contains("selected")
-            ) {
-              deskElem.classList.remove("selected");
-              selectedDesks.delete(deskElem.dataset.id);
+      const deskGrid = document.getElementById("deskGrid");
+      deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
+      
+      // กำหนดแพทเทิร์นตามห้อง
+      let pattern = [3, 4, 3];
+      if (room === "308") {
+        pattern = [2, 2, 2];
+      }
+      
+      let index = 0;
+      let rowCount = 0;
+      
+      while (index < filteredDesks.length) {
+        // สร้าง container สำหรับแต่ละแถว
+        const rowDiv = document.createElement("div");
+        rowDiv.classList.add("desk-row");
+      
+        // สร้าง checkbox สำหรับเลือกทั้งแถว
+        const rowCheckbox = document.createElement("input");
+        rowCheckbox.type = "checkbox";
+        rowCheckbox.classList.add("row-select");
+        let rowDeskElements = [];
+      
+        rowCheckbox.addEventListener("change", function () {
+          rowDeskElements.forEach((deskElem) => {
+            if (deskElem && !deskElem.classList.contains("damaged")) {
+              if (
+                rowCheckbox.checked &&
+                !deskElem.classList.contains("selected")
+              ) {
+                deskElem.classList.add("selected");
+                selectedDesks.add(deskElem.dataset.id);
+              } else if (
+                !rowCheckbox.checked &&
+                deskElem.classList.contains("selected")
+              ) {
+                deskElem.classList.remove("selected");
+                selectedDesks.delete(deskElem.dataset.id);
+              }
             }
-          }
+          });
         });
-      });
-      rowDiv.appendChild(rowCheckbox);
-
-      // สำหรับแต่ละส่วนในแพทเทิร์น (4-3-4)
-      pattern.forEach((segCount, segIndex) => {
-        // สร้าง container สำหรับ segment นี้ เพื่อเป็นช่องว่าง (gap) ระหว่างส่วน
-        const segContainer = document.createElement("div");
-        segContainer.classList.add("desk-segment");
-        // กำหนด margin-right เป็น gap (ยกเว้นส่วนสุดท้าย)
-        if (segIndex < pattern.length - 1) {
-          segContainer.style.marginRight = "50px";
+      
+        rowDiv.appendChild(rowCheckbox);
+      
+        // สำหรับแต่ละส่วนใน pattern
+        pattern.forEach((segCount, segIndex) => {
+          const segContainer = document.createElement("div");
+          segContainer.classList.add("desk-segment");
+      
+          if (segIndex < pattern.length - 1) {
+            segContainer.style.marginRight = "50px";
+          }
+      
+          const segmentDesks = filteredDesks.slice(index, index + segCount);
+          index += segCount;
+      
+          segmentDesks.forEach((desk) => {
+            const deskDiv = document.createElement("div");
+            deskDiv.classList.add("desk");
+            deskDiv.dataset.room = desk.room_id;
+            deskDiv.dataset.id = desk.computer_id;
+            deskDiv.innerHTML = `<span class="computer-icon">🖥️</span><span class="computer-id">${desk.computer_id}</span>`;
+      
+            if (desk.computer_status === "ใช้งานได้") {
+              deskDiv.classList.add("usable");
+            } else {
+              deskDiv.classList.add("damaged");
+            }
+      
+            deskDiv.onclick = () => toggleDesk(deskDiv);
+      
+            segContainer.appendChild(deskDiv);
+            rowDeskElements.push(deskDiv);
+          });
+      
+          rowDiv.appendChild(segContainer);
+        });
+      
+        deskGrid.appendChild(rowDiv);
+        rowCount++;
+      
+        // ✅ ถ้าเป็นห้อง 308 → เว้นบรรทัดทุก ๆ 2 แถว
+        if (room === "308" && rowCount % 2 === 0) {
+          const spacer = document.createElement("div");
+          spacer.style.height = "60px"; // ปรับขนาดช่องว่างตามต้องการ
+          deskGrid.appendChild(spacer);
         }
-
-        // ดึงคอมพิวเตอร์สำหรับ segment นี้ (ถ้าจำนวนที่เหลือไม่พอจะครบ segCount ก็จะใช้ที่มีอยู่)
-        const segmentDesks = filteredDesks.slice(index, index + segCount);
-        index += segCount;
-
-        segmentDesks.forEach((desk) => {
-          const deskDiv = document.createElement("div");
-          deskDiv.classList.add("desk");
-          // เก็บ room_id และ id ไว้ใน data attribute
-          deskDiv.dataset.room = desk.room_id;
-          deskDiv.dataset.id = desk.computer_id;
-          // ตั้งค่า innerHTML ให้แสดงไอคอนและหมายเลขคอมพิวเตอร์
-          deskDiv.innerHTML = `<span class="computer-icon">🖥️</span><span class="computer-id">${desk.computer_id}</span>`;
-
-          if (desk.computer_status === "ใช้งานได้") {
-            deskDiv.classList.add("usable");
-          } else {
-            deskDiv.classList.add("damaged");
-          }
-
-          // เมื่อคลิกเลือกคอมพิวเตอร์ ให้เรียก toggleDesk()
-          deskDiv.onclick = () => toggleDesk(deskDiv);
-
-          segContainer.appendChild(deskDiv);
-          rowDeskElements.push(deskDiv);
-        });
-
-        rowDiv.appendChild(segContainer);
-      });
+      }
 
 
-      deskGrid.appendChild(rowDiv);
-    }
 
     // ตั้งค่า event listener สำหรับ select all checkbox (เหมือนเดิม)
     const selectAllCheckbox = document.getElementById("selectAllCheckbox");
