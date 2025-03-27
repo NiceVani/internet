@@ -467,8 +467,7 @@ app.get("/TableRoomBooked", async (req, res) => {
             COUNT(rr.room_id) AS total 
         FROM room_request AS rr 
         JOIN room AS r ON rr.room_id = r.room_id
-        JOIN room_type AS rt ON r.room_type_id = rt.room_type_id
-    `;
+        JOIN room_type AS rt ON r.room_type_id = rt.room_type_id`;
 
     let params = [];
 
@@ -534,33 +533,33 @@ FROM (
     SELECT
         e.equipment_name AS name,
         r.room_name AS room,
-        em.stock_quantity AS totalequipment,
+        COALESCE(em.stock_quantity, 0) AS totalequipment,
         0 AS totalborrow, -- ไม่มีการยืมในชุดข้อมูลนี้
-        COUNT(*) AS totalbrokend,
+        COUNT(eb.equipment_id) AS totalbrokend,
         0 AS balance -- กำหนดเป็น 0 เพราะคำนวณ balance ทีหลัง
     FROM equipment_brokened AS eb
     LEFT JOIN equipment AS e ON e.equipment_id = eb.equipment_id
-    LEFT JOIN room AS r ON eb.room_id = r.room_id
     LEFT JOIN equipment_management AS em ON em.equipment_id = eb.equipment_id
+    LEFT JOIN room AS r ON em.room_id = r.room_id -- เชื่อมกับ room จาก equipment_management
     GROUP BY e.equipment_name, r.room_name, em.stock_quantity
 
-    UNION
+    UNION ALL
 
     -- ตารางอุปกรณ์ที่ถูกยืม
     SELECT 
         e.equipment_name AS name, 
         r.room_name AS room, 
-        MAX(eq.stock_quantity) AS totalequipment,  
-        SUM(rre.request_quantity) AS totalborrow,
+        COALESCE(MAX(em.stock_quantity), 0) AS totalequipment,  
+        COALESCE(SUM(rre.request_quantity), 0) AS totalborrow,
         0 AS totalbrokend, -- ไม่มีการชำรุดในชุดข้อมูลนี้
         0 AS balance -- กำหนดเป็น 0 เพราะคำนวณ balance ทีหลัง
     FROM room_request_equipment AS rre
     LEFT JOIN equipment AS e ON rre.equipment_id = e.equipment_id
-    LEFT JOIN room AS r ON rre.room_id = r.room_id
-    LEFT JOIN equipment_management AS eq ON rre.equipment_id = eq.equipment_id
+    LEFT JOIN equipment_management AS em ON rre.equipment_id = em.equipment_id
+    LEFT JOIN room AS r ON em.room_id = r.room_id -- ดึงชื่อห้องจาก equipment_management
     LEFT JOIN room_request AS rr ON rr.room_request_id = rre.room_request_id
     WHERE rr.request_status = 'อนุมัติ'
-    GROUP BY e.equipment_name, r.room_name
+    GROUP BY e.equipment_name, r.room_name, em.stock_quantity
 ) AS combined
 GROUP BY name, room;
 
@@ -720,7 +719,9 @@ app.get('/box42', (req, res) => {
 FROM room_request AS rr
 LEFT JOIN student AS s ON s.student_id = rr.student_id
 LEFT JOIN teacher AS t ON t.teacher_id = rr.teacher_id
+WHERE rr.request_status = 'อนุมัติ'
 GROUP BY name
+ORDER BY name
 ;
 
 
