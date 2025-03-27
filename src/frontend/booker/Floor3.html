@@ -78,6 +78,7 @@
             color: white;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
+            position: relative;
         }
 
         .room.red {
@@ -95,9 +96,9 @@
             background-color: #8e8e8e;
         }
 
-        .room.large::after {
+        /* .room.large::after {
             content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
+            Default content is "Not Available" 
             position: absolute;
             top: 10px;
             right: 10px;
@@ -111,14 +112,12 @@
             align-items: center;
             font-size: 10px;
             color: white;
-        }
+        }*/
 
-        .room.large.available::after {
+        /* .room.large.available::after {
             content: 'ว่าง';
-            /* Content changes to "Available" */
             background-color: green;
-            /* Change color to green for available rooms */
-        }
+        }*/
 
         .room.small {
             position: relative;
@@ -127,9 +126,8 @@
             background-color: #8e8e8e;
         }
 
-        .room.small::after {
+        /*.room.small::after {
             content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
             position: absolute;
             top: 10px;
             right: 7px;
@@ -147,10 +145,8 @@
 
         .room.small.available::after {
             content: 'ว่าง';
-            /* Content changes to "Available" */
             background-color: green;
-            /* Change color to green for available rooms */
-        }
+        } */
 
 
         .room.large.sc2-308 {
@@ -409,7 +405,70 @@
             font-size: 14px;
             color: black;
             font-weight: bold;
+            
         }
+        /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+        .available {
+            background-color: #8e8e8e !important; /* ✅ สีเขียว */
+        }
+        
+        
+        /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+        .disabled-room {
+            pointer-events: none;
+            cursor: not-allowed;
+            background-color: #8e8e8e !important; /* ❌ สีแดง */
+        }
+        
+        /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+        .status-label {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+            z-index: 10; 
+        }
+        
+        /* ✅ ห้องที่ไม่มีข้อมูล → สีแดง และ **ไม่มีวงกลมสถานะ** 
+        .no-data {
+            background-color: #8e8e8e !important; /* 🔴 พื้นหลังแดง 
+            pointer-events: none;
+            cursor: not-allowed;
+        }*/
+        
+        
+        
+        /* ✅ ป้าย "ว่าง" */
+        .available .status-label {
+            background-color: green;
+        }
+        
+        /* ✅ ป้าย "ไม่ว่าง" */
+        .disabled-room .status-label {
+            background-color: red;
+        }
+        
+        /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+        .available::after,
+        .disabled-room::after {
+            content: none !important;
+        }
+
+        /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล*/
+        .no-data .status-label {
+            display: none !important;
+        } 
+
     </style>
 </head>
 

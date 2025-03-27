@@ -1558,6 +1558,22 @@ app.post("/submitBooking", async (req, res) => {
   }
 });
 
+// ✅ API ดึงสถานะห้อง
+app.get("/getRoomStatus", async (req, res) => {
+  try {
+    console.log("🔄 กำลังดึงข้อมูลสถานะห้อง...");
+    
+    // ตรวจสอบตาราง room ว่ามี field `room_status` หรือไม่
+    const [rooms] = await connection.promise().query("SELECT room_id, room_name, room_status FROM room");
+
+    console.log("✅ ข้อมูลห้องที่ดึงมา:", rooms); // ตรวจสอบข้อมูลที่ดึงมา
+    res.json(rooms);
+  } catch (err) {
+    console.error("❌ Error fetching room status:", err);
+    res.status(500).json({ error: "ดึงสถานะล้มเหลว", details: err.message });
+  }
+});
+
 // ===============================
 // เริ่มเซิร์ฟเวอร์
 // ===============================

@@ -144,7 +144,7 @@
       background-color: #8e8e8e;
     }
 
-    .room.largeDown1::after {
+    /*.room.largeDown1::after {
       content: 'ว่าง';
       position: absolute;
       top: 10px;
@@ -164,7 +164,7 @@
     .room.largeDown1.available::after {
       content: 'ว่าง';
       background-color: #008000;
-    }
+    }*/
 
     .room.largeDown2 {
       position: relative;
@@ -173,7 +173,7 @@
       background-color: #8e8e8e;
     }
 
-    .room.largeDown2::after {
+    /*.room.largeDown2::after {
       content: 'ไม่ว่าง';
       position: absolute;
       top: 10px;
@@ -193,7 +193,7 @@
     .room.largeDown2.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.large1 {
       position: relative;
@@ -202,7 +202,7 @@
       background-color: #8e8e8e;
     }
 
-    .room.large1::after {
+    /*.room.large1::after {
       content: 'ไม่ว่าง';
       position: absolute;
       top: 10px;
@@ -222,7 +222,7 @@
     .room.large1.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.small {
       position: relative;
@@ -232,10 +232,10 @@
     }
 
 
-    .room.small.available::after {
+    /*.room.small.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.smallDown {
       position: relative;
@@ -245,10 +245,10 @@
     }
 
 
-    .room.smallDown.available::after {
+    /*.room.smallDown.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.small1 {
       grid-column: 9 / span 1;
@@ -280,10 +280,10 @@
       background-color: #8e8e8e;
     }
 
-    .room.vertical.available::after {
+    /*.room.vertical.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.verticalDown {
       grid-column: span 1;
@@ -298,9 +298,9 @@
       background-color: #ff0000;
     }
 
-    .room.vertical0::after {
+    /*.room.vertical0::after {
       content: 'ว่าง';
-      /* Displayed as "Not Available" in Thai */
+      
       position: absolute;
       top: 10px;
       right: 7px;
@@ -309,23 +309,23 @@
       background-color: #008000;
       border: 2px solid white;
       border-radius: 50%;
-      /* Makes it a circle */
+      
       display: flex;
-      /* Enable flexbox for centering */
+      
       justify-content: center;
-      /* Center text horizontally */
+      
       align-items: center;
-      /* Center text vertically */
+      
       font-size: 10px;
-      /* Adjust font size if needed */
+      
       color: white;
-      /* Ensure text is visi /* Makes it a circle */
+      
     }
 
     .room.vertical1.available::after {
       content: 'ว่าง';
       background-color: green;
-    }
+    }*/
 
     .room.vertical1Down {
       grid-column: span 1;
@@ -532,6 +532,60 @@
       font-size: 14px;
       color: black;
       font-weight: bold;
+    }
+
+    /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+    .available {
+      background-color: #8e8e8e !important; /* ✅ สีเขียว */
+    }
+
+
+    /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+    .disabled-room {
+      pointer-events: none;
+      cursor: not-allowed;
+      background-color: #8e8e8e !important; /* ❌ สีแดง */
+    }
+
+    /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+    .status-label {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      border: 2px solid white;
+    }
+
+    
+
+    /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
+    .no-data .status-label {
+      display: none !important;
+    }
+
+    /* ✅ ป้าย "ว่าง" */
+    .available .status-label {
+      background-color: green;
+    }
+
+    /* ✅ ป้าย "ไม่ว่าง" */
+    .disabled-room .status-label {
+      background-color: red;
+    }
+
+    /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
+    .available::after,
+    .disabled-room::after {
+      content: none !important;
     }
   </style>
 

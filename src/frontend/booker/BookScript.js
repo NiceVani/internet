@@ -87,6 +87,45 @@ function attachRoomClickEvents() {
 }
 
 // ✅ ฟังก์ชันออกจากระบบ
+window.addEventListener("DOMContentLoaded", async () => {
+  // try {
+  //   const res = await fetch("http://localhost:3000/getRoomStatus");
+  //   const rooms = await res.json();
+
+  //   const roomElements = document.querySelectorAll(".room");
+
+  //   roomElements.forEach((el) => {
+  //     const roomName = el.textContent.trim().replace(/\s/g, "");
+  //     const match = rooms.find(
+  //       (r) => r.room_name.replace(/\s/g, "") === roomName
+  //     );
+
+  //     if (match) {
+  //       // เคลียร์ class เดิมก่อน
+  //       el.classList.remove("available", "disabled-room", "no-data");
+
+  //       if (match.room_status === "ว่าง") {
+  //         el.classList.add("available");
+  //         const status = document.createElement("div");
+  //         status.classList.add("status-label");
+  //         status.textContent = "ว่าง";
+  //         el.appendChild(status);
+  //       } else {
+  //         el.classList.add("disabled-room");
+  //         const status = document.createElement("div");
+  //         status.classList.add("status-label");
+  //         status.textContent = "ไม่ว่าง";
+  //         el.appendChild(status);
+  //       }
+  //     } else {
+  //       // ถ้าไม่พบห้องในฐานข้อมูล ให้ถือว่าไม่มีข้อมูล
+  //       el.classList.add("no-data");
+  //     }
+  //   });
+  // } catch (err) {
+  //   console.error("❌ โหลดข้อมูลห้องล้มเหลว:", err);
+  // }
+});
 
 // ✅ ฟังก์ชันดึงสถานะห้องจากฐานข้อมูล
 async function fetchRoomStatus() {
@@ -99,7 +138,7 @@ async function fetchRoomStatus() {
 
     const allRoomElements = document.querySelectorAll(".room");
 
-    allRoomElements.forEach((roomElement) => {
+    allRoomElements.forEach(roomElement => {
       const roomId = roomElement.dataset.room;
       if (!roomId) return;
 
@@ -114,31 +153,38 @@ async function fetchRoomStatus() {
       }
 
       if (roomData) {
-        // ✅ ห้องมีข้อมูลในฐานข้อมูล
-        if (roomData.room_status.trim() === "เปิดการใช้งาน") {
+        const status = roomData.room_status.trim();
+      
+        if (status === "เปิดการใช้งาน") {
           roomElement.classList.add("available");
           roomElement.classList.remove("disabled-room", "no-data");
           statusElement.textContent = "ว่าง";
-          statusElement.style.backgroundColor = "green";
-          roomElement.style.backgroundColor = "#5cb85c"; // 🟢 สีเขียว
           roomElement.style.cursor = "pointer";
-        } else {
+        } else if (status === "ปิดการใช้งาน") {
           roomElement.classList.add("disabled-room");
           roomElement.classList.remove("available", "no-data");
           statusElement.textContent = "ไม่ว่าง";
-          statusElement.style.backgroundColor = "red"; // ❌ สีแดงเฉพาะป้าย
-          roomElement.style.backgroundColor = "#8e8e8e"; // ⚫ เทาสำหรับห้อง
           roomElement.style.cursor = "not-allowed";
+          roomElement.style.pointerEvents = "none";
+        } else {
+          roomElement.classList.add("no-data");
+          roomElement.classList.remove("available", "disabled-room");
+          statusElement.textContent = "";
+          roomElement.style.cursor = "not-allowed";
+          roomElement.style.pointerEvents = "none"; 
         }
       } else {
-        // ❌ ห้องไม่มีข้อมูล → พื้นหลังแดง ไม่มีข้อความ
         roomElement.classList.add("no-data");
         roomElement.classList.remove("available", "disabled-room");
-        roomElement.style.backgroundColor = "#ff0000"; // 🔴 สีแดงทั้งห้อง
-        statusElement.textContent = ""; // ไม่แสดงข้อความใดๆ
+        statusElement.textContent = "";
+        roomElement.style.cursor = "not-allowed";
+        roomElement.style.pointerEvents = "none"; 
       }
+      
+      
     });
   } catch (error) {
     console.error("❌ Error loading room status:", error);
   }
 }
+
