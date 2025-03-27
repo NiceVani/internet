@@ -67,6 +67,7 @@ FROM (
     FROM room_request AS rr
     LEFT JOIN student AS s ON rr.student_id = s.student_id
     LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+    WHERE rr.request_status = 'อนุมัติ'
     GROUP BY rr.room_id, COALESCE(s.department, t.department)
 ) AS subquery
 GROUP BY room_id
@@ -91,6 +92,7 @@ app.get('/daysroomday', (req, res) => {
 FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
+WHERE rr.request_status = 'อนุมัติ'
 GROUP BY time
 ORDER BY FIELD(time, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 `
@@ -112,6 +114,7 @@ FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
 WHERE WEEK(rr.used_date, 1) BETWEEN 1 AND 48  -- กรองเฉพาะสัปดาห์ที่ 1-48
+AND rr.request_status = 'อนุมัติ'
 GROUP BY time
 ORDER BY time;
 
@@ -133,7 +136,8 @@ app.get('/daysroommount', (req, res) => {
 FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
-WHERE MONTH(rr.used_date) BETWEEN 1 AND 12  -- กรองเฉพาะเดือนที่ 1-12
+WHERE MONTH(rr.used_date) BETWEEN 1 AND 12
+AND rr.request_status = 'อนุมัติ'  -- กรองเฉพาะเดือนที่ 1-12
 GROUP BY time
 ORDER BY time;
 
@@ -155,7 +159,8 @@ app.get('/daysroomyear', (req, res) => {
 FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
-WHERE YEAR(rr.used_date) BETWEEN 2020 AND 2025  -- กรองช่วงปีที่ต้องการ
+WHERE YEAR(rr.used_date) BETWEEN 2020 AND 2025 
+AND rr.request_status = 'อนุมัติ' -- กรองช่วงปีที่ต้องการ
 GROUP BY time
 ORDER BY time;
 
@@ -467,7 +472,9 @@ app.get("/TableRoomBooked", async (req, res) => {
             COUNT(rr.room_id) AS total 
         FROM room_request AS rr 
         JOIN room AS r ON rr.room_id = r.room_id
-        JOIN room_type AS rt ON r.room_type_id = rt.room_type_id`;
+        JOIN room_type AS rt ON r.room_type_id = rt.room_type_id
+        WHERE rr.request_status = 'อนุมัติ'
+        `;
 
     let params = [];
 
