@@ -466,11 +466,7 @@
                       aria-expanded="false"
                       style="color: #929292; font-size: 10px"
                     ></i>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('ทั้งหมด')">ทั้งหมด</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('307')">307</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('414')">414</a></li>
-                    </ul>
+                    <ul class="dropdown-menu" id="roomDropdownMenu"></ul>
                   </div>  
                 </th>
                 <th style="color: #929292">จำนวนนิสิต(คน)</th>
@@ -588,9 +584,6 @@
  
                         };
                     });
- 
-                   
-                   
  
                     console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
            
@@ -764,8 +757,32 @@
                 }
             }
 
+    </script>
+    
+    <script> //เรียงตามห้อง
+      
+      fetch('http://localhost:3000/room_request')
+        .then(response => response.json())
+        .then(data => {
+          const menu = document.getElementById('roomDropdownMenu');
+    
+          // เพิ่มตัวเลือก "ทั้งหมด"
+          const allItem = document.createElement('li');
+          allItem.innerHTML = `<a class="dropdown-item" href="#" onclick="filterTableRoom('ทั้งหมด')">ทั้งหมด</a>`;
+          menu.appendChild(allItem);
+    
+          // เพิ่มรายการจาก database
+          const allroom = [...new Set(data.map(item => item.room_id))];
 
+          allroom.forEach(room_id => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a class="dropdown-item" href="#" onclick="filterTableRoom('${room_id}')">${room_id}</a>`;
+            menu.appendChild(li);
 
+          
+          });
+        })
+        .catch(error => console.error('Error fetching rooms:', error));
     </script>
 
     <!-- !--fillter ตำแหน่ง -->
