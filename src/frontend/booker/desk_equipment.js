@@ -262,6 +262,10 @@ async function submitSelection() {
   // ดึงค่า startTime จาก URL
   const urlParams = new URLSearchParams(window.location.search);
   const startTime = urlParams.get("startTime");
+  const endTime = urlParams.get("endTime");
+  const date = urlParams.get("date");
+  const room = urlParams.get("room");
+  
 
   if (!startTime) {
       alert("⚠️ ไม่พบค่า startTime ใน URL!");
@@ -283,32 +287,33 @@ async function submitSelection() {
 
   let targetPage = "";
 
+  // ดึงชั่วโมงจากเวลาเริ่ม-สิ้นสุด
+  const hourStart = parseInt(startTime.split(":")[0], 10);
+  const hourEnd = parseInt(endTime.split(":")[0], 10);
+  
+  // ✅ ตรวจสอบว่ามีเวลาใดอยู่นอกช่วงที่ระบบเปิดให้จองหรือไม่
+  const isOutOfTime =
+  (hourStart < 8 || hourStart > 17) ||
+  (hourEnd < 8 || hourEnd > 17);
+  
   if (userRole === "นิสิต") {
-      if (hour >= 8 && hour < 16) {
-          targetPage = "TimeIn.html"; // **ในเวลา (นิสิต)**
-      } else if (hour >= 17 && hour <= 20) {
-          targetPage = "TimeOut.html"; // **นอกเวลา (นิสิต)**
-      } else {
-          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
-          return;
-      }
+    if (isOutOfTime) {
+      targetPage = "TimeOut.html";
+    } else {
+      targetPage = "TimeIn.html";
+    }
   } else if (userRole === "อาจารย์") {
-      if (hour >= 8 && hour < 16) {
-          targetPage = "TimeInTeacher.html"; // **ในเวลา (อาจารย์)**
-      } else if (hour >= 17 && hour <= 20) {
-          targetPage = "TimeOutTeacher.html"; // **นอกเวลา (อาจารย์)**
-      } else {
-          alert("⏳ ระบบเปิดให้จองเฉพาะ 08:00-16:00 และ 17:00-20:00 เท่านั้น");
-          return;
-      }
+    if (isOutOfTime) {
+      targetPage = "TimeOutTeacher.html";
+    } else {
+      targetPage = "TimeInTeacher.html";
+    }
   } else {
-      alert("⛔ ไม่สามารถระบุบทบาทของคุณได้");
-      return;
+    alert("⛔ ไม่สามารถระบุบทบาทของคุณได้");
+    return;
   }
+  
 
-  const date = urlParams.get("date");
-  const room = urlParams.get("room");
-  const endTime = urlParams.get("endTime");
 
 
   // ✅ สร้าง URL ใหม่
