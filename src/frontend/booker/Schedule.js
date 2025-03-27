@@ -370,7 +370,8 @@ function highlightDay(date) {
  * 10) confirmBooking()
  *    - เมื่อกด "ยืนยัน" จะเก็บข้อมูลวัน ห้อง เวลาเริ่ม-สิ้นสุด แล้วส่งไปหน้าต่อ
  ********************************/
-function confirmBooking() {
+let finalRedirectUrl; 
+async function confirmBooking() {
   const selectedCells = document.querySelectorAll("td.checked");
   if (selectedCells.length === 0) {
     showAlert("กรุณาเลือกช่วงเวลาที่ต้องการจอง!");
@@ -405,7 +406,7 @@ function confirmBooking() {
   selectedIndexes.sort((a, b) => a - b);
   const startIndex = selectedIndexes[0];
   const endIndex = selectedIndexes[selectedIndexes.length - 1];
-  const startTime = timeSlots[startIndex - 1];
+  const startTime = timeSlots[startIndex - 1] ?? timeSlots[startIndex]; // ✅ รองรับกรณี startIndex = 0
   const endTime =
     endIndex < row.children.length - 1
       ? timeSlots[endIndex]
@@ -421,7 +422,51 @@ function confirmBooking() {
     startTime: startTime,
     endTime: endTime,
   });
-  window.location.href = `desk_equipment.html?${urlParams.toString()}`;
+  finalRedirectUrl = `desk_equipment.html?${urlParams.toString()}`;  
+  // ดึงรายการจองแล้วเช็คซ้ำ
+  try {
+    const res = await fetch("http://localhost:3000/room_request");
+    const bookings = await res.json();
+  
+    const conflicts = bookings.filter((b) => {
+      const dateObj = new Date(b.used_date);
+      const bookingDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+      const selectedISO = new Date(selectedDate).toISOString().split("T")[0];
+  
+      // แปลงเวลาให้ชัวร์ว่าเป็น string HH:MM:SS
+      const bStart = b.start_time?.substring(0, 8); // "18:00:00"
+      const bEnd = b.end_time?.substring(0, 8);
+      const myStart = startTime?.substring(0, 8);
+      const myEnd = endTime?.substring(0, 8);
+  
+      // แปลง room_id ทั้งสองฝั่งให้เป็น string เพื่อให้เทียบตรงกัน
+      const sameRoom = String(b.room_id) === String(roomId);
+      const sameDate = bookingDate === selectedISO;
+      const overlap = isTimeOverlap(myStart, myEnd, bStart, bEnd);
+  
+      console.log("🟡 เปรียบเทียบ:", {
+        bookingDate, selectedISO,
+        bStart, bEnd,
+        myStart, myEnd,
+        sameRoom, sameDate, overlap
+      });
+  
+      return sameDate && sameRoom && overlap;
+    });
+    lastConflicts = conflicts;
+
+    if (conflicts.length > 0) {
+      showConflictModal(conflicts.length); // มีคิวซ้ำ → แสดง popup
+    } else {
+      window.location.href = finalRedirectUrl; // ไม่มีคิวซ้ำ → ไปหน้า desk ทันที
+    }
+    return;
+
+  
+  } catch (err) {
+    console.error("❌ ตรวจสอบการจองซ้อนล้มเหลว:", err);
+  }
+  
 }
 
 /********************************
@@ -465,6 +510,51 @@ document.addEventListener("DOMContentLoaded", async function () {
       await updateTableForSelectedDate(event.target.value);
     });
 });
+
+//ตรวจสอบเวลาซ้อนทับกัน
+
+function isTimeOverlap(startA, endA, startB, endB) {
+  return startA < endB && endA > startB;
+}
+
+let lastConflicts = []; // ⬅️ เก็บ conflicts ไว้ใช้ใน popup
+
+function showConflictModal(count) {
+  if (count === 0) return; // ป้องกันไม่ให้ popup ขึ้นถ้าไม่มีคิว
+
+  const detailText = lastConflicts.map((b, i) => {
+    const start = b.start_time?.substring(0, 5);
+    const end = b.end_time?.substring(0, 5);
+    return `${i + 1}. ${start} - ${end}`;
+  }).join("<br>");
+
+  Swal.fire({
+    icon: "warning",
+    title: `⚠️ มีการจองซ้อน ${count} คิว`,
+    html: `<div style="text-align:center; font-size:16px;">${detailText}</div>`,
+    showCancelButton: true,
+    confirmButtonText: "ไปยังหน้าเลือกโต๊ะ",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonColor: "#4CAF50",
+    cancelButtonColor: "#f44336"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = finalRedirectUrl;
+    }
+  });
+}
+
+
+
+
+function closeModal() {
+  document.getElementById("conflictModal").style.display = "none";
+}
+
+function proceedToDesk() {
+  window.location.href = finalRedirectUrl;
+}
+
 
 /********************************
  * 12) WebSocket สำหรับการอัปเดตเรียลไทม์

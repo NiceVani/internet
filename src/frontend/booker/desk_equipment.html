@@ -74,18 +74,19 @@
         width: 70px;
         height: 70px;
         border-radius: 4px;
-        display: flex;
+        display: inline-flex; /* ✅ เปลี่ยนเป็น inline-flex เพื่อวางต่อกันแบบ inline */
         flex-direction: column;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         color: black;
-        /*background-color: green;*/ /*พื้นหลังของคอมพิวเตอร์*/
         font-size: 16px;
         text-align: center;
         border: 2px solid transparent;
         transition: 0.2s;
+        margin-right: 0; /* ไม่ต้องใส่ margin ตรงนี้ เพราะ seg มี gap อยู่แล้ว */
       }
+      
 
       .desk .computer-icon {
         font-size: 28px;
@@ -189,6 +190,7 @@
       .desk-segment {
         display: flex;
         gap: 10px;
+        margin-right: 30px; /* ให้ segment แต่ละก้อนเว้นห่างกัน */
       }
     </style>
   </head>
