@@ -132,23 +132,6 @@
       grid-row: 1 / span 2;
     }
 
-    .room.large::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
     .room.large.available::after {
       content: 'ว่าง';
       background-color: green;
@@ -162,13 +145,13 @@
     }
 
     .room.largeDown1::after {
-      content: 'ไม่ว่าง';
+      content: 'ว่าง';
       position: absolute;
       top: 10px;
       right: 10px;
       width: 30px;
       height: 30px;
-      background-color: #ff0000;
+      background-color: #008000;
       border: 2px solid white;
       border-radius: 50%;
       display: flex;
@@ -180,7 +163,7 @@
 
     .room.largeDown1.available::after {
       content: 'ว่าง';
-      background-color: green;
+      background-color: #008000;
     }
 
     .room.largeDown2 {
@@ -245,35 +228,9 @@
       position: relative;
       grid-column: 4 / span 1;
       grid-row: 1 / span 1;
-      background-color: #8e8e8e;
+      background-color: rgb(255, 0, 0);
     }
 
-    .room.small::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 1px;
-      /* Adjust to move above the top edge */
-      left: 50%;
-      /* Horizontally center relative to the parent */
-      transform: translateX(-50%);
-      /* Offset to perfectly center */
-      width: 25px;
-      height: 25px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visible */
-    }
 
     .room.small.available::after {
       content: 'ว่าง';
@@ -284,35 +241,9 @@
       position: relative;
       grid-column: span 1;
       grid-row: 7 / span 1;
-      background-color: #8e8e8e;
+      background-color: #ff0000;
     }
 
-    .room.smallDown::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 1px;
-      /* Adjust to move above the top edge */
-      left: 50%;
-      /* Horizontally center relative to the parent */
-      transform: translateX(-50%);
-      /* Offset to perfectly center */
-      width: 25px;
-      height: 25px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visible */
-    }
 
     .room.smallDown.available::after {
       content: 'ว่าง';
@@ -340,31 +271,13 @@
     .room.vertical {
       position: relative;
       grid-row: span 2;
-      background-color: #8e8e8e;
+      background-color: #ff0000;
     }
 
-    .room.vertical::after {
-      content: 'ไม่ว่าง';
-      /* Displayed as "Not Available" in Thai */
-      position: absolute;
-      top: 10px;
-      right: 7px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visi /* Makes it a circle */
+    .room.vertical0 {
+      position: relative;
+      grid-row: span 2;
+      background-color: #8e8e8e;
     }
 
     .room.vertical.available::after {
@@ -382,18 +295,18 @@
       position: relative;
       grid-column: 8 / span 1;
       grid-row: span 2;
-      background-color: #8e8e8e;
+      background-color: #ff0000;
     }
 
-    .room.vertical1::after {
-      content: 'ไม่ว่าง';
+    .room.vertical0::after {
+      content: 'ว่าง';
       /* Displayed as "Not Available" in Thai */
       position: absolute;
       top: 10px;
       right: 7px;
       width: 30px;
       height: 30px;
-      background-color: red;
+      background-color: #008000;
       border: 2px solid white;
       border-radius: 50%;
       /* Makes it a circle */
@@ -591,6 +504,35 @@
     .elevator i {
       font-size: 24px;
     }
+
+    .hall {
+      grid-column: 3 / span 8;
+      grid-row: 3 / span 3;
+      background-color: #cbcbcb;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000;
+      border-radius: 10px;
+    }
+
+    .sc1-up {
+      grid-column: 12;
+      grid-row: 1;
+      background-color: #f5b041;
+      border: 2px dashed #000;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: black;
+      font-weight: bold;
+    }
   </style>
 
   <body>
@@ -611,24 +553,28 @@
         <button onclick="window.location.href='Floor4.html'" class="floor-btn active">ชั้น 4</button>
         <main>
           <div class="layout">
-            <div class="room vertical available" data-room="411">SC2-411<br>(Studio Room)</div>
+            <div class="room vertical0 available" data-room="411">SC2-411<br>(Studio Room)</div>
             <div class="room large disabled-room" data-room="412">SC2-412</div>
-            <div class="room small" data-room="413">SC2-413</div>
+            <div class="room small disabled-room" data-room="413">SC2-413</div>
             <div class="stair" style="grid-column: 5; grid-row: 1;"><i class="fas fa-stairs"></i></div>
             <div class="room large1 available" data-room="414">SC2-414</div>
-            <div class="room vertical1" data-room="415">SC2-415</div>
+            <div class="room vertical1 disabled-room" data-room="415">SC2-415</div>
             <div class="room small1" data-room="416">SC2-416</div>
             <div class="room small2" data-room="416">SC2-416</div>
-            <div class="room vertical" data-room="417">SC2-417</div>
+            <div class="room vertical disabled-room" data-room="417">SC2-417</div>
             <div class="room small3" data-room="418">SC2-418</div>
             <div class="room small4" data-room="418">SC2-418</div>
+            <div class="room sc1-up">
+              ↑<br>SC1
+            </div>
+            <div class="hall">โถงกลาง</div>
             <div class="room vertical1Down" data-room="410">SC2-410</div>
             <div class="room vertical1Down">ห้องสุขา หญิง</div>
             <div class="room vertical1Down">ห้องสุขา ชาย</div>
-            <div class="room smallDown" data-room="409">SC2-409</div>
+            <div class="room smallDown disabled-room" data-room="409">SC2-409</div>
             <div class="stair" style="grid-column: 5; grid-row: 7;"><i class="fas fa-stairs"></i></div>
             <div class="room largeDown1" data-room="408">SC2-408</div>
-            <div class="room largeDown2" data-room="407">SC2-407</div>
+            <div class="room largeDown2 disabled-room" data-room="407">SC2-407</div>
             <div class="elevator" style="grid-column: 11; grid-row: 7;"><i class="fas fa-elevator"></i></div>
             <div class="stair" style="grid-column: 10; grid-row: 7;"><i class="fas fa-stairs"></i></div>
           </div>
