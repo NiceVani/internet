@@ -432,36 +432,35 @@
 
 
     function displaySelectedComputers() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const desksParam = urlParams.get("desks"); // รับค่า desks
-      const computerTableBody = document.getElementById("computer-table-body");
-
-      if (!desksParam) {
-        computerTableBody.innerHTML = `<tr><td colspan="3">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
-        return;
-      }
-
-      const deskItems = desksParam.split(",");
-      const rowPattern = [3, 4, 3]; // รูปแบบแถว 3 - 4 - 3
-      let computerTableRows = "";
-      let startIndex = 0;
-
-      for (let i = 0; startIndex < deskItems.length; i++) {
-        const count = rowPattern[i % rowPattern.length]; // วนซ้ำ pattern
-        const rowItems = deskItems.slice(startIndex, startIndex + count);
-
-        if (rowItems.length > 0) {
-          computerTableRows += `<tr>
-            <td>แถวที่ ${i + 1}</td>
-            <td>${rowItems.map((desk) => `${desk}`).join(", ")}</td>
-          </tr>`;
+        const urlParams = new URLSearchParams(window.location.search);
+        const desksParam = urlParams.get("desks");
+        const roomId = urlParams.get("room");
+        const computerTableBody = document.getElementById("computer-table-body");
+    
+        if (!desksParam) {
+            computerTableBody.innerHTML = `<tr><td colspan="2">ไม่มีการเลือกคอมพิวเตอร์</td></tr>`;
+            return;
         }
-
-        startIndex += count;
-      }
-
-      computerTableBody.innerHTML = computerTableRows;
+    
+        const deskItems = desksParam.split(",").map(d => parseInt(d.trim(), 10));
+        
+        // ✅ ปรับแถวละ 11 ตัว (ตามจริง)
+        let desksPerRow = 11;
+        if (roomId === "308") desksPerRow = 6;
+    
+        let rowMap = {};
+        deskItems.forEach(desk => {
+            const row = Math.ceil(desk / desksPerRow);
+            if (!rowMap[row]) rowMap[row] = [];
+            rowMap[row].push(desk);
+        });
+    
+        const sortedRows = Object.keys(rowMap).sort((a, b) => a - b);
+        computerTableBody.innerHTML = sortedRows.map(row =>
+            `<tr><td>แถวที่ ${row}</td><td>${rowMap[row].sort((a, b) => a - b).join(", ")}</td></tr>`
+        ).join("");
     }
+  
 
     // Main initialization
     document.addEventListener("DOMContentLoaded", async () => {
