@@ -296,9 +296,11 @@ app.get("/roomdetail", (req, res) => {
       rli.floor,
       rli.room_id,
       rli.room_name,
+      rt.type_name AS room_type, --
       SUM(CASE WHEN rlr.request_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count
     FROM room rli
     LEFT JOIN room_request rlr ON rli.room_id = rlr.room_id
+    LEFT JOIN room_type rt ON rli.room_type_id = rt.room_type_id -- 
     GROUP BY rli.room_id, rli.room_name, rli.floor, rli.room_name
     ORDER BY Approved_Count DESC;
   `;
@@ -483,11 +485,18 @@ app.get("/userBookings/:userId", async (req, res) => {
           rlr.start_time, 
           rlr.end_time, 
           rlr.request_status, 
-          rlr.request_type
+          rlr.request_type,
+          rlr.reject_reason,
+          rlr.detail_reject_reason,
+          ad.full_name AS admin_name,
+          ex.full_name AS executive_name
+
         FROM room_request rlr
         JOIN room rli ON rlr.room_id = rli.room_id
         JOIN room_type rt ON rt.room_type_id = rli.room_type_id
         JOIN student s ON rlr.student_id = s.student_id
+        LEFT JOIN admin ad ON rlr.admin_id = ad.admin_id
+        LEFT JOIN executive ex ON rlr.executive_id = ex.executive_id
         WHERE s.student_id = ?
       `;
       values = [userId];
@@ -497,15 +506,23 @@ app.get("/userBookings/:userId", async (req, res) => {
           rlr.room_request_id, 
           rlr.room_id, 
           rli.room_name, 
+          CONVERT_TZ(rlr.submitted_time, '+00:00', '+07:00') AS Submitted_date, 
           CONVERT_TZ(rlr.used_date, '+00:00', '+07:00') AS Used_date, 
           rlr.start_time, 
           rlr.end_time, 
           rlr.request_status, 
-          rlr.request_type
+          rlr.request_type,
+          rlr.reject_reason,
+          rlr.detail_reject_reason,
+          ad.full_name AS admin_name,
+          ex.full_name AS executive_name
+
         FROM room_request rlr
         JOIN room rli ON rlr.room_id = rli.room_id
         JOIN room_type rt ON rt.room_type_id = rli.room_type_id
         JOIN teacher t ON rlr.teacher_id = t.teacher_id
+        LEFT JOIN admin ad ON rlr.admin_id = ad.admin_id
+        LEFT JOIN executive ex ON rlr.executive_id = ex.executive_id
         WHERE t.teacher_id = ?
       `;
       values = [userId];
@@ -553,7 +570,7 @@ app.delete("/cancelBooking/:requestId", async (req, res) => {
     const [updateResult] = await connection.promise().query(
       `
       UPDATE room_request
-      SET request_status = 'ยกเลิกการจอง'
+      SET request_status = 'ยกเลิก'
       WHERE room_request_id = ?
     `,
       [requestId]
