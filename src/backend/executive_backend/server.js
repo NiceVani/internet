@@ -512,6 +512,7 @@ FROM equipment_brokened as eb
 LEFT JOIN equipment as e ON e.equipment_id = eb.equipment_id
 LEFT JOIN room as r ON eb.room_id = r.room_id
 LEFT JOIN equipment_management as em ON em.equipment_id = eb.equipment_id
+WHERE em.stock_quantity IS NOT NULL
 GROUP BY e.equipment_name, r.room_name, em.stock_quantity
 ORDER BY r.room_name, e.equipment_name;
 
