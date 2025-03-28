@@ -1,0 +1,116 @@
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .header {
+            background-color: #ff5722;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .filters input,
+        .filters button {
+            padding: 5px;
+            font-size: 1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th,
+        table td {
+            border: 2px solid #333;
+            /* เส้นขอบหนาและสีเข้ม */
+            text-align: center;
+            padding: 10px;
+        }
+
+        table td {
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        table th {
+            background-color: #673ab7;
+            color: white;
+            font-weight: bold;
+            border-bottom: 3px solid #4527a0;
+        }
+
+        table td:hover {
+            background-color: #ffe0b2;
+            /* สีเปลี่ยนเมื่อ hover */
+            border-color: #ff5722;
+            /* เส้นขอบเปลี่ยนสีเมื่อ hover */
+        }
+
+        .status-cell {
+            cursor: pointer;
+            border: 2px solid #888;
+            /* เพิ่มเส้นขอบให้ชัดเจน */
+        }
+
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #5cb85c;
+        }
+
+        .status-occupied {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .status-unavailable {
+            background-color: #f5c6cb;
+            color: #721c24;
+            border-color: #e0a800;
+        }
+
+        .status-maintenance {
+            background-color: #ffeeba;
+            color: #856404;
+            border-color: #ffc107;
+        }
+        .btn-confirm {
+            display: block;
+            margin: 20px auto;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn-confirm:hover {
+            background-color: #e64a19;
+        }

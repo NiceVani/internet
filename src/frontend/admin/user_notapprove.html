@@ -27,7 +27,7 @@
             <a href="request_crash_equipments.html"><button>รายงานอุปกรณ์ชำรุด</button></a>
         </div>
         <div class="logout-button">
-            <button id="logout-button">ออกจากระบบ</button>
+            <button onclick="logout()" class="btn btn-warning">ออกจากระบบ</button></div>
         </div>
     </header>
 
@@ -51,15 +51,15 @@
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th style="color: #929292;">วันที่</th>
+                        <th class="text-center">วันที่</th>
                         <th class="text-center">ชื่อ-นามสกุล</th>
                         <th class="text-center">อีเมล</th>
                         <th class="text-center">ห้อง</th>
                         <th class="text-center">จำนวนผู้ใช้</th>
                         <th class="text-center">เวลาจอง</th>
-                        <th class="text-center">รายละเอียด / เอกสาร</th>
+                        <th class="text-center">รายละเอียด</th>
                         <th class="text-center">เหตุผลในการขอใช้งาน</th>
-                        <th class="text-center">สถานะ</th>
+                        <th class="text-center">การอนุมัติ</th>
                     </tr>
                 </thead>
                 <tbody id ='rooms'>
@@ -86,11 +86,13 @@
                 <p><strong>วันที่จอง:</strong> <span id="modal-used_date"></span></p>
                 <p><strong>เวลาจอง:</strong> <span id="modal-time"></span></p>
                 <p><strong>อุปกรณ์ที่ขอยืม:</strong> <span id="modal-equipment"></span></p>
-                <p><strong>เอกสาร:</strong> <a id="modal-document" href="#" target="_blank">เปิดเอกสาร</a></p>
                 <p><strong>เหตุผลในการขอใช้งาน:</strong> <span id="modal-reason"></span></p>
                 <p><strong>เหตุผลเพิ่มเติม:</strong> <span id="modal-reason-detail"></span></p>
                 <p><strong>เหตุผลการปฏิเสธ:</strong> <span id="modal-data-reject"></span></p>
                 <p><strong>เหตุผลการปฏิเสธเพิ่มเติม:</strong> <span id="modal-data-reject-detail"></span></p>
+                <p><strong>ผู้ไม่อนุมัติ (ผู้ดูเเล):</strong> <span id="modal-approved-by"></span></p>
+                <p><strong>ผู้ไม่อนุมัติ (ผู้บริหาร):</strong> <span id="modal-approved-by_ex"></span></p>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
