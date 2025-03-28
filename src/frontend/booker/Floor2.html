@@ -64,6 +64,7 @@
       color: white;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
+      position: relative;
     }
 
     .room:hover {
@@ -75,7 +76,6 @@
     .room.large {
       grid-column: span 2;
       grid-row: span 2;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีแดงสำหรับห้องใหญ่ */
     }
@@ -83,7 +83,6 @@
     .room.small {
       grid-column: span 1;
       grid-row: span 1;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีเขียวสำหรับห้องเล็ก */
     }
@@ -108,7 +107,6 @@
     .room.large.bottom {
       grid-column: 1 / span 1;
       grid-row: 6 / span 2;
-      background-color: grey;
       border: 2px solid #000000;
       /* กรอบสีม่วงสำหรับห้องใหญ่ */
     }
@@ -116,7 +114,9 @@
     .room.large.bottom2 {
       grid-column: 2 / span 1;
       grid-row: 6 / span 2;
+
       background-color: rgb(255, 0, 0);
+
       border: 2px solid #000;
       /* กรอบสีเทาสำหรับห้องใหญ่ */
     }
@@ -124,7 +124,6 @@
     .room.large.bottom3 {
       grid-column: 3 / span 1;
       grid-row: 6 / span 2;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีส้มสำหรับห้องใหญ่ */
     }
@@ -132,7 +131,6 @@
     .room.large.bottom4 {
       grid-column: 6 / span 2;
       grid-row: 6 / span 2;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีส้มเข้มสำหรับห้องใหญ่ */
     }
@@ -140,7 +138,6 @@
     .room.large.bottom5 {
       grid-column: 8 / span 2;
       grid-row: 6 / span 2;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีส้มอ่อนสำหรับห้องใหญ่ */
     }
@@ -148,7 +145,6 @@
     .room.large.bottom6 {
       grid-column: 12 / span 1;
       grid-row: 6 / span 2;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีเหลืองสำหรับห้องใหญ่ */
     }
@@ -156,7 +152,6 @@
     .room.smallss.bottoms1 {
       grid-column: 4 / span 1;
       grid-row: 7 / span 1;
-      background-color: #ff0000;
       border: 2px solid #000;
       /* กรอบสีเหลืองอ่อนสำหรับห้องเล็ก */
     }
@@ -167,22 +162,7 @@
       color: white;
     }
 
-    .room .status {
-      content: "ว่าง";
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: #28a745;
-      border: 2px solid #000;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
+    
 
     .Notavailable {
       position: relative;
@@ -190,22 +170,7 @@
       color: white;
     }
 
-    .room .statusN {
-      content: "ไม่ว่าง";
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
+    
 
     .center {
       align-items: center;
@@ -443,6 +408,7 @@
       border: 2px solid #000;
     }
 
+
     .room.has-icon {
       position: relative;
     }
@@ -467,6 +433,7 @@
   position: relative; /* ต้องมี เพื่อให้ icon อยู่ในขอบของห้อง */
 }
 
+
   </style>
 </head>
 
@@ -483,7 +450,8 @@
   <div class="content">
     <div class="floor-selector">
       <!-- เมื่อกดปุ่มจะไปเปิดไฟล์ Floor*.html -->
-      <button onclick="window.location.href='Floor2.html'" class="floor-btn active">
+      <button onclick="window.location.href='Floor2.html'" 
+      class="floor-btn active">
         ชั้น 2
       </button>
       <button onclick="window.location.href='Floor3.html'">ชั้น 3</button>
@@ -495,17 +463,17 @@
           <div class="room sc1-up">
             ↑<br>SC1
           </div>
-          <div class="room small disabled-room">SC2-213</div>
+          <div class="room small ">SC2-213</div>
           <div class="stair"><i class="fas fa-stairs"></i></div>
-          <div class="room large disabled-room">SC2-214</div>
-          <div class="room large disabled-room">SC2-215</div>
-          <div class="room men disabled-room">ห้องสุขา อจ ชาย</div>
+          <div class="room large ">SC2-214</div>
+          <div class="room large ">SC2-215</div>
+          <div class="room men diabled-room">ห้องสุขา อจ ชาย</div>
           <div class="room women disabled-room">ห้องสุขา อจ หญิง</div>
           <div class="room sc1-up1">
             ↑<br>SC1
           </div>
           <div class="space smalls"></div>
-          <div class="room vertical disabled-room">SC2-201</div>
+          <div class="room vertical ">SC2-201</div>
           <div class="center"></div>
 
           <!-- เพิ่มบันไดและลิฟต์ระหว่าง SC2-208 และ SC2-209 -->
@@ -513,12 +481,14 @@
 
           <div class="hall">โถงกลาง</div>
 
+
           <div class="room large bottom available" data-room="212">SC2-212</div>
           <div class="room large bottom2 disabled-room" data-room="211">SC2-211</div>
           <div class="room large bottom3 disabled-room">SC2-210</div>
           <div class="room smallss bottoms1 disabled-room">SC2-209</div>
           <div class="room large bottom4 disabled-room">SC2-208</div>
           <div class="room large bottom5 disabled-room">SC2-207</div>
+
 
           <!-- เพิ่มบันไดข้าง SC2-207 ติดกับลิฟต์ -->
           <div class="stair" style="grid-column: 10; grid-row: 7;"><i class="fas fa-stairs"></i></div>

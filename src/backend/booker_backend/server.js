@@ -484,11 +484,18 @@ app.get("/userBookings/:userId", async (req, res) => {
           rlr.start_time, 
           rlr.end_time, 
           rlr.request_status, 
-          rlr.request_type
+          rlr.request_type,
+          rlr.reject_reason,
+          rlr.detail_reject_reason,
+          ad.full_name AS admin_name,
+          ex.full_name AS executive_name
+
         FROM room_request rlr
         JOIN room rli ON rlr.room_id = rli.room_id
         JOIN room_type rt ON rt.room_type_id = rli.room_type_id
         JOIN student s ON rlr.student_id = s.student_id
+        LEFT JOIN admin ad ON rlr.admin_id = ad.admin_id
+        LEFT JOIN executive ex ON rlr.executive_id = ex.executive_id
         WHERE s.student_id = ?
       `;
       values = [userId];
@@ -498,15 +505,23 @@ app.get("/userBookings/:userId", async (req, res) => {
           rlr.room_request_id, 
           rlr.room_id, 
           rli.room_name, 
+          CONVERT_TZ(rlr.submitted_time, '+00:00', '+07:00') AS Submitted_date, 
           CONVERT_TZ(rlr.used_date, '+00:00', '+07:00') AS Used_date, 
           rlr.start_time, 
           rlr.end_time, 
           rlr.request_status, 
-          rlr.request_type
+          rlr.request_type,
+          rlr.reject_reason,
+          rlr.detail_reject_reason,
+          ad.full_name AS admin_name,
+          ex.full_name AS executive_name
+
         FROM room_request rlr
         JOIN room rli ON rlr.room_id = rli.room_id
         JOIN room_type rt ON rt.room_type_id = rli.room_type_id
         JOIN teacher t ON rlr.teacher_id = t.teacher_id
+        LEFT JOIN admin ad ON rlr.admin_id = ad.admin_id
+        LEFT JOIN executive ex ON rlr.executive_id = ex.executive_id
         WHERE t.teacher_id = ?
       `;
       values = [userId];
@@ -554,7 +569,7 @@ app.delete("/cancelBooking/:requestId", async (req, res) => {
     const [updateResult] = await connection.promise().query(
       `
       UPDATE room_request
-      SET request_status = 'ยกเลิกการจอง'
+      SET request_status = 'ยกเลิก'
       WHERE room_request_id = ?
     `,
       [requestId]
@@ -1539,6 +1554,22 @@ app.post("/submitBooking", async (req, res) => {
     await connectionPromise.rollback();
     console.error("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล:", err);
     res.status(500).json({ error: "บันทึกข้อมูลล้มเหลว" });
+  }
+});
+
+// ✅ API ดึงสถานะห้อง
+app.get("/getRoomStatus", async (req, res) => {
+  try {
+    console.log("🔄 กำลังดึงข้อมูลสถานะห้อง...");
+    
+    // ตรวจสอบตาราง room ว่ามี field `room_status` หรือไม่
+    const [rooms] = await connection.promise().query("SELECT room_id, room_name, room_status FROM room");
+
+    console.log("✅ ข้อมูลห้องที่ดึงมา:", rooms); // ตรวจสอบข้อมูลที่ดึงมา
+    res.json(rooms);
+  } catch (err) {
+    console.error("❌ Error fetching room status:", err);
+    res.status(500).json({ error: "ดึงสถานะล้มเหลว", details: err.message });
   }
 });
 

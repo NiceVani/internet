@@ -78,6 +78,7 @@
             color: white;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
+            position: relative;
         }
 
         .room.red {
@@ -99,8 +100,8 @@
             position: relative;
             grid-column: 5 / span 2;
             grid-row: 1 / span 2;
-
         }
+
 
         .room.large.sc2-308 {
             grid-column: 8 / span 2;
@@ -351,6 +352,38 @@
             font-size: 14px;
             color: black;
             font-weight: bold;
+            
+        }
+        /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
+        .available {
+            background-color: #8e8e8e !important; /* ✅ สีเขียว */
+        }
+        
+        
+        /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
+        .disabled-room {
+            pointer-events: none;
+            cursor: not-allowed;
+            background-color: #8e8e8e !important; /* ❌ สีแดง */
+        }
+        
+        /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
+        .status-label {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+            z-index: 10; 
         }
 
         .room-type-icon {
@@ -385,6 +418,7 @@
         .status.not {
             background-color: red;
         }
+
     </style>
 </head>
 
