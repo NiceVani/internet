@@ -11,7 +11,7 @@ async function fetchUserInfo() {
     console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
     const response = await fetch("http://localhost:3000/session", {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -26,7 +26,7 @@ async function fetchUserInfo() {
         sessionUserId = userSession.data.student_id;
         sessionRole = "นิสิต";
       } else if (userSession.role === "อาจารย์") {
-        sessionUserId = userSession.data.teacher_id;  // ✅ ใช้ teacher_id
+        sessionUserId = userSession.data.teacher_id; // ✅ ใช้ teacher_id
         sessionRole = "อาจารย์";
       } else {
         alert("❌ ไม่สามารถระบุประเภทบัญชีได้");
@@ -87,47 +87,6 @@ function attachRoomClickEvents() {
   });
 }
 
-// ✅ ฟังก์ชันออกจากระบบ
-window.addEventListener("DOMContentLoaded", async () => {
-  // try {
-  //   const res = await fetch("http://localhost:3000/getRoomStatus");
-  //   const rooms = await res.json();
-
-  //   const roomElements = document.querySelectorAll(".room");
-
-  //   roomElements.forEach((el) => {
-  //     const roomName = el.textContent.trim().replace(/\s/g, "");
-  //     const match = rooms.find(
-  //       (r) => r.room_name.replace(/\s/g, "") === roomName
-  //     );
-
-  //     if (match) {
-  //       // เคลียร์ class เดิมก่อน
-  //       el.classList.remove("available", "disabled-room", "no-data");
-
-  //       if (match.room_status === "ว่าง") {
-  //         el.classList.add("available");
-  //         const status = document.createElement("div");
-  //         status.classList.add("status-label");
-  //         status.textContent = "ว่าง";
-  //         el.appendChild(status);
-  //       } else {
-  //         el.classList.add("disabled-room");
-  //         const status = document.createElement("div");
-  //         status.classList.add("status-label");
-  //         status.textContent = "ไม่ว่าง";
-  //         el.appendChild(status);
-  //       }
-  //     } else {
-  //       // ถ้าไม่พบห้องในฐานข้อมูล ให้ถือว่าไม่มีข้อมูล
-  //       el.classList.add("no-data");
-  //     }
-  //   });
-  // } catch (err) {
-  //   console.error("❌ โหลดข้อมูลห้องล้มเหลว:", err);
-  // }
-});
-
 // ✅ ดึงสถานะห้องจากฐานข้อมูล
 async function fetchRoomStatus() {
   try {
@@ -139,7 +98,7 @@ async function fetchRoomStatus() {
 
     const allRoomElements = document.querySelectorAll(".room");
 
-    allRoomElements.forEach(roomElement => {
+    allRoomElements.forEach((roomElement) => {
       const roomId = roomElement.dataset.room;
       if (!roomId) return;
 
@@ -152,7 +111,6 @@ async function fetchRoomStatus() {
         statusElement.classList.add("status");
         roomElement.appendChild(statusElement);
       }
-
 
       if (roomData.room_status.trim() === "เปิดการใช้งาน") {
         statusElement.textContent = "ว่าง";
@@ -168,18 +126,12 @@ async function fetchRoomStatus() {
         roomElement.classList.remove("available", "no-data");
         roomElement.style.backgroundColor = "#8e8e8e";
         roomElement.style.cursor = "not-allowed";
-
       }
-      
-      
     });
-
   } catch (error) {
     console.error("❌ Error loading room status:", error);
   }
 }
-
-
 
 // ✅ ดึงไอคอนประเภทห้อง
 async function fetchRoomTypeIcon() {
@@ -191,19 +143,21 @@ async function fetchRoomTypeIcon() {
     console.log("📦 Room type data:", rooms);
 
     const typeIcons = {
-      "ห้องเลคเชอร์": "fas fa-chalkboard-teacher",
-      "ห้องปฏิบัติการ": "fas fa-laptop-code",
-      "ห้องปฎิบัติการ": "fas fa-laptop-code", // รองรับคำสะกดผิดด้วย
+      ห้องเลคเชอร์: "fas fa-chalkboard-teacher",
+      ห้องปฏิบัติการ: "fas fa-laptop-code",
+      ห้องปฎิบัติการ: "fas fa-laptop-code", // รองรับคำสะกดผิดด้วย
       "co-working space": "fas fa-users",
       "studio room": "fas fa-video",
-      "ห้องค้นคว้า": "fas fa-book"
+      ห้องค้นคว้า: "fas fa-book",
     };
 
     rooms.forEach((room) => {
-      const roomId = room.room_id?.trim();  // ตัดช่องว่าง
+      const roomId = room.room_id?.trim(); // ตัดช่องว่าง
       const normalizedType = room.room_type?.trim().toLowerCase();
 
-      const roomElement = document.querySelector(`.room[data-room="${roomId}"]`);
+      const roomElement = document.querySelector(
+        `.room[data-room="${roomId}"]`
+      );
       const iconClass = typeIcons[normalizedType];
 
       if (roomElement && iconClass) {
@@ -215,10 +169,7 @@ async function fetchRoomTypeIcon() {
         console.warn("⛔ ไม่พบ room หรือ icon:", roomId, room.room_type);
       }
     });
-
   } catch (err) {
     console.error("❌ Failed to load room type icons:", err);
   }
 }
-
-
