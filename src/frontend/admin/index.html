@@ -88,7 +88,7 @@
       <a href="request_crash_equipments.html"><button>รายงานอุปกรณ์ชำรุด</button></a>
     </div>
     <div class="logout-button">
-      <button id="logout-button">ออกจากระบบ</button>
+      <button onclick="logout()" class="btn btn-warning">ออกจากระบบ</button></div>
     </div>
   </header>
   <main>
@@ -121,9 +121,8 @@
         <div>
           <label for="status">สถานะห้อง :</label>
           <select id="status">
-            <option value="available">ว่าง</option>
-            <option value="not-available">ไม่ว่าง</option>
-            <option value="closed">ซ่อมบำรุง</option>
+            <option value="available">เปิดการใช้งาน</option>
+            <option value="not-available">ปิดการใช้งาน</option>
           </select>
         </div>
         <button id="saveStatus">Save Status</button>
@@ -142,72 +141,34 @@
 
       let currentRoomElement = null; // Track the current room being edited
 
-      /*async function loadSchedule(roomId) {
-        const scheduleContent = document.getElementById("scheduleContent");
-        let fileName = "";
-
-        // ใช้ if...else เพื่อเลือกไฟล์สำหรับแต่ละห้อง
-        if (roomId === "SC2-308") {
-          fileName = "schedule308.html";
-        } else if (roomId === "SC2-307") {
-          fileName = "schedule307.html";
-        } else if (roomId === "SC2-311") {
-          fileName = "schedule311.html";
-        } else {
-          scheduleContent.innerHTML = `<p>ไม่มีตารางสำหรับห้อง ${roomId}</p>`;
-          return; // ถ้าไม่มีตารางสำหรับห้องนั้น ให้หยุดทำงาน
-        }
-
-        try {
-          // โหลดไฟล์ HTML
-          const response = await fetch(fileName);
-          if (!response.ok) throw new Error("ไม่สามารถโหลดไฟล์ได้");
-          const content = await response.text();
-
-          // แสดงเนื้อหาใน modal
-          scheduleContent.innerHTML = content;
-        } catch (error) {
-          scheduleContent.innerHTML = `<p>เกิดข้อผิดพลาด: ${error.message}</p>`;
-        }
-      }*/
       // Function to manage the room details
       function manageRoom(roomId) {
+        // ตรวจสอบว่าค่า roomId ถูกส่งเข้ามาหรือไม่
+        console.log("roomId ที่ถูกคลิก:", roomId);
+
+        // ดึง element ที่มี id เป็น roomId
         currentRoomElement = document.getElementById(roomId);
-        if (!currentRoomElement) {
-          alert("Room element not found");
-          return;
-        }
 
-        // Display the room name in the modal
-        roomDetailTitle.innerText = `รายละเอียดห้อง : ${currentRoomElement.innerText}`;
+        // ตรวจสอบค่าของ roomId ที่ถูกคลิก
+        const roomName = currentRoomElement.innerText;
 
-        //loadSchedule(roomId);
+        // ตั้งชื่อหัวข้อ
+        roomDetailTitle.innerText = `รายละเอียดห้อง: ${roomName}`;
 
-        // Set the current status in the dropdown
-        const currentStatus = currentRoomElement.classList.contains("closed")
-          ? "closed"
-          : currentRoomElement.classList.contains("not-available")
-            ? "not-available"
-            : "available";
+        // โหลดตารางการใช้งาน (สามารถเพิ่มฟังก์ชัน loadSchedule ตามต้องการ)
+        // loadSchedule(roomId);
 
-        statusSelect.value = currentStatus;
+        // ค้นหาสถานะปัจจุบันของห้อง
+        const currentStatus = currentRoomElement.classList.contains('available') ? 'available' : 'not-available';
+        statusSelect.value = currentStatus === 'available' ? 'available' : 'not-available';
 
-        // Define the button behavior based on room ID
-        roomDetailsButton.onclick = function () {
-          if (roomId === "sc2-407") {
-            window.location.href = "test407.html";
-          } else if (roomId === "sc2-414") {
-            window.location.href = "test414.html";
-          } else if (roomId === "sc2-415") {
-            window.location.href = "test415.html";
-          } else if (roomId === "SC2-411") {
-            window.location.href = "test411.html";
-          } else {
-            alert("No details available for this room.");
-          }
-        };
+        // แสดง modal
+        modal.style.display = "block";
 
-        //Schedule
+        // กำหนด action ให้กับปุ่ม scheduleButton สำหรับแต่ละห้อง
+        const scheduleButton = document.getElementById("scheduleButton");
+
+        // กำหนด URL ของ schedule สำหรับห้องต่างๆ
         if (roomId === 'sc2-414') {
           scheduleButton.onclick = () => window.location.href = "Schedule414.html";
         }
@@ -220,61 +181,172 @@
         if (roomId === 'sc2-415') {
           scheduleButton.onclick = () => window.location.href = "Schedule415.html";
         }
-        // Show the modal
-        modal.style.display = "block";
+
+        const roomPage = "Room_Detail.html";
+
+        // ทำให้ roomId เป็นตัวพิมพ์เล็กทั้งหมดก่อนแทนที่
+        const numericId = roomId.toLowerCase().replace("sc2-", "").replace("sc2-", "");
+
+        // ตรวจสอบห้องที่มีข้อมูล
+        const roomIdsForDetails = ['407', '411', '414', '415'];
+
+        document.getElementById("roomDetailsButton").onclick = function () {
+          // ถ้าห้องนี้มีรายละเอียด ให้เปลี่ยนหน้าด้วยการส่งค่า roomId
+          if (roomIdsForDetails.includes(numericId)) {
+            window.location.href = `${roomPage}?room=${numericId}`;
+          } else {
+            alert("ไม่มีข้อมูลสำหรับห้องนี้");
+          }
+        };
       }
 
-      // Save status changes
-      saveStatusButton.onclick = function () {
-        if (!currentRoomElement) return;
-
+      // Save the room status and update the room element
+      saveStatusButton.onclick = async function () {
         const selectedStatus = statusSelect.value;
 
-        // Update room classes and text
-        currentRoomElement.classList.remove("available", "not-available", "closed");
-        currentRoomElement.classList.add(selectedStatus);
-
-        if (selectedStatus === "closed" && !currentRoomElement.innerText.includes(" (ซ่อมบำรุง)")) {
-          currentRoomElement.innerText += " (ซ่อมบำรุง)";
-        } else if (selectedStatus !== "closed") {
-          currentRoomElement.innerText = currentRoomElement.innerText.replace(" (ซ่อมบำรุง)", "");
+        // เปลี่ยน class เพื่อแสดงผลหน้า UI
+        if (selectedStatus === "available") {
+          currentRoomElement.classList.add("available");
+          currentRoomElement.classList.remove("not-available", "closed");
+        } else if (selectedStatus === "not-available") {
+          currentRoomElement.classList.add("not-available");
+          currentRoomElement.classList.remove("available", "closed");
+        } else if (selectedStatus === "closed") {
+          currentRoomElement.classList.add("closed");
+          currentRoomElement.classList.remove("available", "not-available");
         }
 
-        // Save status in localStorage
-        localStorage.setItem(currentRoomElement.id, selectedStatus);
+        // 🟢 เรียก API ไปยัง backend เพื่ออัปเดต room_status
+        const roomName = currentRoomElement.innerText.split(" ")[0]; // เช่น SC2-307
+        const statusText =
+          selectedStatus === "available"
+            ? "เปิดการใช้งาน"
+            : "ปิดการใช้งาน";
 
-        // Close the modal
+        try {
+          const res = await fetch("http://localhost:3001/updateRoomStatus", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              room_name: roomName,
+              room_status: statusText,
+            }),
+          });
+
+          const result = await res.json();
+          if (res.ok) {
+            alert("✅ อัปเดตสถานะห้องสำเร็จ");
+          } else {
+            alert("❌ อัปเดตไม่สำเร็จ: " + result.message);
+          }
+        } catch (err) {
+          console.error("❌ Error:", err);
+          alert("เกิดข้อผิดพลาด");
+        }
+
         modal.style.display = "none";
       };
+
 
       // Close the modal
-      closeModal.onclick = () => {
+      closeModal.onclick = function () {
         modal.style.display = "none";
       };
 
-      // Close the modal when clicking outside
+      // Close the modal if clicked outside of it
       window.onclick = function (event) {
         if (event.target === modal) {
           modal.style.display = "none";
         }
       };
 
-      // Load room statuses from localStorage on page load
-      window.onload = function () {
-        const rooms = document.querySelectorAll(".room");
-        rooms.forEach((room) => {
-          const savedStatus = localStorage.getItem(room.id);
-          if (savedStatus) {
-            room.classList.add(savedStatus);
+      // Load room status from localStorage when the page reloads
+      window.onload = async function () {
+        try {
+          const response = await fetch("http://localhost:3001/getRoomStatuses");
+          const roomStatuses = await response.json();
+
+          const rooms = document.querySelectorAll(".room");
+
+          rooms.forEach(room => {
+            const roomName = room.id.toUpperCase();
+            const statusData = roomStatuses.find(r => r.room_name.toUpperCase() === roomName);
+
+            if (statusData) {
+              room.classList.remove("available", "not-available", "closed");
+
+              if (statusData.room_status === "เปิดการใช้งาน") {
+                room.classList.add("available");
+              } else if (statusData.room_status === "ปิดการใช้งาน") {
+                room.classList.add("not-available");
+              } else if (statusData.room_status === "ซ่อมบำรุง") {
+                room.classList.add("closed");
+                if (!room.innerText.includes("ซ่อมบำรุง")) {
+                  room.innerText += " (ซ่อมบำรุง)";
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.error("❌ ไม่สามารถโหลดสถานะห้องจากฐานข้อมูลได้:", err);
+        }
+      };
+
+
+
+      // อ้างอิงถึง search input และ reports container
+      const searchInput = document.getElementById("searchInput");
+      const reportsContainer = document.querySelector(".reports");
+      const reportItems = document.querySelectorAll(".report");
+
+      // เพิ่ม event listener สำหรับการค้นหา
+      searchInput.addEventListener("input", function () {
+        const query = searchInput.value.toLowerCase();
+
+        reportItems.forEach((report) => {
+          const reportText = report.textContent.toLowerCase();
+
+          // แสดงเฉพาะรายการที่ตรงกับคำค้นหา
+          if (reportText.includes(query)) {
+            report.style.display = "block";
+          } else {
+            report.style.display = "none";
           }
         });
-      };
+      });
     </script>
-    <script src="CheckStatus.js"></script>
-    <script src="logout.js"></script>
+    <script>
+      const categories = document.querySelectorAll(".categories li");
+      const reports = document.querySelectorAll(".reports .report");
 
-    </div>
-  </main>
+      // Add click event listener to each category item
+      categories.forEach((category) => {
+        category.addEventListener("click", () => {
+          // Toggle active class on the category
+          category.classList.toggle("active");
+
+          // Get the category ID from data-category attribute
+          const categoryId = category.getAttribute("data-category");
+
+          // Show or hide reports based on the clicked category
+          reports.forEach((report) => {
+            if (report.getAttribute("data-category") === categoryId) {
+              // Toggle visibility of the selected category reports
+              if (category.classList.contains("active")) {
+                report.style.display = "block"; // Show the report
+              } else {
+                report.style.display = "none"; // Hide the report
+              }
+            } else {
+              // Always hide reports that don't match the selected category
+              report.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
+    <script src="logout.js"></script>
+    <script src="CheckStatus.js"></script>
 </body>
 
 </html>

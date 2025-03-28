@@ -158,7 +158,8 @@ async function updateStatus(repairNumber) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 repair_id: repairNumber,
-                new_status: "รับเรื่องแล้ว"
+                new_status: "รับเรื่องแล้ว",
+                admin_id: admin.data.admin_id  // ✅ เพิ่มตรงนี้
             }),
             credentials: "include"
         });
@@ -173,6 +174,7 @@ async function updateStatus(repairNumber) {
         console.error("❌ Error updating status:", error);
     }
 }
+
 
 // ✅ เพิ่ม Event Listener ให้ปุ่ม "รับเรื่อง"
 document.addEventListener("click", function(event) {

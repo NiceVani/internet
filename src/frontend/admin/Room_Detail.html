@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SC2-307</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+    }
+
+    .header {
+      background-color: #ff5722;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 1.5em;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .desks-section {
+      flex: 3;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .legend .box {
+      width: 20px;
+      height: 20px;
+    }
+
+    .legend .red {
+      background-color: red;
+    }
+
+    .legend .green {
+      background-color: green;
+    }
+
+    /* ไม่ต้องใช้เพราะใช้ class ของ .usable computer พื้นหลัง
+      /* Global select all container */
+    #selectAllContainer {
+      margin-bottom: 10px;
+    }
+
+    /* Grid สำหรับเก้าอี้ */
+    .desk-grid {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .desk-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .desk-row .row-select {
+      margin-right: 10px;
+    }
+
+    /* สไตล์ของแต่ละคอมพิวเตอร์ (แสดงไอคอน) */
+    .desk {
+      width: 70px;
+      height: 70px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: black;
+      /*background-color: green;*/
+      /*พื้นหลังของคอมพิวเตอร์*/
+      font-size: 16px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: 0.2s;
+    }
+
+    .desk .computer-icon {
+      font-size: 28px;
+    }
+
+    .desk .computer-id {
+      font-size: 14px;
+    }
+
+    /*.usable {
+        background-color: green !important;
+      }*/
+    /*พื้นหลังของคอมพิวเตอร์*/
+
+    /* สไตล์สำหรับคอมพิวเตอร์ที่เสีย */
+    .damaged {
+      background-color: red;
+      cursor: pointer;
+      /* ให้คลิกได้ */
+      opacity: 0.6;
+      /* ทำให้ดูเหมือนคอมพิวเตอร์เสีย แต่สามารถคลิกได้ */
+    }
+
+    /* สไตล์สำหรับคอมพิวเตอร์ที่ใช้ได้ */
+    .usable {
+      background-color: green;
+      cursor: pointer;
+      /* คลิกได้ */
+    }
+
+    /* ไม่ใช้สีเหลืองอีกต่อไป */
+    /*.desk.selected {
+  background-color: yellow;
+  color: #000;
+}*/
+
+    /* สไตล์ของส่วนยืมอุปกรณ์ */
+    .borrow-section {
+      flex: 1;
+      background-color: #dcd0bc;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      max-height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .borrow-section h3 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .borrow-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .borrow-item label {
+      font-size: 16px;
+      flex: 1;
+    }
+
+    .borrow-item input[type="number"] {
+      width: 50px;
+      padding: 5px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .borrow-item button {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+
+    .confirm-button {
+      background-color: #e54715;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      align-self: flex-end;
+      margin-top: auto;
+    }
+
+    .confirm-button:hover {
+      background-color: #bf3c12;
+    }
+
+    .logout-btn {
+      background-color: #ff6347;
+      border: none;
+      padding: 8px 12px;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-left: auto;
+      /* ✅ ทำให้ปุ่มอยู่ขวาสุด */
+    }
+
+    /* ขยายขนาดของ checkbox */
+    input[type="checkbox"] {
+      width: 20px;
+      /* กำหนดความกว้าง */
+      height: 20px;
+      /* กำหนดความสูง */
+      transform: scale(1.5);
+      /* ปรับขนาดให้ใหญ่ขึ้น */
+    }
+
+    .desk-segment {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <a href="#" id="back-btn" style="text-decoration: none; color: white" onclick="goBack()">&#8592;</a>
+    >
+    <h1 id="roomTitle">กำลังโหลด...</h1>
+    <h1>ห้องปฏิบัติการคอมพิวเตอร์</h1>
+    <button id="logout-btn" class="logout-btn" onclick="logout()">
+      ออกจากระบบ
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="desks-section">
+      <div class="legend">
+        <div class="box red"></div>
+        คอมพิวเตอร์ใช้ไม่ได้
+        <!-- <div class="box green"></div>
+          ใช้งานได้ -->
+      </div>
+
+      <div class="desk-grid" id="deskGrid">
+      </div>
+    </div>
+    <div class="borrow-section">
+      <h3>อุปกรณ์ภายในห้อง</h3>
+      <div id="equipmentContainer"></div>
+    </div>
+  </div>
+  <script src="Room_Detail.js" defer></script>
+  <script src="URLroom.js"></script>
+  <script src="CheckStatus.js"></script>
+  <script src="logout.js"></script>
+  <script src="goBack.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // ดึงค่า roomId จาก URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomId = urlParams.get("room");
+      console.log("🔍 ค่า roomId ที่ดึงได้:", roomId); // ตรวจสอบค่าที่ได้
+
+      // ตรวจสอบว่า roomId มีค่าหรือไม่ ก่อนส่ง API
+      if (!roomId) {
+        console.error("❌ ไม่พบ roomId ใน URL");
+        return;
+      }
+
+      // ดึงข้อมูลอุปกรณ์จาก API ตาม roomId
+      fetch(`http://localhost:3001/getEquipments?room=${roomId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          console.log("📦 อุปกรณ์ที่โหลดมา:", data);
+
+          // แสดงข้อมูลอุปกรณ์ที่ดึงมาใน #equipmentContainer
+          const equipmentContainer = document.getElementById("equipmentContainer");
+          equipmentContainer.innerHTML = ""; // ล้างข้อมูลเก่าทุกครั้ง
+
+          data.forEach((equipment) => {
+            const itemContainer = document.createElement("div");
+            itemContainer.classList.add("borrow-item");
+
+            const label = document.createElement("label");
+            label.textContent = `${equipment.equipment_name} (คงเหลือ ${equipment.stock_quantity} ชิ้น)`;
+            itemContainer.appendChild(label);
+
+            // เพิ่มข้อมูลไปยังหน้าเว็บ
+            equipmentContainer.appendChild(itemContainer);
+          });
+        })
+        .catch(error => {
+          console.error("❌ เกิดข้อผิดพลาดในการโหลดอุปกรณ์:", error);
+        });
+    });
+  </script>
+</body>
+
+</html>
