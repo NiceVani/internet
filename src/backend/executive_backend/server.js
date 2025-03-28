@@ -568,6 +568,7 @@ FROM (
     WHERE rr.request_status = 'อนุมัติ'
     GROUP BY e.equipment_name, r.room_name, em.stock_quantity
 ) AS combined
+WHERE room is not null
 GROUP BY name, room;
 
 `,
