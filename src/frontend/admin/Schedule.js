@@ -1,7 +1,7 @@
 async function fetchSchedule() {
     try {
-        const scheduleDate = getScheduleDate(); // Function to get the selected schedule date
-        const response = await fetch(`http://localhost:3001/data/room_schedule?date=${scheduleDate}`);
+        const roomsFilter = getRoomFromPath(); // ✅ ดึง roomId จาก URL
+        const response = await fetch(`http://localhost:3001/data/room_schedule?roomId=${roomsFilter}`);
         const scheduleData = await response.json();
 
         const dayMapping = {
@@ -14,129 +14,183 @@ async function fetchSchedule() {
             'อาทิตย์': 7
         };
 
-        // Set up the table and prepare cells
-        for (let i = 1; i <= 7; i++) {
-            for (let j = 2; j <= 14; j++) {
-                const cell = document.querySelector(`tbody tr:nth-child(${i}) td:nth-child(${j})`);
-                if (cell) {
-                    cell.classList.add('status-cell');
-                    cell.setAttribute('data-status', 'ว่าง'); // Default value
+        const reverseDayMapping = {
+            1: 'วันจันทร์',
+            2: 'วันอังคาร',
+            3: 'วันพุธ',
+            4: 'วันพฤหัสบดี',
+            5: 'วันศุกร์',
+            6: 'วันเสาร์',
+            7: 'วันอาทิตย์'
+        };
+
+        const tableBody = document.querySelector('tbody');
+
+        // ✅ ใส่ชื่อวันให้ทุกแถว
+        Array.from(tableBody.rows).forEach((row, index) => {
+            const firstCell = row.insertCell(0);
+            firstCell.textContent = reverseDayMapping[index + 1] || '';
+            firstCell.className = 'text-center fw-bold';
+        });
+
+        // ✅ ตั้งค่า cell ที่ไม่มีข้อมูล
+        for (let row of tableBody.rows) {
+            for (let cell of Array.from(row.cells).slice(1)) {
+                if (!cell.hasAttribute('data-status')) {
+                    cell.setAttribute('data-status', 'ว่าง');
+                    cell.setAttribute('data-id', 'none');
                     updateCellAppearance(cell);
-                    cell.addEventListener('click', () => changeStatus(cell));
+                    cell.onclick = () => changeStatus(cell);
                 }
             }
         }
 
-        // Set roomsFilter based on HTML page
-        let roomsFilter = getRoomFromPath();
-        
-        // Fill data from the database
+        // ✅ เติมข้อมูลจาก backend
         scheduleData
-            .filter(item => item.room_id === roomsFilter)
+            .filter(item => item.room_id == roomsFilter)
             .forEach(item => {
-                console.log('✅ Item found:', item);
-                const dayIndex = dayMapping[item.week_day];
+                const rawDay = item.week_day || '';
+                const dayIndex = dayMapping[rawDay.replace('วัน', '').trim()];
+                if (!dayIndex) {
+                    console.warn(`⚠️ ไม่รู้จักชื่อวัน: ${item.week_day}`);
+                    return;
+                }
+
                 const startHour = parseInt(item.start_time.split(':')[0], 10);
                 const endHour = parseInt(item.end_time.split(':')[0], 10);
 
+                const row = tableBody.rows[dayIndex - 1]; // ✅ ตรงแถวแน่นอน
+                if (!row) return;
+
                 for (let hour = startHour; hour < endHour; hour++) {
-                    const cell = document.querySelector(`tbody tr:nth-child(${dayIndex}) td:nth-child(${hour - 8 + 2})`);
+                    const cell = row.cells[hour - 8 + 1]; // ✅ offset +1 เพราะ cell[0] คือชื่อวัน
                     if (cell) {
-                        cell.setAttribute('data-id', item.room_schedule_id || 'none');  // Use room_schedule_id
+                        cell.setAttribute('data-id', item.room_schedule_id || 'none');
                         cell.setAttribute('data-status', item.room_status);
                         updateCellAppearance(cell);
-                    } else {
-                        console.warn(`⚠️ Cell not found for dayIndex: ${dayIndex}, hour: ${hour}`);
+                        cell.onclick = () => changeStatus(cell);
                     }
                 }
             });
+
     } catch (error) {
         console.error('❌ Error fetching schedule:', error);
     }
 }
 
-// Function to change cell status
+
 async function changeStatus(cell) {
     const statuses = ['ว่าง', 'มีเรียน', 'ไม่ว่าง', 'กำลังปรับปรุง'];
-    let currentStatus = cell.getAttribute('data-status');
-    let nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
 
+    let currentStatus = (cell.getAttribute('data-status') || '').trim();
+    let currentIndex = statuses.indexOf(currentStatus);
+    if (currentIndex === -1) currentIndex = 0;
+
+    let nextStatus = statuses[(currentIndex + 1) % statuses.length];
+    const scheduleId = cell.getAttribute('data-id');
+    const hour = cell.cellIndex + 8 - 1;
+    const startTime = `${hour}:00:00`;
+    const endTime = `${hour + 1}:00:00`;
+    const roomsFilter = getRoomFromPath();
+    const row = cell.parentElement;
+    const weekDayText = row.cells[0].textContent.replace('วัน', '').trim();
+
+    console.log('📌 cell clicked:', {
+        id: scheduleId,
+        current: currentStatus,
+        next: nextStatus,
+        day: weekDayText,
+        time: `${startTime} - ${endTime}`
+    });
+
+    // ✅ อัปเดต cell UI ก่อนเสมอ
     cell.setAttribute('data-status', nextStatus);
     updateCellAppearance(cell);
 
     try {
-        const scheduleId = cell.getAttribute('data-id');
-        const day = cell.parentElement.rowIndex + 1; // Get day from row index
-        const hour = cell.cellIndex + 8 - 1; // Get start time from column index
-        const startTime = `${hour}:00:00`;
-        const endTime = `${hour + 1}:00:00`;
-
-        const roomsFilter = getRoomFromPath(); // Get room ID from URL path
-        const scheduleDate = getScheduleDate(); // Get selected date
-
-        const body = {
-            roomId: roomsFilter,
-            weekDay: getDayName(day),
-            scheduleDate: scheduleDate,
-            startTime: startTime,
-            endTime: endTime,
-            status: nextStatus
-        };
-
+        // ✅ ถ้ายังไม่มี scheduleId (new cell)
         if (!scheduleId || scheduleId === 'none') {
-            // 📌 Insert new record
+            if (nextStatus === 'ว่าง') {
+                console.log('🛑 ข้าม insert: สถานะ "ว่าง" ไม่ต้องบันทึก DB');
+                return;
+            }
+
             console.log('📝 Inserting new schedule record...');
+            const dataToSend = {
+                roomId: roomsFilter,
+                weekDay: weekDayText,
+                scheduleDate: null,
+                startTime: startTime,
+                endTime: endTime,
+                status: nextStatus
+            };
+
             const response = await fetch('http://localhost:3001/insertSchedule', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataToSend)
             });
 
             const result = await response.json();
-
             if (response.ok) {
-                console.log('✅ New schedule record inserted!', result);
-                cell.setAttribute('data-id', result.newScheduleId); // Update data-id with new ID
+                console.log('✅ Inserted schedule:', result);
+                cell.setAttribute('data-id', result.newScheduleId);
             } else {
-                console.error('❌ Error inserting new schedule:', result.message);
+                console.error('❌ Insert error:', result.message);
                 alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูลใหม่');
             }
             return;
         }
 
-        // 📌 Update existing record
+        // ✅ ถ้าเปลี่ยนเป็น "ว่าง" → ลบข้อมูลออกจาก DB
+        if (nextStatus === 'ว่าง') {
+            console.log('🗑 ลบข้อมูล schedule ออกจาก DB');
+            const deleteResponse = await fetch('http://localhost:3001/deleteSchedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scheduleId })
+            });
+
+            if (deleteResponse.ok) {
+                console.log('✅ ลบ schedule สำเร็จ');
+                cell.setAttribute('data-id', 'none'); // รีเซ็ต id
+            } else {
+                console.error('❌ Error deleting schedule');
+                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+            }
+            return;
+        }
+
+        // ✅ ถ้าสถานะเดิม = สถานะใหม่ → ไม่ต้อง update
+        if (currentStatus === nextStatus) {
+            console.log('⚠️ สถานะเหมือนเดิม ไม่ต้องอัปเดต DB');
+            return;
+        }
+
+        // ✅ UPDATE
         const updateResponse = await fetch('http://localhost:3001/updateScheduleStatus', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 scheduleId: scheduleId,
                 status: nextStatus
-            }),
+            })
         });
 
         if (updateResponse.ok) {
-            console.log(`✅ อัปเดตสถานะเป็น "${nextStatus}" สำเร็จ!`);
+            console.log(`✅ อัปเดตสถานะ "${nextStatus}" สำเร็จ`);
         } else {
-            console.error('❌ Error updating status');
+            console.error('❌ Error updating schedule status');
             alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
         }
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Network error:', error);
         alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
     }
 }
 
-// Function to get day name based on index
-function getDayName(dayIndex) {
-    const days = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
-    return days[dayIndex - 2];
-}
 
-// Function to get room ID from the path
+
 function getRoomFromPath() {
     const pathname = window.location.pathname;
     if (pathname.includes('Schedule307.html')) return '307';
@@ -154,16 +208,9 @@ function getRoomFromPath() {
     return '';
 }
 
-// Function to get the selected schedule date
-function getScheduleDate() {
-    const dateInput = document.querySelector('#scheduleDateInput'); // Assuming you have an input field for the date
-    return dateInput ? dateInput.value : new Date().toISOString().split('T')[0]; // Default to today's date if not set
-}
-
-// Function to update UI of cell based on status
 function updateCellAppearance(cell) {
     const status = cell.getAttribute('data-status');
-    cell.className = 'status-cell'; // Clear previous class
+    cell.className = 'status-cell';
     switch (status) {
         case 'มีเรียน':
             cell.classList.add('status-occupied');
@@ -186,5 +233,4 @@ function updateCellAppearance(cell) {
     }
 }
 
-// Fetch the schedule on DOM content loaded
-document.addEventListener('DOMContentLoaded', fetchSchedule);
+document.addEventListener("DOMContentLoaded", fetchSchedule);

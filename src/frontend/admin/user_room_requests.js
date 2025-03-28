@@ -1,6 +1,36 @@
-async function fetchData() {
+async function getCurrentAdmin() {
     try {
-        // ดึงข้อมูลจาก API
+        const res = await fetch("http://localhost:3001/session", {
+            credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("ไม่สามารถตรวจสอบ session ได้");
+
+        const data = await res.json();
+        return data.data.admin_id;
+    } catch (err) {
+        console.error("❌ ไม่สามารถดึง session admin:", err);
+        return null;
+    }
+}
+
+
+function isOverlap(a, b) {
+    const aStart = new Date(`${a.used_date}T${a.start_time}`);
+    const aEnd = new Date(`${a.used_date}T${a.end_time}`);
+    const bStart = new Date(`${b.used_date}T${b.start_time}`);
+    const bEnd = new Date(`${b.used_date}T${b.end_time}`);
+
+    return a.room_id === b.room_id &&
+           a.used_date === b.used_date &&
+           aStart < bEnd &&
+           aEnd > bStart;
+}
+
+async function fetchData() {
+    console.log("🚀 เรียกใช้ fetchData()");
+
+    try {
         const [roomsResponse, studentsResponse, teachersResponse, roomsIDResponse, participantResponse, equipmentReqResponse, equipmentResponse] = await Promise.all([
             fetch('http://localhost:3001/data/room_request'),
             fetch('http://localhost:3001/data/student'),
@@ -19,55 +49,46 @@ async function fetchData() {
         const equipmentReqData = await equipmentReqResponse.json();
         const equipmentData = await equipmentResponse.json();
 
-        console.log("📌 ห้องที่ขอใช้:", roomsData);
-        console.log("📌 นักศึกษา:", studentsData);
-        console.log("📌 อาจารย์:", teachersData);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        // 📌 ตรวจสอบหน้าเว็บที่กำลังเปิด
-        let timeFilter = null; // "นอกเวลา" หรือ "ในเวลา"
-        if (window.location.pathname.includes('user_requests_OutTime')) {
-            timeFilter = 'นอกเวลา';
-        } else if (window.location.pathname.includes('user_requests_InTime')) {
-            timeFilter = 'ในเวลา';
+        // ✅ เพิ่มตรงนี้: ตรวจหน้าปัจจุบัน แล้วกรอง "ในเวลา / นอกเวลา"
+        let timeFilter = null;
+        if (window.location.pathname.includes("user_requests_InTime")) {
+            timeFilter = "ในเวลา";
+        } else if (window.location.pathname.includes("user_requests_OutTime")) {
+            timeFilter = "นอกเวลา";
         }
 
-        console.log("📌 Time Filter:", timeFilter);
+        const filteredData = roomsData.filter(row => {
+            if (row.request_status !== 'รอดำเนินการ') return false;
 
-        // คัดกรองเฉพาะข้อมูลที่มีสถานะ "รออนุมัติ" หรือ "รอดำเนินการ" + ตรวจสอบเวลา
-        const filteredData = roomsData.filter(row =>
-            (row.request_status === 'รออนุมัติ' || row.request_status === 'รอดำเนินการ') &&
-            (timeFilter ? row.request_type === timeFilter : true) // ✅ ตรวจสอบประเภทเวลา
-        );
+            // ✅ ใช้ตัวกรองประเภทเวลา
+            if (timeFilter && row.request_type !== timeFilter) return false;
 
-        console.log("✅ ข้อมูลหลังจากคัดกรอง:", filteredData);
+            const usedDate = new Date(row.used_date);
+            usedDate.setHours(0, 0, 0, 0);
+            if (usedDate < today) return false;
 
-        // ✅ สร้าง object เพื่อนับจำนวนผู้เข้าร่วมที่มี room_request_id ซ้ำกัน
+            return true;
+        });
+
         const participantCountMap = participantData.reduce((acc, participant) => {
             acc[participant.room_request_id] = (acc[participant.room_request_id] || 0) + 1;
             return acc;
         }, {});
 
-
-
-        console.log("📌 จำนวนผู้เข้าร่วมต่อ room_request_id:", participantCountMap);
-
-
-        // รวมข้อมูลนักเรียนและอาจารย์ให้อยู่ในคอลัมน์เดียว
-        const mergedData = filteredData.map(room => {
+        let mergedData = filteredData.map(room => {
             const student = studentsData.find(s => s.student_id === room.student_id) || {};
             const teacher = teachersData.find(t => t.teacher_id === room.teacher_id) || {};
             const roomInfo = roomIDData.find(r => r.room_id === room.room_id) || {};
 
-            // ✅ Filter the equipment requests for this room_request_id
             const equipmentReqs = equipmentReqData.filter(e => e.room_request_id === room.room_request_id);
-
-            // ✅ Extract equipment names with quantities
             const equipmentDetails = equipmentReqs.map(eq => {
                 const equipment = equipmentData.find(ed => ed.equipment_id === eq.equipment_id);
                 return equipment ? `${equipment.equipment_name} (${eq.request_quantity})` : '-';
             }).join(', ');
 
-            // ✅ ค้นหารายชื่อผู้เข้าร่วมทั้งหมดที่มี room_request_id เดียวกัน
             const participants = participantData
                 .filter(p => p.room_request_id === room.room_request_id)
                 .map(p => {
@@ -76,7 +97,6 @@ async function fetchData() {
                     return student || teacher || '-';
                 })
                 .join(', ');
-
 
             return {
                 room_request_id: room.room_request_id,
@@ -88,21 +108,39 @@ async function fetchData() {
                 request_type: room.request_type,
                 request_reason: room.request_reason,
                 request_status: room.request_status,
-                document_path: room.document_path,
                 person_name: student.full_name || teacher.full_name || '-',
                 email: student.email || teacher.email || '-',
                 roomN: roomInfo.room_name || '-',
-                participantCount: participantCountMap[room.room_request_id] || 0, // ✅ Count participants
-                equipment: equipmentReqs.map(eq => eq.equipment_id).join(', ') || '-', // ✅ Equipment IDs
-                equipmentName: equipmentDetails || '-', // ✅ Display equipment name with quantity
-                participantNames: participants || '-', // ✅ รายชื่อผู้เข้าร่วมทั้งหมด
+                participantCount: participantCountMap[room.room_request_id] || 0,
+                equipment: equipmentReqs.map(eq => eq.equipment_id).join(', ') || '-',
+                equipmentName: equipmentDetails || '-',
+                participantNames: participants || '-',
+                room_id: room.room_id,
+
             };
         });
 
-
-        console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
-
-        // แสดงผลข้อมูลในตาราง
+        const sortDropdown = document.getElementById("sorttime");
+        const sortOption = sortDropdown ? sortDropdown.value : '';
+        
+        // ✅ Sort mergedData ตามตัวเลือก dropdown
+        mergedData.sort((a, b) => {
+            const dateA = new Date(a.used_date);
+            const dateB = new Date(b.used_date);
+        
+            if (sortOption === 'newest') {
+                return dateB - dateA;
+            } else if (sortOption === 'oldest') {
+                return dateA - dateB;
+            } else if (sortOption === 'overlay') {
+                if (a.roomN !== b.roomN) {
+                    return a.roomN.localeCompare(b.roomN);
+                }
+                return dateA - dateB;
+            }
+            return dateA - dateB;
+        });
+        
         const tableBody = document.getElementById('reservation-table');
         tableBody.innerHTML = '';
 
@@ -115,8 +153,8 @@ async function fetchData() {
                     <td class="text-center">${row.roomN}</td>
                     <td class="text-center">${row.participantCount} คน</td>
                     <td class="text-center">
-                        ${getDayOfWeek(row.used_date) + ' ' + new Date(row.used_date).toLocaleDateString()}<br>
-                        ${row.start_time.slice(0, 5) + ' - ' + row.end_time.slice(0, 5)}<br>
+                        ${formatThaiShortDate(row.used_date)}<br>
+                        ${row.start_time.slice(0, 5)} - ${row.end_time.slice(0, 5)}<br>
                         (${row.request_type})
                     </td>
                     <td class="text-center">
@@ -126,42 +164,71 @@ async function fetchData() {
                             data-name="${row.person_name}"
                             data-email="${row.email}"
                             data-room="${row.roomN}"
-                            data-used_date="${new Date(row.used_date).toLocaleDateString("th-TH")}"
+                            data-used_date="${row.used_date}"
                             data-time="${row.start_time.slice(0, 5)} - ${row.end_time.slice(0, 5)}"
-                            data-equipment ="${row.equipmentName}"
-                            data-document="${row.document_path || '-'}"
+                            data-equipment="${row.equipmentName}"
                             data-reason-detail="${row.detail_request_reason || '-'}"
                             data-reason="${row.request_reason || '-'}"
                             data-participants="${row.participantNames}">
                             แสดงรายละเอียด
-                        </button><br>
-                        <a href="${row.document_path || '#'}" target="_blank">เปิดเอกสาร</a>
+                        </button>
                     </td>
                     <td class="text-center">${row.request_reason || '-'}</td>
                     <td class="text-center">
-                    ${row.request_status === 'รอดำเนินการ'
-                        ? `
-                        <button class="btn btn-success btn-sm" 
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-sm w-100"
                                 onclick="updateStatus(${row.room_request_id}, '${row.request_type}')">
-                            ✅ อนุมัติ
-                        </button>
-                        <button class="btn btn-danger btn-sm" 
+                                ✅ อนุมัติ
+                            </button>
+                            <button class="btn btn-danger btn-sm w-100"
                                 onclick="openRejectModal(${row.room_request_id})">
-                            ❌ ไม่อนุมัติ
-                        </button>
-                        `
-                        : `<span class="badge bg-warning">${row.request_status}</span>`
-                    }
-                </td>
-
+                                ❌ ไม่อนุมัติ
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `;
         });
 
-
     } catch (error) {
         console.error('❌ Error fetching data:', error);
     }
+}
+
+
+
+// Event สำหรับ dropdown
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.location.pathname.includes("user_approve.html")) {
+        fetchData();
+
+        const approveSortDropdown = document.getElementById("approve-page-sort-date");
+        if (approveSortDropdown) {
+            approveSortDropdown.addEventListener("change", fetchData);
+        }
+    } else {
+        fetchData();
+
+        const sortDropdown = document.getElementById("sorttime");
+        if (sortDropdown) {
+            sortDropdown.addEventListener("change", fetchData);
+        }
+    }
+});
+
+function openRejectModal(requestId) {
+    document.getElementById("rejectRequestId").value = requestId;
+    new bootstrap.Modal(document.getElementById("rejectModal")).show();
+}
+
+function formatThaiShortDate(dateString) {
+    const date = new Date(dateString);
+    const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+    const dayName = days[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear() + 543;
+    return `${dayName} ${day}/${month}/${year}`;
 }
 
 // อัปเดตสถานะการจอง
@@ -173,8 +240,10 @@ async function updateStatus(requestId, requestType) {
         const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include", // ✅ สำคัญ!
             body: JSON.stringify({ requestId, status: newStatus }),
         });
+        
 
         if (response.ok) {
             alert(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ!`);
@@ -195,22 +264,31 @@ async function submitReject() {
     const rejectReason = document.getElementById("rejectReason").value;
     const detailRejectReason = document.getElementById("rejectDetail").value;
 
+    const admin_id = await getCurrentAdmin();
+
+    if (!admin_id) {
+        alert("กรุณาเข้าสู่ระบบก่อนดำเนินการ");
+        return;
+    }
+
     try {
         const response = await fetch('http://localhost:3001/updateStatus', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({
                 requestId,
                 status: "ไม่อนุมัติ",
                 rejectReason,
-                detailRejectReason
+                detailRejectReason,
+                admin_id
             }),
         });
 
         if (response.ok) {
             alert("ปฏิเสธคำขอเรียบร้อย!");
-            fetchData(); // โหลดข้อมูลใหม่
-            bootstrap.Modal.getInstance(document.getElementById("rejectModal")).hide(); // ปิด Modal
+            fetchData();
+            bootstrap.Modal.getInstance(document.getElementById("rejectModal")).hide();
         } else {
             const error = await response.json();
             console.error("❌ Error:", error.message);
@@ -222,12 +300,9 @@ async function submitReject() {
     }
 }
 
-// โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
-document.addEventListener("DOMContentLoaded", fetchData);
 
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("detail-btn")) {
-        // ดึงค่าจาก data-attribute ที่แนบมากับปุ่ม
         document.getElementById("modal-date").textContent = event.target.getAttribute("data-date");
         document.getElementById("modal-name").textContent = event.target.getAttribute("data-name");
         document.getElementById("modal-email").textContent = event.target.getAttribute("data-email");
@@ -235,22 +310,26 @@ document.addEventListener("click", function (event) {
         document.getElementById("modal-used_date").textContent = event.target.getAttribute("data-used_date");
         document.getElementById("modal-time").textContent = event.target.getAttribute("data-time");
         document.getElementById("modal-equipment").textContent = event.target.getAttribute("data-equipment");
-        document.getElementById("modal-document").textContent = event.target.getAttribute("data-document");
+        
         document.getElementById("modal-reason").textContent = event.target.getAttribute("data-reason");
         document.getElementById("modal-reason-detail").textContent = event.target.getAttribute("data-reason-detail");
         document.getElementById("modal-data-participant-names").textContent = event.target.getAttribute("data-participants");
-
+        // ส่วนเพิ่มเติม ถ้า modal มีช่องอื่น
+        const modalReject = document.getElementById("modal-data-reject");
+        if (modalReject) {
+            modalReject.textContent = event.target.getAttribute("data-reject") || "-";
+        }
+        const modalRejectDetail = document.getElementById("modal-data-reject-detail");
+        if (modalRejectDetail) {
+            modalRejectDetail.textContent = event.target.getAttribute("data-reject-detail") || "-";
+        }
+        const modalAdmin = document.getElementById("modal-approved-by");
+        if (modalAdmin) {
+            modalAdmin.textContent = event.target.getAttribute("data-approvedby") || "-";
+        }
+        const modalExec = document.getElementById("modal-approved-by_ex");
+        if (modalExec) {
+            modalExec.textContent = event.target.getAttribute("data-approvedby_ex") || "-";
+        }
     }
 });
-
-function openRejectModal(requestId) {
-    document.getElementById("rejectRequestId").value = requestId;
-    new bootstrap.Modal(document.getElementById("rejectModal")).show();
-}
-
-// ฟังก์ชันแปลงวันที่เป็นวันในสัปดาห์
-function getDayOfWeek(dateString) {
-    const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-}
