@@ -13,7 +13,7 @@ const util = require('util');
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5500","http://localhost:8080","http://localhost:5501"], // 👈 เปลี่ยนจาก '*' เป็น origin ของ frontend
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:8080", "http://localhost:5501"], // 👈 เปลี่ยนจาก '*' เป็น origin ของ frontend
     credentials: true // ✅ อนุญาตให้ส่งคุกกี้ไปกับคำขอ
 }));
 
@@ -30,7 +30,7 @@ app.use(
             secure: false, // ถ้าใช้ HTTPS ให้เปลี่ยนเป็น true
             httpOnly: true,
             sameSite: "lax",
-            maxAge: 3600000, // 1 ชั่วโมง
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 1 สัปดาห์
         },
     })
 );
@@ -42,7 +42,7 @@ const allowedTables = [
     'equipment_management', 'executive', 'room',
     'room_request', 'room_request_computer', 'room_request_equipment',
     'room_request_participant', 'room_schedule', 'room_type',
-    'student', 'admin', 'user', 'equipment_brokened','teacher'
+    'student', 'admin', 'user', 'equipment_brokened', 'teacher'
 ];
 
 app.post("/login", async (req, res) => {
@@ -145,30 +145,43 @@ app.get('/data/:table', async (req, res) => {
 app.post('/updateStatus', async (req, res) => {
     const { requestId, status, rejectReason, detailRejectReason } = req.body;
 
+    // ✅ ดึง admin_id จาก session (ไม่ต้องส่งมาจาก frontend)
+    const admin_id = req.session?.user?.data?.admin_id;
+
+    if (!admin_id) {
+        return res.status(403).json({ message: "ไม่ได้เข้าสู่ระบบในฐานะผู้ดูแล" });
+    }
+
     try {
-        // 🔍 ดึง request_type ของ room_request_id ที่ต้องการอัปเดต
+        // ดึงประเภทคำขอ (ในเวลา/นอกเวลา)
         const [request] = await query(`SELECT request_type FROM room_request WHERE room_request_id = ?`, [requestId]);
 
         if (!request) {
             return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
         }
 
+        // กำหนดสถานะสุดท้ายตามประเภทเวลา
         let finalStatus = status;
-
-        // ✅ ตรวจสอบ request_type และกำหนดสถานะที่ถูกต้อง
         if (status === "อนุมัติ" || status === "รออนุมัติ") {
             finalStatus = request.request_type === "ในเวลา" ? "อนุมัติ" : "รออนุมัติ";
         }
 
-        let sql;
-        let params;
+        let sql, params;
 
         if (finalStatus === "ไม่อนุมัติ") {
-            sql = `UPDATE room_request SET request_status = ?, reject_reason = ?, detail_reject_reason = ? WHERE room_request_id = ?`;
-            params = [finalStatus, rejectReason, detailRejectReason, requestId];
+            sql = `
+                UPDATE room_request 
+                SET request_status = ?, reject_reason = ?, detail_reject_reason = ?, admin_id = ?
+                WHERE room_request_id = ?
+            `;
+            params = [finalStatus, rejectReason, detailRejectReason, admin_id, requestId];
         } else {
-            sql = `UPDATE room_request SET request_status = ? WHERE room_request_id = ?`;
-            params = [finalStatus, requestId];
+            sql = `
+                UPDATE room_request 
+                SET request_status = ?, admin_id = ?
+                WHERE room_request_id = ?
+            `;
+            params = [finalStatus, admin_id, requestId];
         }
 
         const result = await query(sql, params);
@@ -177,7 +190,7 @@ app.post('/updateStatus', async (req, res) => {
             return res.status(404).json({ message: "ไม่พบรายการที่ต้องการอัปเดต" });
         }
 
-        console.log(`✅ สถานะอัปเดตสำเร็จ: ${finalStatus}`);
+        console.log(`✅ สถานะ '${finalStatus}' ถูกอัปเดตโดย admin_id: ${admin_id}`);
         res.json({ message: "สถานะอัปเดตเรียบร้อย", updatedStatus: finalStatus });
 
     } catch (error) {
@@ -185,6 +198,8 @@ app.post('/updateStatus', async (req, res) => {
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตสถานะ", error: error.message });
     }
 });
+
+
 
 // Endpoint to insert a new schedule
 app.post('/insertSchedule', async (req, res) => {
@@ -225,7 +240,27 @@ app.post('/updateScheduleStatus', async (req, res) => {
         res.status(500).json({ message: "Error updating schedule status", error: error.message });
     }
 });
+app.post('/deleteSchedule', async (req, res) => {
+    const { scheduleId } = req.body;
+    if (!scheduleId) {
+        return res.status(400).json({ error: 'Missing scheduleId' });
+    }
 
+    try {
+        const sql = "DELETE FROM room_schedule WHERE room_schedule_id = ?";
+        const result = await query(sql, [scheduleId]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Schedule not found' });
+        }
+
+        console.log('✅ ลบ schedule_id ${scheduleId} สำเร็จ');
+        res.json({ success: true, deletedId: scheduleId });
+    } catch (error) {
+        console.error('❌ Error deleting schedule:', error);
+        res.status(500).json({ error: 'Failed to delete schedule' });
+    }
+});
 // Get schedule data by date range and room ID
 app.get('/data/room_schedule', async (req, res) => {
     const { start_date, end_date, search_date, roomId } = req.query;
@@ -311,6 +346,180 @@ app.get("/image/:filename", async (req, res) => {
     }
 });
 
+app.get('/data/equipment_management', async (req, res) => {
+    const { room } = req.query;
+
+    if (!room) {
+        return res.status(400).json({ error: '❌ Room parameter is required' });
+    }
+
+    try {
+        // ใช้ JOIN รวมตารางและกรองเฉพาะ room_id ที่ระบุ
+        const results = await query(`
+            SELECT 
+                em.room_id,
+                em.equipment_id,
+                e.equipment_name,
+                em.stock_quantity
+            FROM equipment_management em
+            JOIN equipment e ON em.equipment_id = e.equipment_id
+            WHERE em.room_id = ?`,
+            [room]
+        );
+
+        res.json(results);
+    } catch (err) {
+        console.error('❌ Error fetching equipment:', err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+app.get('/getEquipments', async (req, res) => {
+    const { room } = req.query;
+
+    if (!room) {
+        return res.status(400).json({ error: 'Room parameter is required' });
+    }
+
+    try {
+        const results = await query(`
+            SELECT e.equipment_id, e.equipment_name, em.stock_quantity 
+            FROM equipment_management em 
+            JOIN equipment e ON em.equipment_id = e.equipment_id 
+            WHERE em.room_id = ?`, [room]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'ไม่พบอุปกรณ์ในห้องนี้' });
+        }
+
+        res.json(results);
+    } catch (err) {
+        console.error('❌ Error fetching equipment:', err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+app.post('/updateComputerStatus', async (req, res) => {
+    const { computer_id, room_id, computer_status } = req.body;
+
+    console.log('Received update request:', { computer_id, room_id, computer_status });
+
+    try {
+        // สร้าง query เพื่ออัปเดตสถานะคอมพิวเตอร์
+        const query = 'UPDATE computer_management SET computer_status = ? WHERE computer_id = ? AND room_id = ?';
+        console.log('Running query:', query);
+
+        // Use connection.query instead of db.query
+        connection.query(query, [computer_status, computer_id, room_id], (error, result) => {
+            if (error) {
+                console.error('❌ Error executing query:', error);
+                return res.status(500).json({ error: 'Failed to update status' });
+            }
+
+            if (result.affectedRows > 0) {
+                console.log('Update successful');
+                res.status(200).json({ message: 'Updated successfully' });
+            } else {
+                console.error('❌ No matching records found');
+                res.status(404).json({ error: 'Computer not found' });
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error in server processing:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.post("/updateEquipmentStock", async (req, res) => {
+    try {
+        const { equipment_id, room_id, new_quantity } = req.body;
+        console.log("🛠️ รับคำขออัปเดตอุปกรณ์:", req.body);
+
+        if (!equipment_id || !room_id || new_quantity === undefined) {
+            console.log("❌ ข้อมูลไม่ครบถ้วน!");
+            return res.status(400).json({ error: "ข้อมูลไม่ครบถ้วน!" });
+        }
+
+        // ตรวจสอบค่าก่อนอัปเดต
+        console.log(`📌 UPDATE equipment_management SET stock_quantity = ${new_quantity} WHERE equipment_id = ${equipment_id} AND room_id = ${room_id}`);
+
+        // ใช้ db ที่นำเข้าไว้ (ควรใช้ mysql2/promise)
+        const updateQuery = `
+            UPDATE equipment_management
+            SET stock_quantity = ?
+            WHERE equipment_id = ? AND room_id = ?
+        `;
+
+        const [result] = await connection.promise().query(updateQuery, [new_quantity, equipment_id, room_id]);
+
+        if (result.affectedRows === 0) {
+            console.log("❌ ไม่พบอุปกรณ์ในฐานข้อมูล!");
+            return res.status(404).json({ error: "ไม่พบอุปกรณ์ที่ต้องการอัปเดต" });
+        }
+
+        console.log("✅ อัปเดตสำเร็จ!", result);
+        res.json({ message: "✅ อัปเดตจำนวนอุปกรณ์เรียบร้อย" });
+    } catch (error) {
+        console.error("❌ Error in updateEquipmentStock:", error);
+        res.status(500).json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
+    }
+});
+
+app.post("/updateRoomStatus", async (req, res) => {
+    const { room_name, room_status } = req.body;
+
+    if (!room_name || !room_status) {
+        return res.status(400).json({ message: "กรุณาระบุชื่อห้องและสถานะ" });
+    }
+
+    try {
+        const sql = `UPDATE room SET room_status = ? WHERE room_name = ?`;
+        const result = await query(sql, [room_status, room_name]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "ไม่พบห้องที่ต้องการอัปเดต" });
+        }
+
+        console.log(`✅ ห้อง ${room_name} ถูกอัปเดตเป็น '${room_status}'`);
+        res.json({ message: "อัปเดตสำเร็จ" });
+    } catch (error) {
+        console.error("❌ Database error:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาด", error: error.message });
+    }
+});
+app.get("/getRoomStatuses", async (req, res) => {
+    try {
+      const results = await query("SELECT room_name, room_status FROM room");
+      res.json(results);
+    } catch (err) {
+      console.error("❌ Error fetching room statuses:", err);
+      res.status(500).json({ message: "Database error" });
+    }
+  });
+  
+  app.post("/updateRoomStatus", async (req, res) => {
+    const { room_name, room_status } = req.body;
+  
+    if (!room_name || !room_status) {
+        return res.status(400).json({ message: "กรุณาระบุชื่อห้องและสถานะ" });
+    }
+  
+    try {
+        const sql = `UPDATE room SET room_status = ? WHERE room_name = ?`;
+        const result = await query(sql, [room_status, room_name]);
+  
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "ไม่พบห้องที่ต้องการอัปเดต" });
+        }
+  
+        console.log(`✅ ห้อง ${room_name} ถูกอัปเดตเป็น '${room_status}'`);
+        res.json({ message: "อัปเดตสำเร็จ" });
+    } catch (error) {
+        console.error("❌ Database error:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาด", error: error.message });
+    }
+  });
+  
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

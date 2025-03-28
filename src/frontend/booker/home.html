@@ -152,18 +152,6 @@
 
     /* ✅ เพิ่มพื้นหลัง Overlay ให้ดูเป็นเงา */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
-
-    /* ✅ เพิ่มพื้นหลัง Overlay ให้ดูเป็นเงา */
-    .modal-overlay {
       display: none; /* ซ่อนไว้ก่อน */
       position: fixed;
       top: 0;
@@ -246,7 +234,7 @@
     .details-row strong {
       color: #333;
     }
-    /* Style สำหรับ Modal */
+    /* Style สำหรับ Modal 
     .modal {
       display: none;
       position: fixed;
@@ -259,7 +247,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
+    }*/
 
     .modal-content {
       background-color: white;
@@ -298,6 +286,67 @@
     .detail-btn:hover {
       background-color: #0056b3;
     }
+    /* ✅ จัด modal ให้อยู่ตรงกลางและมีขนาดพอดี */
+    #rejectModal.modal {
+      display: none;
+      position: fixed;
+      top: 12 px;
+      left: 16 px;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px 37px;
+      border-radius: 12px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    
+      /* ✅ แก้ขนาดให้พอดีข้อความ */
+      width: auto;
+      min-width: 250px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+    
+      /* ✅ เคล็ดลับ: ไม่กำหนดความสูงแน่นอน */
+      height: auto;
+    }
+    
+    
+
+    /* ✅ ชื่อหัวข้อใน modal */
+    #rejectModal h3 {
+      margin-top: 0;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      color: #333;
+    }
+
+    /* ✅ ปรับข้อมูลให้ชิดซ้าย + ระยะห่างระหว่างบรรทัด */
+    #rejectContent {
+      text-align: left;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-top: 15px;
+      color: #444;
+    }
+
+    /* ✅ ปุ่มปิด X */
+    #rejectModal .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    #rejectModal .close:hover {
+      color: red;
+    }
+
 
 
   </style>
@@ -377,9 +426,6 @@
 <!-- 📌 Overlay พื้นหลัง -->
 <div id="modalOverlay" class="modal-overlay" onclick="closeDetailsModal()"></div>
 
-<!-- 📌 Popup Modal -->
-<div id="modalOverlay" class="modal-overlay" onclick="closeDetailsModal()"></div>
-
 <div id="detailsModal" class="modal">
     <span class="close" onclick="closeDetailsModal()">&times;</span>
     <h3 id="modalTitle">รายละเอียดการแจ้งซ่อม</h3>
@@ -391,6 +437,13 @@
             <!-- ✅ ข้อมูลจะแสดงที่นี่ -->
         </div>
     </div>
+</div>
+
+<!-- 📌 Modal สำหรับแสดงหมายเหตุ -->
+<div id="rejectModal" class="modal">
+  <span class="close" onclick="closeRejectModal()">&times;</span>
+  <h3>รายละเอียดการไม่อนุมัติ</h3>
+  <div id="rejectContent" class="details-container"></div>
 </div>
 
 
@@ -477,6 +530,9 @@
             (a, b) => new Date(b.Submitted_date) - new Date(a.Submitted_date)
           );
 
+          window.loadedBookingData = bookings;
+
+
           // ✅ แสดงเฉพาะ 10 รายการแรก
           bookings.forEach((booking) => {
             console.log(
@@ -512,10 +568,17 @@
               <td>${booking.start_time || "-"}</td>
               <td>${booking.end_time || "-"}</td>
               <td class="status">${booking.request_status || "-"}</td>
-              <td>${booking.request_status === "รอดำเนินการ"
-                ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${booking.room_request_id})">ยกเลิก</button>`
-                : ""
-              }</td>
+              <td>
+                ${booking.request_status === "รอดำเนินการ"
+                  ? `<button class="btn cancel-btn btn-sm" onclick="cancelBooking(${booking.room_request_id})">ยกเลิก</button>`
+                  : booking.request_status === "ไม่อนุมัติ"
+                    ? `<button class="btn detail-btn btn-sm" onclick="showRejectNote(${booking.room_request_id}, 'reject')">หมายเหตุ</button>`
+                    : booking.request_status === "อนุมัติ"
+                      ? `<button class="btn detail-btn btn-sm" onclick="showRejectNote(${booking.room_request_id}, 'approve')">หมายเหตุ</button>`
+                      : "-"}
+              </td>
+
+
             `;
             tableBody.appendChild(row);
           });
@@ -670,23 +733,62 @@
       date.setHours(date.getHours() + 7); // ปรับเวลามาเป็น GMT+7
       return date.toISOString().slice(0, 10); // แสดงแค่ YYYY-MM-DD
     }
-
+    
+    //แสดงรายละเอียดไม่อนุมัติ❌
+    function showRejectNote(requestId, mode = "reject") {
+      const bookings = window.loadedBookingData || [];
+      const booking = bookings.find(b => b.room_request_id === requestId);
+      if (!booking) {
+        alert("ไม่พบข้อมูลรายการนี้");
+        return;
+      }
+    
+      let content = "";
+    
+      if (mode === "reject") {
+        content = `
+          <p><strong>📍ห้องที่จอง : </strong> ${booking.room_name || "-"}</p>
+          <p><strong>เหตุผลที่ไม่อนุมัติ : </strong> ${booking.reject_reason || "-"}</p>
+          <p><strong>รายละเอียดเพิ่มเติม : </strong> ${booking.detail_reject_reason || "-"}</p>
+          <hr>
+          <p><strong>👤 ผู้อนุมัติ :</strong> ${booking.admin_name || booking.executive_name }</p>
+        `;
+      } else if (mode === "approve") {
+        content = `
+          <p><strong>📍ห้องที่จอง : </strong> ${booking.room_name || "-"}</p>
+          <p><strong>👤 ผู้อนุมัติ : </strong> ${booking.admin_name || booking.executive_name }</p>
+        `;
+      }
+    
+      document.getElementById("rejectContent").innerHTML = content;
+      document.getElementById("rejectModal").style.display = "block";
+      document.getElementById("modalOverlay").style.display = "block";
+    }
+    
+    
+    
+    function closeRejectModal() {
+      document.getElementById("rejectModal").style.display = "none";
+      document.getElementById("modalOverlay").style.display = "none";
+    }
+    
+    //ยกเลิกการจอง
     async function cancelBooking(requestId) {
       console.log(`🔍 กำลังส่ง requestId ไปที่ API: ${requestId}`);
-
+    
       const row = document.querySelector(`tr[data-id="${requestId}"]`);
       if (!row) return;
-
+    
       const statusCell = row.querySelector(".status");
       const statusText = statusCell.textContent.trim();
-
+    
       if (!["รอดำเนินการ", "รออนุมัติ"].includes(statusText)) {
         alert("❌ ไม่สามารถยกเลิกการจองที่อนุมัติแล้วได้");
         return;
       }
-
+    
       if (!confirm("คุณต้องการยกเลิกการจองนี้ใช่หรือไม่?")) return;
-
+    
       try {
         const response = await fetch(
           `http://localhost:3000/cancelBooking/${requestId}`,
@@ -695,33 +797,33 @@
             headers: { "Content-Type": "application/json" },
           }
         );
-
+    
         const result = await response.json();
         console.log("✅ ผลลัพธ์จากเซิร์ฟเวอร์:", result);
-
+    
         if (!response.ok)
           throw new Error(result.error || "ไม่สามารถยกเลิกได้");
-
-        // ✅ อัปเดตสถานะเป็น "ยกเลิกการจอง"
-        statusCell.textContent = "ยกเลิกการจอง";
-        statusCell.style.color = "orange";
-
-        // ✅ ลบปุ่มยกเลิกหลังจากอัปเดตสำเร็จ
-        const cancelBtn = row.querySelector(".cancel-btn");
-        if (cancelBtn) cancelBtn.remove();
-
+    
+        // ✅ ลบแถวออกจากตาราง
+        row.remove();
+    
+        // ✅ ลบข้อมูลจาก loadedBookingData
+        if (window.loadedBookingData) {
+          window.loadedBookingData = window.loadedBookingData.filter(
+            b => b.room_request_id !== requestId
+          );
+        }
+    
+        // ✅ อัปเดตจำนวนแถวแสดงผล
+        updateTableVisibility();
+    
         alert("✅ ยกเลิกการจองสำเร็จ!");
       } catch (error) {
         console.error("❌ ไม่สามารถยกเลิกได้:", error);
         alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
       }
     }
-
-    window.onload = function () {
-      console.log("📌 กำลังเรียก fetchUserInfo(), fetchUserBookingData();");
-      fetchUserInfo();
-      fetchUserBookingData();
-    };
+    
   </script>
   <script>
     async function fetchBrokenEquipments() {

@@ -1,7 +1,7 @@
 async function fetchRoom() {
     try {
         // Fetch data from APIs
-        const [roomsResponse, studentsResponse, teachersResponse, roomsIDResponse, participantResponse, equipmentReqResponse, equipmentResponse] = await Promise.all([
+        const [roomsResponse, studentsResponse, teachersResponse, roomsIDResponse, participantResponse, equipmentReqResponse, equipmentResponse, executiveResponse, adminResponse] = await Promise.all([
             fetch('http://localhost:3001/data/room_request'),
             fetch('http://localhost:3001/data/student'),
             fetch('http://localhost:3001/data/teacher'),
@@ -9,9 +9,12 @@ async function fetchRoom() {
             fetch('http://localhost:3001/data/room_request_participant'),
             fetch('http://localhost:3001/data/room_request_equipment'),
             fetch('http://localhost:3001/data/equipment'),
+            fetch('http://localhost:3001/data/executive'),
+            fetch('http://localhost:3001/data/admin'),
         ]);
 
         // Convert responses to JSON
+        const adminData = await adminResponse.json();
         const roomsData = await roomsResponse.json();
         const studentsData = await studentsResponse.json();
         const teachersData = await teachersResponse.json();
@@ -19,6 +22,7 @@ async function fetchRoom() {
         const participantData = await participantResponse.json();
         const equipmentReqData = await equipmentReqResponse.json();
         const equipmentData = await equipmentResponse.json();
+        const executiveData = await executiveResponse.json();
 
         console.log("📌 Rooms:", roomsData);
         console.log("📌 Students:", studentsData);
@@ -51,6 +55,9 @@ async function fetchRoom() {
             const student = studentsData.find(s => s.student_id === room.student_id) || {};
             const teacher = teachersData.find(t => t.teacher_id === room.teacher_id) || {};
             const roomInfo = roomIDData.find(r => r.room_id === room.room_id) || {};
+            const admin = adminData.find(a => a.admin_id === room.admin_id) || {};
+            const executive = executiveData.find(ex => ex.executive_id === room.executive_id) || {};
+
 
             // ✅ Filter equipment requests for this room_request_id
             const equipmentReqs = equipmentReqData.filter(e => e.room_request_id === room.room_request_id) || [];
@@ -65,13 +72,15 @@ async function fetchRoom() {
             const participants = participantData
                 .filter(p => p.room_request_id === room.room_request_id)
                 .map(p => {
-                const student = studentsData.find(s => s.student_id === p.student_id)?.full_name;
-                const teacher = teachersData.find(t => t.teacher_id === p.teacher_id)?.full_name;
-                return student || teacher || '-';
-            })
-            .join(', ');            
+                    const student = studentsData.find(s => s.student_id === p.student_id)?.full_name;
+                    const teacher = teachersData.find(t => t.teacher_id === p.teacher_id)?.full_name;
+                    return student || teacher || '-';
+                })
+                .join(', ');
 
             return {
+                approved_by_name: admin.full_name || '-',
+                approved_by_ex: executive.full_name || '-',
                 room_request_id: room.room_request_id,
                 used_date: room.used_date,
                 detail_request_reason: room.detail_request_reason,
@@ -95,6 +104,21 @@ async function fetchRoom() {
         });
 
         console.log("✅ Merged data:", mergedData);
+        // 🔽 เรียง mergedData ตาม dropdown (sorttime)
+        const sortDropdown = document.getElementById("sorttime");
+        const sortOption = sortDropdown ? sortDropdown.value : '';
+
+        console.log("🌀 sortOption จาก dropdown:", sortOption);
+
+        // เทียบแค่วันที่ ไม่รวมเวลา
+        mergedData.sort((a, b) => {
+            const dateA = new Date(a.used_date).setHours(0, 0, 0, 0);
+            const dateB = new Date(b.used_date).setHours(0, 0, 0, 0);
+
+            if (sortOption === 'newest') return dateB - dateA;
+            if (sortOption === 'oldest') return dateA - dateB;
+            return 0; // ถ้าไม่เลือกอะไรเลย
+        });
 
         // ✅ Render table
         const tableBody = document.getElementById('rooms');
@@ -103,15 +127,16 @@ async function fetchRoom() {
         mergedData.forEach(row => {
             tableBody.innerHTML += `
                 <tr>  
-                    <td class="text-center">${new Date(row.used_date).toLocaleDateString()}</td>
+                    <td class="text-center">${new Date(row.submitted_time).toLocaleDateString("th-TH")}</td>
                     <td class="text-center">${row.person_name}</td> 
                     <td class="text-center">${row.email}</td>
                     <td class="text-center">${row.roomN}</td>
                     <td class="text-center">${row.participantCount} คน</td>
                     <td class="text-center">
-                        ${getDayOfWeek(row.used_date) + ' ' + new Date(row.used_date).toLocaleDateString()}<br>
-                        ${row.start_time.slice(0, 5) + ' - ' + row.end_time.slice(0, 5)}<br>
-                        (${row.request_type})
+                                ${formatThaiShortDate(row.used_date)}<br>
+                                ${row.start_time.slice(0, 5)} - ${row.end_time.slice(0, 5)}<br>
+                                (${row.request_type})
+                            </td>
                     </td>
                     <td class="text-center">
                         <button class="btn btn-primary btn-sm detail-btn" 
@@ -128,10 +153,11 @@ async function fetchRoom() {
                             data-reason="${row.request_reason || '-'}"
                             data-reject="${row.reject_reason || '-'}"
                             data-reject-detail="${row.detail_reject_reason || '-'}"
-                            data-participants="${row.participantNames}">
+                            data-participants="${row.participantNames}"
+                            data-approvedby="${row.approved_by_name}"
+                            data-approvedby_ex="${row.approved_by_ex}">
                             แสดงรายละเอียด
                         </button><br>
-                        <a href="${row.document_path || '#'}" target="_blank">เปิดเอกสาร</a>
                     </td>
                     <td class="text-center">${row.request_reason || '-'}</td>
                     <td class="text-center">${row.request_status || '-'}</td>
@@ -145,14 +171,24 @@ async function fetchRoom() {
 }
 
 // ✅ Convert date to weekday name
-function getDayOfWeek(dateString) {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+function formatThaiShortDate(dateString) {
     const date = new Date(dateString);
-    return days[date.getDay()];
+    const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+    const dayName = days[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear() + 543;
+    return `${dayName} ${day}/${month}/${year}`;
 }
-
 // ✅ Fetch room data
 fetchRoom();
+// 🔁 โหลดใหม่เมื่อเปลี่ยน dropdown sorttime
+document.addEventListener("DOMContentLoaded", () => {
+    const sortDropdown = document.getElementById("sorttime");
+    if (sortDropdown) {
+        sortDropdown.addEventListener("change", fetchRoom);
+    }
+});
 
 // ✅ Handle modal data
 document.addEventListener("click", function (event) {
@@ -164,11 +200,14 @@ document.addEventListener("click", function (event) {
         document.getElementById("modal-used_date").textContent = event.target.getAttribute("data-used_date");
         document.getElementById("modal-time").textContent = event.target.getAttribute("data-time");
         document.getElementById("modal-equipment").textContent = event.target.getAttribute("data-equipment");
-        document.getElementById("modal-document").textContent = event.target.getAttribute("data-document");
+
         document.getElementById("modal-reason").textContent = event.target.getAttribute("data-reason");
         document.getElementById("modal-reason-detail").textContent = event.target.getAttribute("data-reason-detail");
         document.getElementById("modal-data-participant-names").textContent = event.target.getAttribute("data-participants");
         document.getElementById("modal-data-reject").textContent = event.target.getAttribute("data-reject");
         document.getElementById("modal-data-reject-detail").textContent = event.target.getAttribute("data-reject-detail");
+        document.getElementById("modal-approved-by").textContent = event.target.getAttribute("data-approvedby");
+        document.getElementById("modal-approved-by_ex").textContent = event.target.getAttribute("data-approvedby_ex");
+
     }
 });
