@@ -448,21 +448,23 @@
 
 
   <script>
+    let visibleRows = 10; // แสดง 10 รายการแรก
+    const increment = 5; // เพิ่มทีละ 5 รายการ
+    
+    function updateTableVisibility() {
+      let tableRows = document.querySelectorAll("#booking-table-body tr");
+      tableRows.forEach((row, index) => {
+        row.style.display = index < visibleRows ? "table-row" : "none";
+      });
+
+      // ซ่อนปุ่มถ้าข้อมูลแสดงครบแล้ว
+      document.getElementById("load-more-btn").style.display =
+        visibleRows >= tableRows.length ? "none" : "block";
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-      let visibleRows = 10; // แสดง 10 รายการแรก
-      const increment = 5; // เพิ่มทีละ 5 รายการ
+      
       let tableRows;
-
-      function updateTableVisibility() {
-        let tableRows = document.querySelectorAll("#booking-table-body tr");
-        tableRows.forEach((row, index) => {
-          row.style.display = index < visibleRows ? "table-row" : "none";
-        });
-
-        // ซ่อนปุ่มถ้าข้อมูลแสดงครบแล้ว
-        document.getElementById("load-more-btn").style.display =
-          visibleRows >= tableRows.length ? "none" : "block";
-      }
 
       document
         .getElementById("load-more-btn")
