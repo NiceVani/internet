@@ -290,18 +290,17 @@ app.get("/getEquipments", async (req, res) => {
 app.get("/roomdetail", (req, res) => {
 
   const query = `
-
-    SELECT
+  SELECT
       rli.room_name AS full_name,
       rli.floor,
       rli.room_id,
       rli.room_name,
-      rt.type_name AS room_type, --
+      rt.type_name AS room_type, -- ✅ เพิ่มตรงนี้
       SUM(CASE WHEN rlr.request_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count
     FROM room rli
     LEFT JOIN room_request rlr ON rli.room_id = rlr.room_id
-    LEFT JOIN room_type rt ON rli.room_type_id = rt.room_type_id -- 
-    GROUP BY rli.room_id, rli.room_name, rli.floor, rli.room_name
+    LEFT JOIN room_type rt ON rli.room_type_id = rt.room_type_id -- ✅ เพิ่มตรงนี้
+    GROUP BY rli.room_id, rli.room_name, rli.floor, rt.type_name
     ORDER BY Approved_Count DESC;
   `;
 

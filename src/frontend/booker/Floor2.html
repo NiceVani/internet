@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title>Floor Layout</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -114,6 +114,9 @@
     .room.large.bottom2 {
       grid-column: 2 / span 1;
       grid-row: 6 / span 2;
+
+      background-color: rgb(255, 0, 0);
+
       border: 2px solid #000;
       /* กรอบสีเทาสำหรับห้องใหญ่ */
     }
@@ -366,8 +369,8 @@
 
     .hall {
       grid-column: 3 / span 8;
-      grid-row: 3 / span 3;
-      background-color: #cbcbcb;
+      grid-row: 4 / span 1;
+      background-color: #ffffff;
       border: 2px solid #000;
       display: flex;
       align-items: center;
@@ -404,59 +407,33 @@
       background-color: #ff0000;
       border: 2px solid #000;
     }
-    /* ✅ ถ้าห้อง "ว่าง" ให้แสดงเป็นสีเขียว และมี "ว่าง" */
-    .available {
-      background-color: #8e8e8e !important; /* ✅ สีเขียว */
+
+
+    .room.has-icon {
+      position: relative;
     }
 
-    /* ❌ ถ้าห้อง "ไม่ว่าง" ให้แสดงเป็นสีแดง และมี "ไม่ว่าง" */
-    .disabled-room {
-      pointer-events: none;
-      cursor: not-allowed;
-      background-color: #ff0000 !important; /* ❌ สีแดง */
-    }
-
-    /* ✅ ป้ายแสดงสถานะห้อง ("ว่าง" หรือ "ไม่ว่าง") */
-    .status-label {
+    .corner-icon {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      font-weight: bold;
-      color: white;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-      border: 2px solid white;
-      
+      top: 6px;
+      right: 6px;
+      font-size: 16px;
+      color: black;
     }
 
-    
+    .room-type-icon {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 16px;
+  color: black;
+}
 
-    /* 🚀 ซ่อนป้ายสถานะ สำหรับห้องที่ไม่มีข้อมูล */
-    .no-data .status-label {
-      display: none !important;
-    }
+.room {
+  position: relative; /* ต้องมี เพื่อให้ icon อยู่ในขอบของห้อง */
+}
 
-    /* ✅ ป้าย "ว่าง" */
-    .available .status-label {
-      background-color: green;
-    }
 
-    /* ✅ ป้าย "ไม่ว่าง" */
-    .disabled-room .status-label {
-      background-color: red;
-    }
-
-    /* 🚀 ลบ `::after` ที่สร้างป้ายซ้อนกัน */
-    .available::after,
-    .disabled-room::after {
-      content: none !important;
-    }
   </style>
 </head>
 
@@ -504,18 +481,14 @@
 
           <div class="hall">โถงกลาง</div>
 
-          <!--<div class="room large bottom available" data-popup="true">
-            <span class="status" >ว่าง</span>SC2-212
-          </div>
-          <div class="room large bottom2 available" data-popup="true">
-            <span class="statusN disabled-room">ไม่ว่าง</span>SC2-211
-          </div>-->
-          <div class="room large bottom " data-room="212">SC2-212</div>
-          <div class="room large bottom2 " data-room="211">SC2-211</div>
-          <div class="room large bottom3 ">SC2-210</div>
-          <div class="room smallss bottoms1 ">SC2-209</div>
-          <div class="room large bottom4 ">SC2-208</div>
-          <div class="room large bottom5 ">SC2-207</div>
+
+          <div class="room large bottom available" data-room="212">SC2-212</div>
+          <div class="room large bottom2 disabled-room" data-room="211">SC2-211</div>
+          <div class="room large bottom3 disabled-room">SC2-210</div>
+          <div class="room smallss bottoms1 disabled-room">SC2-209</div>
+          <div class="room large bottom4 disabled-room">SC2-208</div>
+          <div class="room large bottom5 disabled-room">SC2-207</div>
+
 
           <!-- เพิ่มบันไดข้าง SC2-207 ติดกับลิฟต์ -->
           <div class="stair" style="grid-column: 10; grid-row: 7;"><i class="fas fa-stairs"></i></div>
@@ -584,6 +557,7 @@
         popup.classList.add("hidden");
       }
     });
+
   </script>
   <script src="BookScript.js"></script>
 </body>
