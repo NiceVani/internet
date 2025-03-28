@@ -492,7 +492,7 @@
       <a href="request_crash_equipments.html"><button>รายงานอุปกรณ์ชำรุด</button></a>
     </div>
     <div class="logout-button">
-      <button id="logout-button">ออกจากระบบ</button>
+      <button onclick="logout()" class="btn btn-warning">ออกจากระบบ</button></div>
     </div>
   </header>
   <main>
@@ -538,15 +538,15 @@
         <div>
           <label for="status">สถานะห้อง :</label>
           <select id="status">
-            <option value="available">ว่าง</option>
-            <option value="not-available">ไม่ว่าง</option>
-            <option value="closed">ซ่อมบำรุง</option>
+            <option value="available">เปิดการใช้งาน</option>
+            <option value="not-available">ปิดการใช้งาน</option>
           </select>
         </div>
         <button id="saveStatus">Save Status</button>
       </div>
     </div>
   </main>
+  <script src="CheckStatus.js"></script>      
 
   <script>
     // Modal references
@@ -608,48 +608,41 @@
       const currentStatus = currentRoomElement.classList.contains('available') ? 'available' : 'not-available';
       statusSelect.value = currentStatus === 'available' ? 'available' : 'not-available';
 
-      // Load equipment list from localStorage
+      // Show the modal
+      modal.style.display = "block";
 
-      // Set the roomDetailsButton action based on the room
-      if (roomId === 'SC2-307') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-307.html";
-      } else if (roomId === 'SC2-308') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-308.html";
-      } else if (roomId === 'SC2-311') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-311.html";
-      } else if (roomId === 'SC2-314') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-314.html"
-      } else if (roomId === 'SC2-313-1') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-313-1.html"
-      } else if (roomId === 'SC2-313') {
-        roomDetailsButton.onclick = () => window.location.href = "SC2-313.html"
-      } else {
-        roomDetailsButton.onclick = null; // Clear any previously set onclick
-      }
+      // Set schedule button onclick actions for each room
 
-      //Schedule
-      if (roomId === 'SC2-308') {
-        scheduleButton.onclick = () => window.location.href = "Schedule308.html";
-      }
-      if (roomId === 'SC2-307') {
+      // กำหนดให้ scheduleButton ไปยังหน้า schedule ของห้องต่างๆ
+      const scheduleButton = document.getElementById("scheduleButton");
+      const numericId = roomId.replace("SC2-", ""); // ✅ เหลือไว้แค่บรรทัดนี้
+
+      // ✅ ใช้ numericId ใน if เช็คตารางห้อง
+      if (numericId === '307') {
         scheduleButton.onclick = () => window.location.href = "Schedule307.html";
-      }
-      if (roomId === 'SC2-314') {
+      } else if (numericId === '308') {
+        scheduleButton.onclick = () => window.location.href = "Schedule308.html";
+      } else if (numericId === '314') {
         scheduleButton.onclick = () => window.location.href = "Schedule314.html";
-      }
-      if (roomId === 'SC2-313-1') {
+      } else if (numericId === '313-1') {
         scheduleButton.onclick = () => window.location.href = "Schedule313-1.html";
-      }
-      if (roomId === 'SC2-313') {
+      } else if (numericId === '313') {
         scheduleButton.onclick = () => window.location.href = "Schedule313.html";
-      }
-      if (roomId === 'SC2-311') {
+      } else if (numericId === '311') {
         scheduleButton.onclick = () => window.location.href = "Schedule311.html";
       }
 
+      // ✅ ปุ่มไปยังหน้ารายละเอียดห้อง
+      const roomPage = "Room_Detail.html";
+      const roomIdsForDetails = ['307', '308', '311', '313', '313-1', '314'];
 
-      // Show the modal
-      modal.style.display = "block";
+      document.getElementById("roomDetailsButton").onclick = function () {
+        if (roomIdsForDetails.includes(numericId)) {
+          window.location.href = `${roomPage}?room=${numericId}`;
+        } else {
+          alert("ไม่มีข้อมูลสำหรับห้องนี้");
+        }
+      };
     }
 
 
@@ -659,29 +652,51 @@
 
 
     // Save the room status and update the room element
-    saveStatusButton.onclick = function () {
-      const selectedStatus = statusSelect.value;
+    saveStatusButton.onclick = async function () {
+  const selectedStatus = statusSelect.value;
 
-      if (selectedStatus === "available") {
-        currentRoomElement.classList.add('available');
-        currentRoomElement.classList.remove('not-available', 'closed');
-        currentRoomElement.innerText = currentRoomElement.innerText.replace(' (ซ่อมบำรุง)', ''); // Remove 'ปิดห้อง' if any
-      } else if (selectedStatus === "not-available") {
-        currentRoomElement.classList.add('not-available');
-        currentRoomElement.classList.remove('available', 'closed');
-        currentRoomElement.innerText = currentRoomElement.innerText.replace(' (ซ่อมบำรุง)', ''); // Remove 'ปิดห้อง' if any
-      } else if (selectedStatus === "closed") {
-        currentRoomElement.classList.add('closed');
-        currentRoomElement.classList.remove('available', 'not-available');
-        currentRoomElement.innerText = currentRoomElement.innerText + ' (ซ่อมบำรุง)'; // Add 'ปิดห้อง' text
-      }
+  // เปลี่ยน class เพื่อแสดงผลหน้า UI
+  if (selectedStatus === "available") {
+    currentRoomElement.classList.add("available");
+    currentRoomElement.classList.remove("not-available", "closed");
+  } else if (selectedStatus === "not-available") {
+    currentRoomElement.classList.add("not-available");
+    currentRoomElement.classList.remove("available", "closed");
+  } else if (selectedStatus === "closed") {
+    currentRoomElement.classList.add("closed");
+    currentRoomElement.classList.remove("available", "not-available");
+  }
 
-      // Save the room status in localStorage
-      localStorage.setItem(currentRoomElement.id, selectedStatus);
+  // 🟢 เรียก API ไปยัง backend เพื่ออัปเดต room_status
+  const roomName = currentRoomElement.innerText.split(" ")[0]; // เช่น SC2-307
+  const statusText =
+    selectedStatus === "available"
+      ? "เปิดการใช้งาน"
+      : "ปิดการใช้งาน";
 
-      // Close the modal after saving
-      modal.style.display = "none";
+  try {
+    const res = await fetch("http://localhost:3001/updateRoomStatus", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        room_name: roomName,
+        room_status: statusText,
+      }),
+    });
+
+    const result = await res.json();
+    if (res.ok) {
+      alert("✅ อัปเดตสถานะห้องสำเร็จ");
+    } else {
+      alert("❌ อัปเดตไม่สำเร็จ: " + result.message);
     }
+  } catch (err) {
+    console.error("❌ Error:", err);
+    alert("เกิดข้อผิดพลาด");
+  }
+
+  modal.style.display = "none";
+};
 
 
     // Close the modal
@@ -697,23 +712,35 @@
     };
 
     // Load room status from localStorage when the page reloads
-    window.onload = function () {
-      const rooms = document.querySelectorAll(".room");
+    window.onload = async function () {
+  try {
+    const response = await fetch("http://localhost:3001/getRoomStatuses");
+    const roomStatuses = await response.json();
 
-      rooms.forEach((room) => {
-        const savedStatus = localStorage.getItem(room.id);
+    const rooms = document.querySelectorAll(".room");
 
-        if (savedStatus) {
-          if (savedStatus === "available") {
-            room.classList.add("available");
-            room.classList.remove("not-available");
-          } else {
-            room.classList.add("not-available");
-            room.classList.remove("available");
-          }
+    rooms.forEach(room => {
+      const roomName = room.innerText.trim().split(" ")[0]; // เช่น SC2-307
+      const statusData = roomStatuses.find(r => r.room_name === roomName);
+
+      if (statusData) {
+        if (statusData.room_status === "เปิดการใช้งาน") {
+          room.classList.add("available");
+          room.classList.remove("not-available", "closed");
+        } else if (statusData.room_status === "ปิดการใช้งาน") {
+          room.classList.add("not-available");
+          room.classList.remove("available", "closed");
+        } else if (statusData.room_status === "ซ่อมบำรุง") {
+          room.classList.add("closed");
+          room.classList.remove("available", "not-available");
         }
-      });
-    };
+      }
+    });
+  } catch (err) {
+    console.error("❌ ไม่สามารถโหลดสถานะห้องจากฐานข้อมูลได้:", err);
+  }
+};
+
 
     // อ้างอิงถึง search input และ reports container
     const searchInput = document.getElementById("searchInput");
@@ -766,8 +793,9 @@
       });
     });
   </script>
-  <script src="CheckStatus.js"></script>
-  <script src="logout.js"></script>
+    <script src="database.js"></script>
+    <script src="CheckStatus.js"></script>
+    <script src="logout.js"></script>   
 </body>
 
 </html>

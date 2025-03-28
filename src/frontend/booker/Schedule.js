@@ -281,58 +281,67 @@ function toggleSelection(cell) {
 
   const row = cell.parentElement;
   const dayCell = row.querySelector("td");
-  const dayIndex = parseInt(dayCell.dataset.day); // ดึง index ของวันนั้น
-  const cellIndex = Array.from(row.children).indexOf(cell); // หาตำแหน่งของ cell ในแถว
+  const dayIndex = parseInt(dayCell.dataset.day);
+  const cellIndex = Array.from(row.children).indexOf(cell);
 
-  // เช็กว่าเป็นวันเสาร์หรืออาทิตย์
+  // วันเสาร์-อาทิตย์
   if (dayIndex === 5 || dayIndex === 6) {
     showAlert("ไม่สามารถเลือกวันเสาร์-อาทิตย์ได้!");
     return;
   }
 
-  // ถ้ายังไม่มีการเลือก ให้เก็บค่า index ของวันแรกที่ถูกเลือก
+  // ตั้งค่าหมายเลขวัน
   if (selectedDayIndex === null) {
     selectedDayIndex = dayIndex;
   }
 
-  // ถ้าเลือกข้ามวัน (วันแรกที่เลือก != วันที่กดใหม่)
   if (dayIndex !== selectedDayIndex) {
     showAlert("ไม่สามารถเลือกข้ามวันได้!");
     return;
   }
 
-  // ถ้าไม่มีการเลือก ให้เริ่มต้นเก็บช่วงเวลาที่ถูกเลือก
-  if (selectedTimeIndexes.length === 0) {
-    selectedTimeIndexes.push(cellIndex);
-  } else {
-    // ตรวจสอบว่าเลือกข้ามช่วงเวลาหรือไม่ (ต้องเลือกช่องติดกันเท่านั้น)
-    selectedTimeIndexes.sort((a, b) => a - b);
-    const lastIndex = selectedTimeIndexes[selectedTimeIndexes.length - 1];
+  const alreadySelected = cell.classList.contains("checked");
 
-    if (Math.abs(cellIndex - lastIndex) > 1) {
-      showAlert("ไม่สามารถเลือกข้ามช่วงเวลาได้!");
+  if (!alreadySelected) {
+    // ✅ เพิ่มช่องใหม่
+    if (selectedTimeIndexes.length === 0) {
+      selectedTimeIndexes.push(cellIndex);
+    } else {
+      // ต้องติดกับอย่างน้อย 1 ช่อง
+      const isAdjacent = selectedTimeIndexes.some(
+        (index) => Math.abs(cellIndex - index) === 1
+      );
+      if (!isAdjacent) {
+        showAlert("กรุณาเลือกช่วงเวลาที่ติดกันเท่านั้น!");
+        return;
+      }
+      selectedTimeIndexes.push(cellIndex);
+    }
+
+    cell.classList.add("checked");
+    cell.innerHTML = '<i class="fas fa-check"></i>';
+
+  } else {
+    // ✅ ลบช่องที่เลือก → ได้เฉพาะหัวหรือท้ายเท่านั้น
+    selectedTimeIndexes.sort((a, b) => a - b);
+    const min = selectedTimeIndexes[0];
+    const max = selectedTimeIndexes[selectedTimeIndexes.length - 1];
+
+    if (cellIndex !== min && cellIndex !== max) {
+      showAlert("สามารถยกเลิกได้เฉพาะช่องแรกหรือช่องสุดท้ายเท่านั้น!");
       return;
     }
-  }
 
-  // ติ้กหรือยกเลิกช่อง
-  if (cell.classList.contains("checked")) {
-    cell.classList.remove("checked");
-    cell.innerHTML = "";
-
-    // เอา index ออกจากรายการที่เลือก
+    // เอาออก
     selectedTimeIndexes = selectedTimeIndexes.filter(
       (index) => index !== cellIndex
     );
+    cell.classList.remove("checked");
+    cell.innerHTML = "";
 
-    // ถ้ายกเลิกติ้กทั้งหมด รีเซ็ต selectedDayIndex และ selectedTimeIndexes
     if (selectedTimeIndexes.length === 0) {
       selectedDayIndex = null;
     }
-  } else {
-    cell.classList.add("checked");
-    cell.innerHTML = '<i class="fas fa-check"></i>';
-    selectedTimeIndexes.push(cellIndex);
   }
 }
 
@@ -370,7 +379,8 @@ function highlightDay(date) {
  * 10) confirmBooking()
  *    - เมื่อกด "ยืนยัน" จะเก็บข้อมูลวัน ห้อง เวลาเริ่ม-สิ้นสุด แล้วส่งไปหน้าต่อ
  ********************************/
-function confirmBooking() {
+let finalRedirectUrl; 
+async function confirmBooking() {
   const selectedCells = document.querySelectorAll("td.checked");
   if (selectedCells.length === 0) {
     showAlert("กรุณาเลือกช่วงเวลาที่ต้องการจอง!");
@@ -405,7 +415,7 @@ function confirmBooking() {
   selectedIndexes.sort((a, b) => a - b);
   const startIndex = selectedIndexes[0];
   const endIndex = selectedIndexes[selectedIndexes.length - 1];
-  const startTime = timeSlots[startIndex - 1];
+  const startTime = timeSlots[startIndex - 1] ?? timeSlots[startIndex]; // ✅ รองรับกรณี startIndex = 0
   const endTime =
     endIndex < row.children.length - 1
       ? timeSlots[endIndex]
@@ -421,7 +431,51 @@ function confirmBooking() {
     startTime: startTime,
     endTime: endTime,
   });
-  window.location.href = `desk_equipment.html?${urlParams.toString()}`;
+  finalRedirectUrl = `desk_equipment.html?${urlParams.toString()}`;  
+  // ดึงรายการจองแล้วเช็คซ้ำ
+  try {
+    const res = await fetch("http://localhost:3000/room_request");
+    const bookings = await res.json();
+  
+    const conflicts = bookings.filter((b) => {
+      const dateObj = new Date(b.used_date);
+      const bookingDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+      const selectedISO = new Date(selectedDate).toISOString().split("T")[0];
+  
+      // แปลงเวลาให้ชัวร์ว่าเป็น string HH:MM:SS
+      const bStart = b.start_time?.substring(0, 8); // "18:00:00"
+      const bEnd = b.end_time?.substring(0, 8);
+      const myStart = startTime?.substring(0, 8);
+      const myEnd = endTime?.substring(0, 8);
+  
+      // แปลง room_id ทั้งสองฝั่งให้เป็น string เพื่อให้เทียบตรงกัน
+      const sameRoom = String(b.room_id) === String(roomId);
+      const sameDate = bookingDate === selectedISO;
+      const overlap = isTimeOverlap(myStart, myEnd, bStart, bEnd);
+  
+      console.log("🟡 เปรียบเทียบ:", {
+        bookingDate, selectedISO,
+        bStart, bEnd,
+        myStart, myEnd,
+        sameRoom, sameDate, overlap
+      });
+  
+      return sameDate && sameRoom && overlap;
+    });
+    lastConflicts = conflicts;
+
+    if (conflicts.length > 0) {
+      showConflictModal(conflicts.length); // มีคิวซ้ำ → แสดง popup
+    } else {
+      window.location.href = finalRedirectUrl; // ไม่มีคิวซ้ำ → ไปหน้า desk ทันที
+    }
+    return;
+
+  
+  } catch (err) {
+    console.error("❌ ตรวจสอบการจองซ้อนล้มเหลว:", err);
+  }
+  
 }
 
 /********************************
@@ -465,6 +519,105 @@ document.addEventListener("DOMContentLoaded", async function () {
       await updateTableForSelectedDate(event.target.value);
     });
 });
+
+//ตรวจสอบเวลาซ้อนทับกัน
+
+function isTimeOverlap(startA, endA, startB, endB) {
+  return startA < endB && endA > startB;
+}
+
+let lastConflicts = []; // ⬅️ เก็บ conflicts ไว้ใช้ใน popup
+
+function showConflictModal(count) {
+  if (count === 0) return; // ป้องกันไม่ให้ popup ขึ้นถ้าไม่มีคิว
+
+  const detailText = lastConflicts.map((b, i) => {
+    const start = b.start_time?.substring(0, 5);
+    const end = b.end_time?.substring(0, 5);
+    return `${i + 1}. ${start} - ${end}`;
+  }).join("<br>");
+
+  Swal.fire({
+    icon: "warning",
+    title: `⚠️ มีการจองซ้อน ${count} คิว`,
+    html: `<div style="text-align:center; font-size:16px;">${detailText}</div>`,
+    showCancelButton: true,
+    confirmButtonText: "ไปยังหน้าเลือกโต๊ะ",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonColor: "#4CAF50",
+    cancelButtonColor: "#f44336"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = finalRedirectUrl;
+    }
+  });
+}
+
+
+
+
+function closeModal() {
+  document.getElementById("conflictModal").style.display = "none";
+}
+
+function proceedToDesk() {
+  window.location.href = finalRedirectUrl;
+}
+
+//เลือก 09:00 → 10:00 → 08:00 ✅ ได้แน่นอน
+//เลือก 13:00 → 14:00 → 15:00 → 12:00 ✅ ได้
+//เลือก 13:00 → 15:00 ❌ ไม่ได้ (ไม่ติดกัน)
+function isSelectable(cell, selectedCells) {
+  if (selectedCells.length === 0) return true;
+
+  const currentDate = cell.closest("tr").dataset.date;
+  const firstDate = selectedCells[0].closest("tr").dataset.date;
+
+  // ✅ ต้องเป็นวันเดียวกัน
+  if (currentDate !== firstDate) return false;
+
+  const clickedIndex = cell.cellIndex;
+  const selectedIndices = selectedCells.map(c => c.cellIndex);
+
+  // ✅ ถ้า cellIndex ห่างจาก cellIndex ที่มีอยู่เพียง 1 ช่อง ถือว่า "ติดกัน"
+  return selectedIndices.some(index => Math.abs(clickedIndex - index) === 1);
+}
+//ฝังไว้ใน cell.addEventListener("click", ...)
+cell.addEventListener("click", function () {
+  if (!isSelectable(cell, selectedCells)) {
+    alert("⛔ กรุณาเลือกเฉพาะช่วงเวลาที่ติดกันภายในวันเดียวกัน");
+    return;
+  }
+
+  cell.classList.add("selected");
+  selectedCells.push(cell);
+});
+
+function isSelectableOrDeselectable(cell, selectedCells) {
+  const row = cell.closest("tr");
+  const cellIndex = parseInt(cell.getAttribute("data-time-index"), 10);
+
+  if (selectedCells.length === 0) return true;
+
+  const selectedRow = selectedCells[0].closest("tr");
+  if (row !== selectedRow) return false; // ต้องเป็นวันเดียวกัน
+
+  const alreadySelected = selectedCells.includes(cell);
+  const selectedIndices = selectedCells.map(c =>
+    parseInt(c.getAttribute("data-time-index"), 10)
+  );
+
+  if (!alreadySelected) {
+    // ✅ เพิ่ม: ต้องติดกับช่องใดช่องหนึ่งใน selectedCells
+    return selectedIndices.some(index => Math.abs(cellIndex - index) === 1);
+  } else {
+    // ✅ ลบ: ต้องเป็นหัวหรือท้ายเท่านั้น
+    const sorted = selectedIndices.sort((a, b) => a - b);
+    const min = sorted[0];
+    const max = sorted[sorted.length - 1];
+    return cellIndex === min || cellIndex === max;
+  }
+}
 
 /********************************
  * 12) WebSocket สำหรับการอัปเดตเรียลไทม์

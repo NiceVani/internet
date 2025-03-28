@@ -66,6 +66,14 @@
             <option value="all">ทั้งหมด</option>
           </select>
         </div>
+        <div class="d-flex align-items-center gap-2">
+          <p class="mb-0">Start Date:</p>
+          <input type="date" id="startDateFilter" class="form-control w-auto">
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <p class="mb-0">End Date:</p>
+          <input type="date" id="endDateFilter" class="form-control w-auto">
+        </div>
       </div>
 
       <table id="roomTable" class="display table table-bordered">
@@ -123,6 +131,7 @@
       pageLength: 10,
       searching: true,
       ordering: true,
+      order:[[0,'desc']],
       language: {
         search: "ค้นหา:",
         lengthMenu: "แสดง _MENU_ รายการ",
@@ -138,21 +147,56 @@
 
     // เพิ่ม Custom Filter
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-      let selectedRoom = $('#roomFilter').val();
-      let selectedRole = $('#roleFilter').val();
-      let room = data[2]; // ห้อง (index 2)
-      let role = data[5]; // สถานะ (index 5)
+  let selectedRoom = $('#roomFilter').val();
+  let selectedRole = $('#roleFilter').val();
+  let startDate = $('#startDateFilter').val();
+  let endDate = $('#endDateFilter').val();
+  let room = data[2]; // ห้อง (index 2)
+  let role = data[5]; // สถานะ (index 5)
+  let date = data[0]; // วันที่ (index 0)
 
-      if ((selectedRoom === "all" || room === selectedRoom) && 
-          (selectedRole === "all" || role === selectedRole)) {
-        return true;
-      }
-      return false;
-    });
+  // แปลงวันที่ในข้อมูล (จาก 'วันที่' เป็น 'yyyy-mm-dd')
+  let dataDate = new Date(date).toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+  let dateMatch = true;
+
+  // กรณี startDate
+  if (startDate) {
+    let start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);  // เริ่มต้นที่เวลา 00:00:00
+    startDate = start.toISOString().split('T')[0]; // แปลงเป็น 'YYYY-MM-DD'
+  }
+
+  // กรณี endDate
+  if (endDate) {
+    // ปรับเวลาให้เป็น 23:59:59.999 เพื่อป้องกันการข้ามวัน
+    let end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);  // สิ้นสุดที่เวลา 23:59:59
+    endDate = end.toISOString().split('T')[0]; // แปลงเป็น 'YYYY-MM-DD'
+  }
+
+  // กรองตามช่วงวันที่
+  if (startDate && endDate) {
+    // กรองตามช่วงวันที่
+    dateMatch = (dataDate >= startDate && dataDate < endDate);
+  } else if (startDate) {
+    // กรองตาม startDate
+    dateMatch = (dataDate >= startDate);
+  } else if (endDate) {
+    // กรองตาม endDate
+    dateMatch = (dataDate < endDate);
+  }
+
+  // กรองตามห้องและสถานะ
+  let roomMatch = (selectedRoom === "all" || room === selectedRoom);
+  let roleMatch = (selectedRole === "all" || role === selectedRole);
+
+  return roomMatch && roleMatch && dateMatch;
+});
 
     // อัปเดตตารางเมื่อเปลี่ยนค่า
-    $("#roomFilter, #roleFilter").on("change", function () {
-      table.draw();
+    $("#roomFilter, #roleFilter, #startDateFilter, #endDateFilter").on("change", function () {
+      $('#roomTable').DataTable().draw();
     });
   }
 
