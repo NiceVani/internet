@@ -782,6 +782,46 @@ app.get('/equipment_brokened', (req, res) => {
     });
 });
 
+// ดึงข้อมูลเหตุผลไม่อนุมัติ
+// ดึงรายการ ENUM จากคอลัมน์ reject_reason
+app.get('/RejectReasons', (req, res) => {
+    const query = `SHOW COLUMNS FROM room_request LIKE 'reject_reason'`;
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ ดึงข้อมูล ENUM ไม่สำเร็จ:', err);
+            return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+        }
+
+        // แปลง ENUM จากข้อมูลดิบ
+        const enumString = results[0].Type; // ตัวอย่าง: "enum('เอกสารไม่ครบ','ห้องไม่ว่าง','เวลาซ้ำซ้อน')"
+        const enumValues = enumString.match(/'([^']+)'/g).map(value => value.replace(/'/g, ""));
+
+        res.json(enumValues);
+    });
+});
+
+
+// บันทึกเหตุผลที่ไม่อนุมัติ
+app.post('/submitRejection', (req, res) => {
+    const { room_request_id, reject_reason, detail_reject_reason } = req.body;
+
+    const query = `
+        UPDATE room_request 
+        SET reject_reason = ?, detail_reject_reason = ? 
+        WHERE room_request_id = ?
+    `;
+
+    connection.query(query, [reject_reason, detail_reject_reason || '', room_request_id], (err) => {
+        if (err) {
+            console.error('❌ บันทึกข้อมูลไม่สำเร็จ:', err);
+            return res.status(500).json({ error: 'บันทึกข้อมูลไม่สำเร็จ' });
+        }
+        res.json({ message: '✅ บันทึกเหตุผลการไม่อนุมัติสำเร็จ' });
+    });
+});
+
+
 
 // 📌 เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
