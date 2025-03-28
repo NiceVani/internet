@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // เมื่อมีการส่งฟอร์ม
+  // แก้ไขส่วนการส่งข้อมูลไปยัง API ในฟังก์ชัน submit ของแบบฟอร์ม
   reportForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
@@ -54,12 +54,39 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // 2) generateRepairNumber
+      // 2) ดึงข้อมูลเซสชัน เพื่อระบุบทบาทผู้ใช้ที่ถูกต้อง
+      const sessionResponse = await fetch("http://localhost:3000/session", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!sessionResponse.ok) {
+        alert("❌ กรุณาเข้าสู่ระบบใหม่");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const sessionData = await sessionResponse.json();
+      const userRole = sessionData.role;
+      const userId =
+        userRole === "นิสิต"
+          ? sessionData.data.student_id
+          : sessionData.data.teacher_id;
+
+      if (!userId) {
+        alert("❌ ไม่พบข้อมูลผู้ใช้");
+        window.location.href = "login.html";
+        return;
+      }
+
+      console.log(`✅ ผู้ใช้: ${userRole}, ID: ${userId}`);
+
+      // 3) generateRepairNumber
       const repairNumber = await generateRepairNumber(roomId, equipmentId);
       const parts = repairNumber.split("-");
       const nextNumber = parts[parts.length - 1]; // ตัวท้าย
 
-      // 3) เตรียมเวลา
+      // 4) เตรียมเวลา
       const repairDate = new Date()
         .toISOString()
         .slice(0, 19)
@@ -73,14 +100,14 @@ document.addEventListener("DOMContentLoaded", function () {
       // ถ้ามีไฟล์ => ใส่ลง formData
 
       // ใส่ฟิลด์ sessionUserId, nextNumber
-      formData.append("sessionUserId", sessionUserId);
+      formData.append("sessionUserId", userId);
       formData.append("nextNumber", nextNumber);
 
       if (fileInput) {
         formData.append("image", fileInput);
       }
 
-      // 4) ถ้ามี fileInput => upload (POST /uploadReportImage)
+      // 5) ถ้ามี fileInput => upload (POST /uploadReportImage)
       if (fileInput) {
         const uploadResponse = await fetch(
           "http://localhost:3000/uploadReportImage",
@@ -100,11 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // 5) หลังอัปโหลดเสร็จ => ส่งข้อมูลบันทึกลงตาราง
+      // 6) หลังอัปโหลดเสร็จ => ส่งข้อมูลบันทึกลงตาราง (แก้ไขการส่ง student_id/teacher_id)
       const reportData = {
         repair_number: repairNumber,
         repair_date: repairDate,
-        student_id: sessionUserId,
+        student_id: userRole === "นิสิต" ? userId : null,
+        teacher_id: userRole === "อาจารย์" ? userId : null,
         equipment_id: equipmentId,
         room_id: roomId,
         computer_id: equipment === "คอมพิวเตอร์" ? computerId : null, // เพิ่มการส่ง computer_id
@@ -113,6 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
         repair_status: "รอซ่อม",
         image_path: imagePath,
       };
+
+      console.log("📋 ข้อมูลที่ส่งไป API:", reportData);
 
       const response = await fetch("http://localhost:3000/reportIssue", {
         method: "POST",
@@ -447,7 +477,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   await fetchUserInfo();
 });
 
+// ประกาศตัวแปรเพิ่มเติม
 let sessionUserId = null;
+let userRole = null; // เพิ่มตัวแปร userRole เพื่อเก็บบทบาทผู้ใช้
 
 async function fetchUserInfo() {
   try {
@@ -464,9 +496,16 @@ async function fetchUserInfo() {
 
     // ถ้ามีข้อมูล userSession.data จึงค่อยนำมาเก็บในตัวแปร sessionUserId
     if (userSession && userSession.data) {
-      // สมมติว่าระบบเป็นนิสิต
-      sessionUserId = userSession.data.student_id;
-      // หรือถ้าเป็นอาจารย์อาจใช้ teacher_id
+      // เก็บบทบาทผู้ใช้
+      userRole = userSession.role;
+
+      // เก็บ ID ของผู้ใช้ตามบทบาท
+      sessionUserId =
+        userRole === "นิสิต"
+          ? userSession.data.student_id
+          : userSession.data.teacher_id;
+
+      console.log(`👤 ผู้ใช้งานระบบ: ${userRole}, ID: ${sessionUserId}`);
     } else {
       alert("กรุณาเข้าสู่ระบบใหม่");
       window.location.href = "login.html";
