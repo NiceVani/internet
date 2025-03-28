@@ -131,14 +131,21 @@
     </div>
 
     <div class="container">
-        <form id="date-filter-form">
-            <label for="date-range">ระหว่างวันที่-วันที่:</label>
-            <input type="date" name="start_date" id="start_date" value="2024-12-22">
-            <input type="date" name="end_date" id="end_date" value="2024-12-28">
-        
-            <label for="search-date">เลือกวันที่:</label>
-            <input type="date" name="search_date" id="search_date" value="">
-            <button type="submit">ค้นหา</button>
+        <form method="GET" action="">
+            <div class="filters">
+                <label for="room">ห้อง:</label>
+                <div class="room-option">
+                    SC2-307 - ห้องปฏิบัติการคอมพิวเตอร์ (ความจุ 80 คน)
+                </div>
+
+                <label for="date-range">ระหว่างวันที่-วันที่:</label>
+                <input type="date" name="start_date" value="2024-12-22">
+                <input type="date" name="end_date" value="2024-12-28">
+
+                <label for="search-date">เลือกวันที่:</label>
+                <input type="date" name="search_date" value="">
+                <button type="submit">ค้นหา</button>
+            </div>
         </form>
 
         <table>
@@ -160,129 +167,63 @@
                     <th>20.00-21.00</th>
                 </tr>
             </thead>
-            <tbody id="schedule-table-body">
+            <tbody>
                 <tr>
-                    <td>วันจันทร์</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันจันทร์</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันอังคาร</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันอังคาร</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันพุธ</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันพุธ</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันพฤหัสบดี</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันพฤหัสบดี</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันศุกร์</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันศุกร์</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันเสาร์</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันเสาร์</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
                 <tr>
-                    <td>วันอาทิตย์</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <td>วันอาทิตย์</td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
+                  <td class="status-cell"></td><td class="status-cell"></td><td class="status-cell"></td>
                 </tr>
-                <!-- Add rows for other days as needed -->
-            </tbody>
+              </tbody>
         </table>
 
         <button class="btn-confirm" type="button" onclick="window.location.href='floor3.html'">ยืนยัน</button>
     </div>
 
     <script src="Schedule.js"></script>
-    <script src="scheduleDate.js"></script>
-    <script src="CheckStatus.js"></script>
 </body>
 
 </html>
