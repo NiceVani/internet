@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title>Floor Layout</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -116,7 +116,7 @@
     .room.large.bottom2 {
       grid-column: 2 / span 1;
       grid-row: 6 / span 2;
-      background-color: grey;
+      background-color: rgb(255, 0, 0);
       border: 2px solid #000;
       /* กรอบสีเทาสำหรับห้องใหญ่ */
     }
@@ -404,8 +404,8 @@
 
     .hall {
       grid-column: 3 / span 8;
-      grid-row: 3 / span 3;
-      background-color: #cbcbcb;
+      grid-row: 4 / span 1;
+      background-color: #ffffff;
       border: 2px solid #000;
       display: flex;
       align-items: center;
@@ -442,6 +442,31 @@
       background-color: #ff0000;
       border: 2px solid #000;
     }
+
+    .room.has-icon {
+      position: relative;
+    }
+
+    .corner-icon {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 16px;
+      color: black;
+    }
+
+    .room-type-icon {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 16px;
+  color: black;
+}
+
+.room {
+  position: relative; /* ต้องมี เพื่อให้ icon อยู่ในขอบของห้อง */
+}
+
   </style>
 </head>
 
@@ -488,12 +513,8 @@
 
           <div class="hall">โถงกลาง</div>
 
-          <div class="room large bottom available" data-popup="true">
-            <span class="status" >ว่าง</span>SC2-212
-          </div>
-          <div class="room large bottom2 available" data-popup="true">
-            <span class="statusN disabled-room">ไม่ว่าง</span>SC2-211
-          </div>
+          <div class="room large bottom available" data-room="212">SC2-212</div>
+          <div class="room large bottom2 disabled-room" data-room="211">SC2-211</div>
           <div class="room large bottom3 disabled-room">SC2-210</div>
           <div class="room smallss bottoms1 disabled-room">SC2-209</div>
           <div class="room large bottom4 disabled-room">SC2-208</div>
@@ -566,6 +587,7 @@
         popup.classList.add("hidden");
       }
     });
+
   </script>
   <script src="BookScript.js"></script>
 </body>
