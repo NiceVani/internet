@@ -558,7 +558,7 @@ app.delete("/cancelBooking/:requestId", async (req, res) => {
     const [updateResult] = await connection.promise().query(
       `
       UPDATE room_request
-      SET request_status = 'ยกเลิก'
+      SET request_status = 'ยกเลิกการจอง'
       WHERE room_request_id = ?
     `,
       [requestId]
@@ -1068,6 +1068,7 @@ app.post("/reportIssue", async (req, res) => {
       teacher_id,
       room_id,
       equipment_id,
+      computer_id, // เพิ่มการรับ computer_id
       damage,
       damage_details,
       repair_status,
@@ -1082,13 +1083,7 @@ app.post("/reportIssue", async (req, res) => {
       !equipment_id ||
       (!student_id && !teacher_id)
     ) {
-      console.error("❌ ข้อมูลที่ส่งมาไม่ครบ!", {
-        repair_number,
-        room_id,
-        equipment_id,
-        student_id,
-        teacher_id,
-      });
+      console.error("❌ ข้อมูลที่ส่งมาไม่ครบ!");
       return res
         .status(400)
         .json({ error: "ข้อมูลไม่ครบ กรุณากรอกข้อมูลให้ครบถ้วน" });
@@ -1111,6 +1106,7 @@ app.post("/reportIssue", async (req, res) => {
       teacher_id,
       room_id,
       equipment_id,
+      computer_id, // ข้อมูล computer_id
       new_image_filename,
     });
 
@@ -1127,7 +1123,7 @@ app.post("/reportIssue", async (req, res) => {
       teacher_id || null,
       room_id,
       equipment_id,
-      null,
+      computer_id || null, // ใส่ computer_id ในคำสั่ง SQL
       null,
       damage,
       damage_details || null,
