@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Floor Layout</title>
     <style>
         body {
@@ -92,71 +92,19 @@
             position: relative;
             grid-column: 6 / span 2;
             grid-row: 1 / span 2;
-            background-color: #8e8e8e;
-        }
 
-        .room.large::after {
-            content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
-        }
-
-        .room.large.available::after {
-            content: 'ว่าง';
-            /* Content changes to "Available" */
-            background-color: green;
-            /* Change color to green for available rooms */
         }
 
         .room.small {
             position: relative;
             grid-column: 5 / span 2;
             grid-row: 1 / span 2;
-            background-color: #8e8e8e;
-        }
 
-        .room.small::after {
-            content: 'ไม่ว่าง';
-            /* Default content is "Not Available" */
-            position: absolute;
-            top: 10px;
-            right: 7px;
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            color: white;
         }
-
-        .room.small.available::after {
-            content: 'ว่าง';
-            /* Content changes to "Available" */
-            background-color: green;
-            /* Change color to green for available rooms */
-        }
-
 
         .room.large.sc2-308 {
             grid-column: 8 / span 2;
             grid-row: 1 / span 2;
-            background-color: #8e8e8e;
         }
 
         .room.vertical_1 {
@@ -201,19 +149,18 @@
         .room.vertical_9 {
             grid-row: 6 / span 2;
             grid-column: 6 / span 1;
-            background-color: gray;
         }
 
         .room.vertical_10.room.large.sc2-313 {
             grid-column: 7 / span 2;
             grid-row: 6 / span 2;
-            background-color: gray;
+
         }
 
         .room.vertical_11.room.large.sc2-311 {
             grid-column: 11 / span 3;
             grid-row: 6 / span 2;
-            background-color: gray;
+
         }
 
         .sidebar {
@@ -377,15 +324,10 @@
 
         }
 
-        .stair i,
-        .elevator i {
-            font-size: 24px;
-        }
-
         .hall {
             grid-column: 3 / span 9;
-            grid-row: 3 / span 3;
-            background-color: #cbcbcb;
+            grid-row: 4 / span 1;
+            background-color: #ffffff;
             border: 2px solid #000;
             display: flex;
             align-items: center;
@@ -409,6 +351,39 @@
             font-size: 14px;
             color: black;
             font-weight: bold;
+        }
+
+        .room-type-icon {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 16px;
+            color: black;
+        }
+
+        .room {
+            position: relative;
+        }
+
+        .status {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 50%;
+            background-color: green;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .status.not {
+            background-color: red;
         }
     </style>
 </head>
@@ -437,8 +412,7 @@
                     <div class="elevator" style="grid-column: 4; grid-row: 1;"><i class="fas fa-elevator"></i></div>
                     <div class="stair" style="grid-column: 5; grid-row: 1;"><i class="fas fa-stairs"></i></div>
 
-                    <div class="room large available" data-room="307">SC2-307 <i
-                            class="fas fa-chalkboard-teacher"></i></span></div>
+                    <div class="room large available" data-room="307" >SC2-307</div>
                     <div class="room large sc2-308 available" data-room="308">SC2-308</div>
 
                     <div class="stair" style="grid-column: 10; grid-row: 1;"><i class="fas fa-stairs"></i></div>
@@ -451,7 +425,7 @@
                     <div class="room red vertical_7" data-room="303">SC2-303</div>
                     <div class="room sc1-down">
                         ↓<br>SC1
-                      </div>
+                    </div>
                     <div class="room red vertical_8" data-room="314">SC2-314</div>
                     <div class="room vertical_9 small available" data-room="313-1">SC2-313-1</div>
                     <div class="room vertical_10 room large sc2-313 available" data-room="313">SC2-313</div>

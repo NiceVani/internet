@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title>Document</title>
 </head>
 
@@ -144,28 +144,6 @@
       background-color: #8e8e8e;
     }
 
-    .room.largeDown1::after {
-      content: 'ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: #008000;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.largeDown1.available::after {
-      content: 'ว่าง';
-      background-color: #008000;
-    }
-
     .room.largeDown2 {
       position: relative;
       grid-column: 8 / span 2;
@@ -173,55 +151,11 @@
       background-color: #8e8e8e;
     }
 
-    .room.largeDown2::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.largeDown2.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
     .room.large1 {
       position: relative;
       grid-column: 6 / span 2;
       grid-row: 1 / span 2;
       background-color: #8e8e8e;
-    }
-
-    .room.large1::after {
-      content: 'ไม่ว่าง';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border: 2px solid white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 10px;
-      color: white;
-    }
-
-    .room.large1.available::after {
-      content: 'ว่าง';
-      background-color: green;
     }
 
     .room.small {
@@ -280,11 +214,6 @@
       background-color: #8e8e8e;
     }
 
-    .room.vertical.available::after {
-      content: 'ว่าง';
-      background-color: green;
-    }
-
     .room.verticalDown {
       grid-column: span 1;
       grid-row: 6 / span 2;
@@ -296,30 +225,6 @@
       grid-column: 8 / span 1;
       grid-row: span 2;
       background-color: #ff0000;
-    }
-
-    .room.vertical0::after {
-      content: 'ว่าง';
-      /* Displayed as "Not Available" in Thai */
-      position: absolute;
-      top: 10px;
-      right: 7px;
-      width: 30px;
-      height: 30px;
-      background-color: #008000;
-      border: 2px solid white;
-      border-radius: 50%;
-      /* Makes it a circle */
-      display: flex;
-      /* Enable flexbox for centering */
-      justify-content: center;
-      /* Center text horizontally */
-      align-items: center;
-      /* Center text vertically */
-      font-size: 10px;
-      /* Adjust font size if needed */
-      color: white;
-      /* Ensure text is visi /* Makes it a circle */
     }
 
     .room.vertical1.available::after {
@@ -507,8 +412,8 @@
 
     .hall {
       grid-column: 3 / span 8;
-      grid-row: 3 / span 3;
-      background-color: #cbcbcb;
+      grid-row: 4 / span 1;
+      background-color: #ffffff;
       border: 2px solid #000;
       display: flex;
       align-items: center;
@@ -532,6 +437,39 @@
       font-size: 14px;
       color: black;
       font-weight: bold;
+    }
+
+    .room-type-icon {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 16px;
+      color: black;
+    }
+
+    .room {
+      position: relative;
+    }
+
+    .status {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 50%;
+      background-color: green;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      height: 30px;
+    }
+
+    .status.not {
+      background-color: red;
     }
   </style>
 
@@ -557,24 +495,24 @@
             <div class="room large disabled-room" data-room="412">SC2-412</div>
             <div class="room small disabled-room" data-room="413">SC2-413</div>
             <div class="stair" style="grid-column: 5; grid-row: 1;"><i class="fas fa-stairs"></i></div>
-            <div class="room large1 available" data-room="414">SC2-414</div>
+            <div class="room large1 " data-room="414">SC2-414</div>
             <div class="room vertical1 disabled-room" data-room="415">SC2-415</div>
-            <div class="room small1" data-room="416">SC2-416</div>
-            <div class="room small2" data-room="416">SC2-416</div>
+            <div class="room small1 disabled-room" data-room="416">SC2-416</div>
+            <div class="room small2 disabled-room" data-room="416">SC2-416</div>
             <div class="room vertical disabled-room" data-room="417">SC2-417</div>
-            <div class="room small3" data-room="418">SC2-418</div>
-            <div class="room small4" data-room="418">SC2-418</div>
-            <div class="room sc1-up">
+            <div class="room small3 disabled-room" data-room="418">SC2-418</div>
+            <div class="room small4 disabled-room" data-room="418">SC2-418</div>
+            <div class="room sc1-up disabled-room">
               ↑<br>SC1
             </div>
             <div class="hall">โถงกลาง</div>
-            <div class="room vertical1Down" data-room="410">SC2-410</div>
-            <div class="room vertical1Down">ห้องสุขา หญิง</div>
-            <div class="room vertical1Down">ห้องสุขา ชาย</div>
-            <div class="room smallDown disabled-room" data-room="409">SC2-409</div>
+            <div class="room vertical1Down disabled-room" data-room="410">SC2-410</div>
+            <div class="room vertical1Down disabled-room">ห้องสุขา หญิง</div>
+            <div class="room vertical1Down disabled-room">ห้องสุขา ชาย</div>
+            <div class="room smallDown " data-room="409">SC2-409</div>
             <div class="stair" style="grid-column: 5; grid-row: 7;"><i class="fas fa-stairs"></i></div>
             <div class="room largeDown1" data-room="408">SC2-408</div>
-            <div class="room largeDown2 disabled-room" data-room="407">SC2-407</div>
+            <div class="room largeDown2 " data-room="407">SC2-407</div>
             <div class="elevator" style="grid-column: 11; grid-row: 7;"><i class="fas fa-elevator"></i></div>
             <div class="stair" style="grid-column: 10; grid-row: 7;"><i class="fas fa-stairs"></i></div>
           </div>
