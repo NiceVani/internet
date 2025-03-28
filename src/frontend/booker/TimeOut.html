@@ -296,9 +296,9 @@
         </thead>
         <tbody>
           <tr>
-            <td id="room-type-info">กำลังโหลด...</td>
-            <td id="room-info">กำลังโหลด...</td>
-            <td id="time-range-info">กำลังโหลด...</td>
+            <td id="room-type-info">ไม่พบข้อมูล</td>
+            <td id="room-info">ไม่พบข้อมูล</td>
+            <td id="time-range-info">ไม่พบข้อมูล</td>
           </tr>
         </tbody>
       </table>
@@ -362,7 +362,7 @@
         </thead>
         <tbody id="equipment-table-body">
           <tr>
-            <td colspan="3">กำลังโหลด...</td>
+            <td colspan="3">ไม่มีรายการยืมอุปกรณ์</td>
           </tr>
         </tbody>
       </table>
@@ -548,23 +548,23 @@
       const tableBody = document.getElementById("members-table-body");
       const newRow = document.createElement("tr");
       newRow.innerHTML = `
-
-          <td style="position: relative;">
-            <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
-            <div class="dropdown-list"></div>
-          </td>
-          <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
-          <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
-        `;
+        <td style="position: relative;">
+          <input type="text" class="form-control student-id-input" placeholder="กรอกรหัสนิสิต" pattern="\\d*" title="กรุณากรอกเฉพาะตัวเลข">
+          <div class="dropdown-list"></div>
+        </td>
+        <td><input type="text" class="form-control student-name-input" placeholder="กรอกชื่อ-นามสกุล" readonly></td>
+        <td><button type="button" class="btn btn-danger" onclick="deleteRow(this)">ลบ</button></td>
+      `;
       tableBody.appendChild(newRow);
-      initializeStudentIDInput(newRow.querySelector(".student-id-input"));
+    
+      const input = newRow.querySelector(".student-id-input");
+      initializeStudentIDInput(input); // เปิด dropdown พร้อมฟิลเตอร์คนที่ยังไม่ถูกเลือก
     }
-
+      
     function deleteRow(button) {
       const row = button.closest("tr");
       row.remove();
     }
-
 
     // ดึงข้อมูลนิสิตเพื่อ filter
     let studentData = [];
@@ -590,24 +590,31 @@
       let dropdown = inputElement.nextElementSibling;
       let row = inputElement.closest("tr");
       let nameInput = row.querySelector(".student-name-input");
-
+    
       dropdown.innerHTML = "";
       dropdown.style.display = "none";
       if (value === "") return;
-
+    
+      // ✅ เก็บรหัสนิสิตที่กรอกแล้วทั้งหมดในตาราง
+      const usedIds = Array.from(document.querySelectorAll(".student-id-input"))
+        .filter(input => input !== inputElement) // ยกเว้นตัวที่กรอกอยู่
+        .map(input => input.value.trim())
+        .filter(id => id !== "");
+    
+      // ✅ ฟิลเตอร์จาก studentData
       let filtered = studentData.filter((student) =>
-        student.student_id.startsWith(value)
+        student.student_id.startsWith(value) && !usedIds.includes(student.student_id)
       );
+    
       if (filtered.length === 0) return;
-
-
+    
       dropdown.style.display = "block";
       filtered.forEach((student) => {
         let option = document.createElement("div");
         option.classList.add("dropdown-item");
         option.style.padding = "5px";
-
         option.innerHTML = `<span style="font-size: 16px;">${student.student_id} - ${student.full_name}</span>`;
+    
         option.addEventListener("mouseover", () => {
           option.style.fontWeight = "bold";
           option.style.backgroundColor = "#f0f0f0";
@@ -616,19 +623,16 @@
           option.style.fontWeight = "normal";
           option.style.backgroundColor = "#fff";
         });
-
-
-        // Event ตอนคลิก -> เซ็ตค่า input
+    
         option.addEventListener("click", () => {
           inputElement.value = student.student_id;
           nameInput.value = student.full_name;
           dropdown.style.display = "none";
         });
-
+    
         dropdown.appendChild(option);
       });
     }
-
 
     // ฟังก์ชันเปิดการ filter ให้ช่อง student-id
     function initializeStudentIDInput(inputElement) {
