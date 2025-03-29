@@ -27,98 +27,99 @@ async function loadDesks() {
       .filter((desk) => desk.room_id === room)
       .sort((a, b) => a.computer_id - b.computer_id);
 
+    const deskGrid = document.getElementById("deskGrid");
+    deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
 
-      const deskGrid = document.getElementById("deskGrid");
-      deskGrid.innerHTML = ""; // ล้างข้อมูลเก่า
-      
-      // กำหนดแพทเทิร์นตามห้อง
-      let pattern = [3, 4, 3];
-      if (room === "308") {
-        pattern = [2, 2, 2];
-      }
-      
-      let index = 0;
-      let rowCount = 0;
-      
-      while (index < filteredDesks.length) {
-        // สร้าง container สำหรับแต่ละแถว
-        const rowDiv = document.createElement("div");
-        rowDiv.classList.add("desk-row");
-      
-        // สร้าง checkbox สำหรับเลือกทั้งแถว
-        const rowCheckbox = document.createElement("input");
-        rowCheckbox.type = "checkbox";
-        rowCheckbox.classList.add("row-select");
-        let rowDeskElements = [];
-      
-        rowCheckbox.addEventListener("change", function () {
-          rowDeskElements.forEach((deskElem) => {
-            if (deskElem && !deskElem.classList.contains("damaged")) {
-              if (
-                rowCheckbox.checked &&
-                !deskElem.classList.contains("selected")
-              ) {
-                deskElem.classList.add("selected");
-                selectedDesks.add(deskElem.dataset.id);
-              } else if (
-                !rowCheckbox.checked &&
-                deskElem.classList.contains("selected")
-              ) {
-                deskElem.classList.remove("selected");
-                selectedDesks.delete(deskElem.dataset.id);
-              }
+    // กำหนดแพทเทิร์นตามห้อง
+    let pattern = [3, 4, 3];
+    if (room === "308") {
+      pattern = [2, 2, 2];
+    }
+
+    if (room === "408") {
+      pattern = [5, 5];
+    }
+
+    let index = 0;
+    let rowCount = 0;
+
+    while (index < filteredDesks.length) {
+      // สร้าง container สำหรับแต่ละแถว
+      const rowDiv = document.createElement("div");
+      rowDiv.classList.add("desk-row");
+
+      // สร้าง checkbox สำหรับเลือกทั้งแถว
+      const rowCheckbox = document.createElement("input");
+      rowCheckbox.type = "checkbox";
+      rowCheckbox.classList.add("row-select");
+      let rowDeskElements = [];
+
+      rowCheckbox.addEventListener("change", function () {
+        rowDeskElements.forEach((deskElem) => {
+          if (deskElem && !deskElem.classList.contains("damaged")) {
+            if (
+              rowCheckbox.checked &&
+              !deskElem.classList.contains("selected")
+            ) {
+              deskElem.classList.add("selected");
+              selectedDesks.add(deskElem.dataset.id);
+            } else if (
+              !rowCheckbox.checked &&
+              deskElem.classList.contains("selected")
+            ) {
+              deskElem.classList.remove("selected");
+              selectedDesks.delete(deskElem.dataset.id);
             }
-          });
-        });
-      
-        rowDiv.appendChild(rowCheckbox);
-      
-        // สำหรับแต่ละส่วนใน pattern
-        pattern.forEach((segCount, segIndex) => {
-          const segContainer = document.createElement("div");
-          segContainer.classList.add("desk-segment");
-      
-          if (segIndex < pattern.length - 1) {
-            segContainer.style.marginRight = "50px";
           }
-      
-          const segmentDesks = filteredDesks.slice(index, index + segCount);
-          index += segCount;
-      
-          segmentDesks.forEach((desk) => {
-            const deskDiv = document.createElement("div");
-            deskDiv.classList.add("desk");
-            deskDiv.dataset.room = desk.room_id;
-            deskDiv.dataset.id = desk.computer_id;
-            deskDiv.innerHTML = `<span class="computer-icon">🖥️</span><span class="computer-id">${desk.computer_id}</span>`;
-      
-            if (desk.computer_status === "ใช้งานได้") {
-              deskDiv.classList.add("usable");
-            } else {
-              deskDiv.classList.add("damaged");
-            }
-      
-            deskDiv.onclick = () => toggleDesk(deskDiv);
-      
-            segContainer.appendChild(deskDiv);
-            rowDeskElements.push(deskDiv);
-          });
-      
-          rowDiv.appendChild(segContainer);
         });
-      
-        deskGrid.appendChild(rowDiv);
-        rowCount++;
-      
-        // ✅ ถ้าเป็นห้อง 308 → เว้นบรรทัดทุก ๆ 2 แถว
-        if (room === "308" && rowCount % 2 === 0) {
-          const spacer = document.createElement("div");
-          spacer.style.height = "60px"; // ปรับขนาดช่องว่างตามต้องการ
-          deskGrid.appendChild(spacer);
+      });
+
+      rowDiv.appendChild(rowCheckbox);
+
+      // สำหรับแต่ละส่วนใน pattern
+      pattern.forEach((segCount, segIndex) => {
+        const segContainer = document.createElement("div");
+        segContainer.classList.add("desk-segment");
+
+        if (segIndex < pattern.length - 1) {
+          segContainer.style.marginRight = "50px";
         }
+
+        const segmentDesks = filteredDesks.slice(index, index + segCount);
+        index += segCount;
+
+        segmentDesks.forEach((desk) => {
+          const deskDiv = document.createElement("div");
+          deskDiv.classList.add("desk");
+          deskDiv.dataset.room = desk.room_id;
+          deskDiv.dataset.id = desk.computer_id;
+          deskDiv.innerHTML = `<span class="computer-icon">🖥️</span><span class="computer-id">${desk.computer_id}</span>`;
+
+          if (desk.computer_status === "ใช้งานได้") {
+            deskDiv.classList.add("usable");
+          } else {
+            deskDiv.classList.add("damaged");
+          }
+
+          deskDiv.onclick = () => toggleDesk(deskDiv);
+
+          segContainer.appendChild(deskDiv);
+          rowDeskElements.push(deskDiv);
+        });
+
+        rowDiv.appendChild(segContainer);
+      });
+
+      deskGrid.appendChild(rowDiv);
+      rowCount++;
+
+      // ✅ ถ้าเป็นห้อง 308 → เว้นบรรทัดทุก ๆ 2 แถว
+      if (room === "308" && rowCount % 2 === 0) {
+        const spacer = document.createElement("div");
+        spacer.style.height = "60px"; // ปรับขนาดช่องว่างตามต้องการ
+        deskGrid.appendChild(spacer);
       }
-
-
+    }
 
     // ตั้งค่า event listener สำหรับ select all checkbox (เหมือนเดิม)
     const selectAllCheckbox = document.getElementById("selectAllCheckbox");
@@ -246,18 +247,17 @@ async function submitSelection() {
   const selectedEquipments = [];
 
   equipmentInputs.forEach((input) => {
-      const value = parseInt(input.value);
-      if (value > 0) {
-          selectedEquipments.push({
-              id: input.dataset.id,
-              amount: value,
-          });
-      }
+    const value = parseInt(input.value);
+    if (value > 0) {
+      selectedEquipments.push({
+        id: input.dataset.id,
+        amount: value,
+      });
+    }
   });
 
   console.log("📌 โต๊ะที่เลือก:", selectedDeskArray);
   console.log("📌 อุปกรณ์ที่เลือก:", selectedEquipments);
-
 
   // ดึงค่า startTime จาก URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -265,13 +265,11 @@ async function submitSelection() {
   const endTime = urlParams.get("endTime");
   const date = urlParams.get("date");
   const room = urlParams.get("room");
-  
 
   if (!startTime) {
-      alert("⚠️ ไม่พบค่า startTime ใน URL!");
-      return;
+    alert("⚠️ ไม่พบค่า startTime ใน URL!");
+    return;
   }
-
 
   // ✅ แปลงเวลาเป็นชั่วโมง
   const hour = parseInt(startTime.split(":")[0], 10);
@@ -281,8 +279,8 @@ async function submitSelection() {
   console.log("🔍 ตรวจสอบ userRole:", userRole);
 
   if (!userRole) {
-      alert("⛔ ไม่สามารถดึงข้อมูลบทบาทของผู้ใช้ได้ กรุณาลองใหม่");
-      return;
+    alert("⛔ ไม่สามารถดึงข้อมูลบทบาทของผู้ใช้ได้ กรุณาลองใหม่");
+    return;
   }
 
   let targetPage = "";
@@ -290,12 +288,11 @@ async function submitSelection() {
   // ดึงชั่วโมงจากเวลาเริ่ม-สิ้นสุด
   const hourStart = parseInt(startTime.split(":")[0], 10);
   const hourEnd = parseInt(endTime.split(":")[0], 10);
-  
+
   // ✅ ตรวจสอบว่ามีเวลาใดอยู่นอกช่วงที่ระบบเปิดให้จองหรือไม่
   const isOutOfTime =
-  (hourStart < 8 || hourStart > 17) ||
-  (hourEnd < 8 || hourEnd > 17);
-  
+    hourStart < 8 || hourStart > 17 || hourEnd < 8 || hourEnd > 17;
+
   if (userRole === "นิสิต") {
     if (isOutOfTime) {
       targetPage = "TimeOut.html";
@@ -312,27 +309,23 @@ async function submitSelection() {
     alert("⛔ ไม่สามารถระบุบทบาทของคุณได้");
     return;
   }
-  
-
-
 
   // ✅ สร้าง URL ใหม่
   const newUrlParams = new URLSearchParams({
-      room: room,
-      date: date,
-      startTime: startTime,
-      endTime: endTime,
-      desks: selectedDeskArray.join(","),
-      equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
+    room: room,
+    date: date,
+    startTime: startTime,
+    endTime: endTime,
+    desks: selectedDeskArray.join(","),
+    equipments: selectedEquipments.map((e) => `${e.id}:${e.amount}`).join(","),
   });
 
-  console.log("🔗 กำลังเปลี่ยนไปที่:", targetPage + "?" + newUrlParams.toString());
+  console.log(
+    "🔗 กำลังเปลี่ยนไปที่:",
+    targetPage + "?" + newUrlParams.toString()
+  );
   window.location.href = `${targetPage}?${newUrlParams.toString()}`;
 }
-
-
-
-
 
 /********************************
  * 6) เรียกใช้โค้ดเมื่อหน้าโหลดเสร็จ
@@ -358,36 +351,36 @@ document.addEventListener("DOMContentLoaded", async function () {
 // ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
 async function fetchUserInfo() {
   try {
-      console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
-      const response = await fetch("http://localhost:3000/session", {
-          method: "GET",
-          credentials: "include",
-      });
+    console.log("🔄 กำลังโหลดข้อมูลเซสชัน...");
+    const response = await fetch("http://localhost:3000/session", {
+      method: "GET",
+      credentials: "include",
+    });
 
-      if (!response.ok) throw new Error("Session expired");
+    if (!response.ok) throw new Error("Session expired");
 
-      const userSession = await response.json();
-      console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
+    const userSession = await response.json();
+    console.log("✅ ข้อมูลผู้ใช้ที่ได้จาก API:", userSession);
 
-      if (!userSession || !userSession.role) {  // ✅ เช็ค role โดยตรง
-          alert("กรุณาเข้าสู่ระบบใหม่");
-          window.location.href = "login.html";
-          return null;
-      }
-
-      // ✅ ใช้ path `role` ตรงจาก API
-      const role = userSession.role.trim();
-      console.log("👤 บทบาทผู้ใช้หลังจากตรวจสอบ:", role);
-
-      return role;
-  } catch (error) {
-      console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
-      alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+    if (!userSession || !userSession.role) {
+      // ✅ เช็ค role โดยตรง
+      alert("กรุณาเข้าสู่ระบบใหม่");
       window.location.href = "login.html";
       return null;
+    }
+
+    // ✅ ใช้ path `role` ตรงจาก API
+    const role = userSession.role.trim();
+    console.log("👤 บทบาทผู้ใช้หลังจากตรวจสอบ:", role);
+
+    return role;
+  } catch (error) {
+    console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูลเซสชัน:", error);
+    alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+    window.location.href = "login.html";
+    return null;
   }
 }
-
 
 // ✅ ฟังก์ชันออกจากระบบ
 

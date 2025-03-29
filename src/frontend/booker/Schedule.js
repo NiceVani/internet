@@ -623,14 +623,14 @@ function showConflictModal(count) {
     .map((b, i) => {
       const start = b.start_time?.substring(0, 5);
       const end = b.end_time?.substring(0, 5);
-      return `${i + 1}. ${start} - ${end}`;
+      return `คิว ${i + 1}. ${start} - ${end}`;
     })
     .join("<br>");
 
   Swal.fire({
     icon: "warning",
     title: `⚠️ มีการจองซ้อน ${count} คิว`,
-    html: `<div style="text-align:center; font-size:16px;">${detailText}</div>`,
+    html: `<div style="text-align:center; font-size:16px;">${detailText}</div>ต้องการจองอยู่หรือไม่?`,
     showCancelButton: true,
     confirmButtonText: "ไปยังหน้าเลือกโต๊ะ",
     cancelButtonText: "ยกเลิก",
