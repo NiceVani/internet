@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
   <title>Document</title>
 </head>
 
@@ -334,7 +336,7 @@
     }
 
     .header-title {
-      font-size: 20px;
+      font-size: 25px;
       font-weight: bold;
     }
 
@@ -346,7 +348,7 @@
     .nav a {
       color: white;
       text-decoration: none;
-      font-size: 16px;
+      font-size: 20px;
     }
 
     .nav a:hover {
@@ -357,6 +359,21 @@
       font-weight: bold;
       text-decoration: underline;
     }
+
+    .logout-btn {
+      background-color: #5e1d78;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout-btn:hover {
+      background-color: #4b1561;
+    }
+
 
     .content {
       padding: 20px;
@@ -371,10 +388,10 @@
       background-color: #a569bd;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 15px 30px;
       border-radius: 4px;
       cursor: pointer;
-      margin: 5px;
+      margin: 5px 10px;
     }
 
     .floor-selector button:hover {
@@ -471,18 +488,83 @@
     .status.not {
       background-color: red;
     }
-    
+
+        /* สำหรับปุ่มเมนูบนมือถือ */
+    .menu-toggle {
+      font-size: 24px;
+      background: none;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* สำหรับเมนูแบบ popup บนมือถือ */
+    .mobile-popup-menu {
+      position: absolute;
+      top: 60px;
+      right: 15px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .mobile-popup-menu a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .mobile-popup-menu a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 992px) {
+      .layout {
+        grid-template-columns: repeat(6, 1fr);
+        overflow-x: auto;
+      }
+      
+      .sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+      }
+      
+      .report-item {
+        min-width: 200px;
+      }
+    }
   </style>
 
   <body>
-    <div class="header">
-      <div class="header-title">EasyRoom Reservation System</div>
-      <div class="nav">
-        <a href="home.html">หน้าหลัก</a>
-        <a href="#" class="active">จองห้อง</a>
-        <a href="repost.html">รายงาน</a>
-        <button onclick="logout()">ออกจากระบบ</button>
+    <!-- แทนที่ header แบบเดิม -->
+    <nav class="navbar navbar-dark" style="background-color: #e54715;">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <span class="navbar-brand fw-bold text-white">EasyRoom Reservation System</span>
+
+        <!-- ปุ่มสามขีด (เฉพาะมือถือ) -->
+        <button class="menu-toggle d-lg-none" onclick="toggleMobileMenu()">☰</button>
+
+        <!-- เมนูหลัก (แสดงเฉพาะจอใหญ่) -->
+        <div class="d-none d-lg-flex gap-3 align-items-center">
+          <a class="nav-link text-white" href="home.html">หน้าหลัก</a>
+          <a class="nav-link text-white active" href="Floor2.html">จองห้อง</a>
+          <a class="nav-link text-white" href="repost.html">รายงาน</a>
+          <button class="logout-btn ms-3" onclick="logout()">ออกจากระบบ</button>
+        </div>
       </div>
+    </nav>
+
+    <!-- เมนูเล็กแบบลอย สำหรับมือถือ -->
+    <div id="mobilePopupMenu" class="mobile-popup-menu d-lg-none">
+      <a href="home.html">หน้าหลัก</a>
+      <a href="Floor2.html">จองห้อง</a>
+      <a href="repost.html">รายงาน</a>
+      <button class="logout-btn mt-2" onclick="logout()">ออกจากระบบ</button>
     </div>
     <div class="content">
       <div class="floor-selector">
@@ -510,7 +592,7 @@
             <div class="room vertical1Down disabled-room" data-room="410">SC2-410</div>
             <div class="room vertical1Down disabled-room">ห้องสุขา หญิง</div>
             <div class="room vertical1Down disabled-room">ห้องสุขา ชาย</div>
-            <div class="room smallDown " data-room="409">SC2-409</div>
+            <div class="room smallDown disabled-room" data-room="409">SC2-409</div>
             <div class="stair" style="grid-column: 5; grid-row: 7;"><i class="fas fa-stairs"></i></div>
             <div class="room largeDown1" data-room="408">SC2-408</div>
             <div class="room largeDown2 " data-room="407">SC2-407</div>
@@ -563,6 +645,23 @@
         </main>
       </div>
     </div>
+    <script>
+      function toggleMobileMenu() {
+        const menu = document.getElementById("mobilePopupMenu");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      }
+    
+      // คลิกข้างนอกเมนูแล้วให้เมนูหายไป
+      window.addEventListener("click", function(e) {
+        const menu = document.getElementById("mobilePopupMenu");
+        const button = document.querySelector(".menu-toggle");
+    
+        if (!menu.contains(e.target) && !button.contains(e.target)) {
+          menu.style.display = "none";
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="BookScript.js"></script>
   </body>
 

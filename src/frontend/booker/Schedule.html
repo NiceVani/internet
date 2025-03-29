@@ -1,408 +1,358 @@
 <!DOCTYPE html>
 <html lang="th">
-
-<head>
-    <meta charset="UTF-8">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
     <title>ตารางการใช้ห้อง</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        .header {
-            background-color: #ff5722;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-        }
+      .header {
+        background-color: #ff5722;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+      }
 
-        .header h1 {
-            font-size: 1.5em;
-            margin: 0;
-        }
-        
+      .header h1 {
+        font-size: 1.5em;
+        margin: 0;
+      }
 
-        .container {
-            padding: 20px;
-        }
+      .container {
+        padding: 20px;
+      }
 
-        .filters {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+      .filters {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
 
-        .filters input,
-        .filters button {
-            padding: 5px;
-            font-size: 1em;
-        }
+      .filters input,
+      .filters button {
+        padding: 5px;
+        font-size: 1em;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
 
-        table th,
-        table td {
-            border: 1px solid #ddd;
-            text-align: center;
-            padding: 10px;
-        }
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 10px;
+      }
 
-        table th {
-            background-color: #673ab7;
-            color: white;
-        }
+      table th {
+        background-color: #673ab7;
+        color: white;
+      }
 
-        table tr.highlight {
-            background-color: #fff8d6;
-        }
+      table tr.highlight {
+        background-color: #fff8d6 !important;
+      }
 
-        td.after-hours {
-            background-color: #ffcccc !important;
-            /* สีอ่อนกว่าสำหรับเวลานอกเวลาราชการ */
-        }
+      td.after-hours {
+        background-color: #ffcccc !important;
+        /* สีอ่อนกว่าสำหรับเวลานอกเวลาราชการ */
+      }
 
-        .btn-confirm {
-            display: block;
-            margin: 20px auto;
-            background-color: #ff5722;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+      .btn-confirm {
+        display: block;
+        margin: 20px auto;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        border-radius: 5px;
+      }
 
-        .btn-confirm:hover {
-            background-color: #e64a19;
-        }
+      .btn-confirm:hover {
+        background-color: #e64a19;
+      }
 
-        table td.checked {
-            background-color: #c8e6c9;
-            color: black;
-            font-weight: bold;
-        }
+      table td.checked {
+        background-color: #c8e6c9;
+        color: black;
+        font-weight: bold;
+      }
 
-        .disabled {
-            pointer-events: none;
-            background-color: #f0f0f0;
-            /* สีพื้นหลังเมื่อไม่สามารถคลิกได้ */
-        }
+      .disabled {
+        pointer-events: none;
+        background-color: #f0f0f0;
+        /* สีพื้นหลังเมื่อไม่สามารถคลิกได้ */
+      }
 
-        .checked {
-            background-color: #4caf50;
-            /* สีพื้นหลังเมื่อมีการติ้ก */
-        }
+      .checked {
+        background-color: #4caf50;
+        /* สีพื้นหลังเมื่อมีการติ้ก */
+      }
 
-        .purple {
-            background-color: #800080;
-            color: white;
-        }
+      .purple {
+        background-color: #800080;
+        color: white;
+      }
 
-        .lightPurple {
-            background-color: #D8BFD8;
-            color: black;
-        }
-        
+      .lightPurple {
+        background-color: #d8bfd8;
+        color: black;
+      }
 
-        td.disabled {
-            background-color: #cdcccd;
-            /* สีพื้นหลังเมื่อมีเรียน */
-            color: #ffffff;
-            /* สีข้อความ */
-            cursor: not-allowed;
-            /* ปิดการคลิก */
-            text-align: center;
-        }
+      td.disabled {
+        background-color: #cdcccd;
+        /* สีพื้นหลังเมื่อมีเรียน */
+        color: #ffffff;
+        /* สีข้อความ */
+        cursor: not-allowed;
+        /* ปิดการคลิก */
+        text-align: center;
+      }
 
-        td.class-time {
-            background-color: #ffcccc !important; /* สีสำหรับ 'มีเรียน' */
-            color: black;
-            cursor: not-allowed;
-          }
-          
+      td.class-time {
+        background-color: #ffcccc !important; /* สีสำหรับ 'มีเรียน' */
+        color: black;
+        cursor: not-allowed;
+      }
 
-        td.booked-time {
-            background-color: #87cefa !important; /* สีสำหรับ 'จองแล้ว' */
-            color: black;
-            cursor: not-allowed;
-        }
+      td.booked-time {
+        background-color: #87cefa !important; /* สีสำหรับ 'จองแล้ว' */
+        color: black;
+        cursor: not-allowed;
+      }
 
-        td.not-available {
-            background-color: #FFD700 !important; /* สีสำหรับ 'ไม่ว่าง' เช่น สีทอง */
-            color: black;
-            cursor: not-allowed;
-        }
+      td.not-available {
+        background-color: #ffd700 !important; /* สีสำหรับ 'ไม่ว่าง' เช่น สีทอง */
+        color: black;
+        cursor: not-allowed;
+      }
 
-        td.maintenance-time {
-            background-color: #FFA07A !important; /* สีสำหรับ 'กำลังปรับปรุง' เช่น สีแซลมอนอ่อน */
-            color: black;
-            cursor: not-allowed;
-        }
-        td.not-available {
-            background-color: #FFD700 !important; /* สีสำหรับ 'ไม่ว่าง' เช่น สีทอง */
-            color: black;
-            cursor: not-allowed;
-        }
+      td.maintenance-time {
+        background-color: #ffa07a !important; /* สีสำหรับ 'กำลังปรับปรุง' เช่น สีแซลมอนอ่อน */
+        color: black;
+        cursor: not-allowed;
+      }
+      td.not-available {
+        background-color: #ffd700 !important; /* สีสำหรับ 'ไม่ว่าง' เช่น สีทอง */
+        color: black;
+        cursor: not-allowed;
+      }
 
-        td.maintenance-time {
-            background-color: #FFA07A !important; /* สีสำหรับ 'กำลังปรับปรุง' เช่น สีแซลมอนอ่อน */
-            color: black;
-            cursor: not-allowed;
-        }
-        .logout-btn {
-            background-color: #ff6347;
-            border: none;
-            padding: 8px 12px;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-left: auto; /* ✅ ทำให้ปุ่มอยู่ขวาสุด */
-        }
+      td.maintenance-time {
+        background-color: #ffa07a !important; /* สีสำหรับ 'กำลังปรับปรุง' เช่น สีแซลมอนอ่อน */
+        color: black;
+        cursor: not-allowed;
+      }
+      .logout-btn {
+        background-color: #ff6347;
+        border: none;
+        padding: 8px 12px;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-left: auto; /* ✅ ทำให้ปุ่มอยู่ขวาสุด */
+      }
 
-        
+      .week-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: 10px;
+      }
+
+      .week-navigation button {
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        color: white;
+      }
+
+      #prev-week-btn,
+      #next-week-btn {
+        background-color: #673ab7;
+      }
+
+      #current-week-btn {
+        background-color: #ff5722;
+      }
+
+      .week-navigation button:hover {
+        opacity: 0.9;
+      }
+
+      table tr.highlight {
+        background-color: #fff8d6 !important;
+      }
+
+      .today-indicator {
+        font-size: 0.8em;
+        color: #ff5722;
+        display: block;
+        margin-top: 2px;
+        font-weight: bold;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="header">
-        <a id="schedule-back" style="text-decoration: none; color: white;">&#8592; </a>
-        <h1> ตารางการใช้ห้อง</h1>
-        <button id="logout-btn" class="logout-btn">ออกจากระบบ</button> <!-- ✅ ปุ่ม Logout -->
+      <a id="schedule-back" style="text-decoration: none; color: white"
+        >&#8592;
+      </a>
+      <h1>ตารางการใช้ห้อง</h1>
+      <button id="logout-btn" class="logout-btn">ออกจากระบบ</button>
+      <!-- ✅ ปุ่ม Logout -->
     </div>
 
     <div class="container">
-        <form method="GET" action="">
-            <div class="filters">
-                <h3 id="room-name">ห้อง: </h3>
-                <!-- <label for="start_date">ระหว่างวันที่:</label> -->
-                <!-- <input type="date" id="start_date" name="start_date">
+      <form method="GET" action="">
+        <div class="filters">
+          <div class="filters">
+            <h3 id="room-name">ห้อง:</h3>
+            <label for="date-picker">เลือกวันที่:</label>
+            <input
+              type="date"
+              id="date-picker"
+              onchange="highlightDay(this.value)"
+            />
 
-                <label for="end_date">ถึง:</label>
-                <input type="date" id="end_date" name="end_date"> -->
-
-                <label for="datePicker">เลือกวันที่:</label>
-                <input type="date" id="date-picker" onchange="highlightDay(this.value)">
-
+            <!-- ปุ่มสำหรับนำทางระหว่างสัปดาห์ -->
+            <div class="week-navigation">
+              <button type="button" id="prev-week-btn" title="สัปดาห์ก่อนหน้า">
+                &larr;
+              </button>
+              <button
+                type="button"
+                id="current-week-btn"
+                title="กลับสู่สัปดาห์ปัจจุบัน"
+              >
+                สัปดาห์ปัจจุบัน
+              </button>
+              <button type="button" id="next-week-btn" title="สัปดาห์ถัดไป">
+                &rarr;
+              </button>
             </div>
-        </form>
-        <table id="schedule-table">
-            <thead>
-                <tr>
-                    <th>วัน</th>
-                    <th data-time-index="0">08.00-09.00</th>
-                    <th data-time-index="1">09.00-10.00</th>
-                    <th data-time-index="2">10.00-11.00</th>
-                    <th data-time-index="3">11.00-12.00</th>
-                    <th data-time-index="4">12.00-13.00</th>
-                    <th data-time-index="5">13.00-14.00</th>
-                    <th data-time-index="6">14.00-15.00</th>
-                    <th data-time-index="7">15.00-16.00</th>
-                    <th data-time-index="8">16.00-17.00</th>
-                    <th data-time-index="9">17.00-18.00</th>
-                    <th data-time-index="10">18.00-19.00</th>
-                    <th data-time-index="11">19.00-20.00</th>
-                    <th data-time-index="12">20.00-21.00</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>จันทร์ </td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>อังคาร</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>พุธ</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>พฤหัสบดี</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>ศุกร์</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>เสาร์</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
-                <tr>
-                    <td>อาทิตย์</td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                    <td class="${cellClass}" onclick="toggleSelection(this)" ${cellData?.Rooms_status || "" }></td>
-                </tr>
+          </div>
+        </div>
+      </form>
+      <table id="schedule-table">
+        <thead>
+          <tr>
+            <th>วัน</th>
+            <th data-time-index="0">08.00-09.00</th>
+            <th data-time-index="1">09.00-10.00</th>
+            <th data-time-index="2">10.00-11.00</th>
+            <th data-time-index="3">11.00-12.00</th>
+            <th data-time-index="4">12.00-13.00</th>
+            <th data-time-index="5">13.00-14.00</th>
+            <th data-time-index="6">14.00-15.00</th>
+            <th data-time-index="7">15.00-16.00</th>
+            <th data-time-index="8">16.00-17.00</th>
+            <th data-time-index="9">17.00-18.00</th>
+            <th data-time-index="10">18.00-19.00</th>
+            <th data-time-index="11">19.00-20.00</th>
+            <th data-time-index="12">20.00-21.00</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ตารางจะถูกสร้างโดย JavaScript -->
+        </tbody>
+      </table>
 
-            </tbody>
-        </table>
-
-        <button class="btn-confirm" type="button" onclick="confirmBooking()">ยืนยัน</button>
-
+      <button class="btn-confirm" type="button" onclick="confirmBooking()">
+        ยืนยัน
+      </button>
     </div>
 
-    
+    <div id="conflictModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>พบการจองที่ซ้อนกัน</h2>
+        <p id="conflict-details"></p>
+        <div class="modal-buttons">
+          <button onclick="closeModal()">ยกเลิก</button>
+          <button onclick="proceedToDesk()">ดำเนินการต่อ</button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="Schedule.js"></script>
     <script>
-        // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
-        async function fetchUserInfo() {
-            try {
-                const response = await fetch("http://localhost:3000/session", {
-                    method: "GET",
-                    credentials: "include"
-                });
+      // ✅ ฟังก์ชันดึงข้อมูลเซสชันผู้ใช้
+      async function fetchUserInfo() {
+        try {
+          const response = await fetch("http://localhost:3000/session", {
+            method: "GET",
+            credentials: "include",
+          });
 
-                if (!response.ok) {
-                    throw new Error("Session expired");
-                }
+          if (!response.ok) {
+            throw new Error("Session expired");
+          }
 
-                const userSession = await response.json();
-                console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
+          const userSession = await response.json();
+          console.log("🔍 ข้อมูลที่ได้รับจากเซิร์ฟเวอร์:", userSession);
 
-                if (!userSession.data) {
-                    alert("กรุณาเข้าสู่ระบบใหม่");
-                    window.location.href = "login.html";
-                    return;
-                }
-            } catch (error) {
-                console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
-                alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
-                window.location.href = "login.html";
-            }
+          if (!userSession.data) {
+            alert("กรุณาเข้าสู่ระบบใหม่");
+            window.location.href = "login.html";
+            return;
+          }
+        } catch (error) {
+          console.error("❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
+          alert("เกิดข้อผิดพลาด กรุณาเข้าสู่ระบบใหม่");
+          window.location.href = "login.html";
         }
+      }
 
-        // ✅ ฟังก์ชันออกจากระบบ
-        async function logout() {
-            try {
-                const response = await fetch("http://localhost:3000/logout", {
-                    method: "POST",
-                    credentials: "include"
-                });
+      // ✅ ฟังก์ชันออกจากระบบ
+      async function logout() {
+        try {
+          const response = await fetch("http://localhost:3000/logout", {
+            method: "POST",
+            credentials: "include",
+          });
 
-                if (response.ok) {
-                    alert("ออกจากระบบสำเร็จ");
-                    window.location.href = "login.html";
-                } else {
-                    alert("เกิดข้อผิดพลาดในการออกจากระบบ");
-                }
-            } catch (error) {
-                console.error("❌ ไม่สามารถออกจากระบบได้:", error);
-                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
-            }
+          if (response.ok) {
+            alert("ออกจากระบบสำเร็จ");
+            window.location.href = "login.html";
+          } else {
+            alert("เกิดข้อผิดพลาดในการออกจากระบบ");
+          }
+        } catch (error) {
+          console.error("❌ ไม่สามารถออกจากระบบได้:", error);
+          alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
         }
+      }
 
-        // ✅ เพิ่ม Event Listener ให้ปุ่ม Logout ทำงานได้
-        document.getElementById("logout-btn").addEventListener("click", logout);
+      // ✅ เพิ่ม Event Listener ให้ปุ่ม Logout ทำงานได้
+      document.getElementById("logout-btn").addEventListener("click", logout);
 
-        // ✅ โหลดข้อมูลเซสชันเมื่อหน้าเว็บโหลด
-        window.onload = fetchUserInfo;
+      // ✅ โหลดข้อมูลเซสชันเมื่อหน้าเว็บโหลด
+      window.onload = fetchUserInfo;
     </script>
-    
-
-
-
-
-</body>
-
+  </body>
 </html>

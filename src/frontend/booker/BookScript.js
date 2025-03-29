@@ -80,7 +80,20 @@ function attachRoomClickEvents() {
     if (!roomElement) return;
 
     const roomName = roomElement.dataset.room; // ดึงค่า room จาก data-room
+
     if (!roomName) return;
+    // ตรวจสอบว่าเป็นห้องพิเศษหรือไม่
+    if (roomElement.dataset.special === "true") {
+      // เรียกใช้ SweetAlert สำหรับห้อง 212
+      Swal.fire({
+        title: "ห้อง SC2-" + roomName,
+        text: "ขออภัย ห้องนี้ไม่สามารถจองผ่านระบบได้ กรุณาติดต่อเจ้าหน้าที่",
+        icon: "info",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "ตกลง",
+      });
+      return; // หยุดการทำงานของฟังก์ชันนี้
+    }
 
     localStorage.setItem("selectedRoom", roomName);
     window.location.href = `Schedule.html?room=${encodeURIComponent(roomName)}`;
