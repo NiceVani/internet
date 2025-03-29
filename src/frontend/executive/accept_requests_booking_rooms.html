@@ -22,11 +22,6 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.8/dist/sweetalert2.all.min.js"></script>
-    <script src="sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="sweetalert2.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.8/dist/sweetalert2.all.min.js"></script>
-    <script src="sweetalert2.min.js"></script>
     <link rel="stylesheet" href="sweetalert2.min.css" />
     <style>
       body {
@@ -131,7 +126,7 @@
   </head>
   <body>
     <div class="container-fluid">
-      <!-- Sidebar (load separately, e.g., sidebar.html) -->
+      <!-- Sidebar (โหลดจากไฟล์ sidebar.html) -->
       <div id="sidebar-container"></div>
       <div class="main-content">
         <!-- Tab Bar -->
@@ -158,20 +153,7 @@
         </div>
         <!-- Calendar Dropdown -->
         <div id="dropdown-calendar">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 10px;
-            "
-          >
-            <select
-              id="month-select"
-              onchange="renderCustomCalendar()"
-            ></select>
-            <select id="year-select" onchange="renderCustomCalendar()"></select>
-          </div>
-          <div id="custom-calendar"></div>
+          <!-- ส่วนของปฏิทิน (Calendar) สามารถแก้ไขเพิ่มเติมได้ตามที่ต้องการ -->
         </div>
         <!-- Data Table -->
         <div class="table-responsive">
@@ -187,295 +169,15 @@
                 <th style="color: #929292">ยกเลิกการอนุมัติ</th>
               </tr>
             </thead>
-            <<<<<<< HEAD
             <tbody id="reservation-table"></tbody>
-            =======
-            <tbody id="reservation-table">
-              <!-- ตัวอย่างข้อมูล -->
-              <script>
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // กำหนดให้เทียบเฉพาะวันที่
-
-                async function fetchData() {
-                  try {
-                    // ดึงข้อมูลจาก 2 API พร้อมกัน
-                    const [
-                      roomsResponse,
-                      studentsResponse,
-                      TeacherResponse,
-                      participantResponse,
-                    ] = await Promise.all([
-                      fetch("http://localhost:3000/room_request"),
-                      fetch("http://localhost:3000/student"),
-                      fetch("http://localhost:3000/teacher"),
-                      fetch("http://localhost:3000/room_request_participant"),
-                    ]);
-
-                    const roomsData = await roomsResponse.json();
-                    const studentsData = await studentsResponse.json();
-                    const TeacherData = await TeacherResponse.json();
-                    const participantData = await participantResponse.json();
-                    //console.log(TeacherData);
-                    // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(
-                      (row) =>
-                        row.request_status === "อนุมัติ" &&
-                        row.request_type === "นอกเวลา"
-                    );
-
-                    const participantCountMap = participantData.reduce(
-                      (acc, participant) => {
-                        acc[participant.room_request_id] =
-                          (acc[participant.room_request_id] || 0) + 1;
-                        return acc;
-                      },
-                      {}
-                    );
-
-                    console.log(
-                      "📌 จำนวนผู้เข้าร่วมต่อ room_request_id:",
-                      participantCountMap
-                    );
-
-                    // ตรวจสอบและอัปเดตสถานะถ้าวันที่จองผ่านไปแล้ว
-                    for (const row of filteredData) {
-                      const requestDate = new Date(row.used_date);
-                      requestDate.setHours(0, 0, 0, 0);
-
-                      if (requestDate < today) {
-                        await updateStatus(row.room_request_id, "ไม่อนุมัติ");
-                      }
-                    }
-
-                    const mergedData = filteredData.map((room) => {
-                      const student =
-                        studentsData.find(
-                          (s) => s.student_id === room.student_id
-                        ) || {};
-                      const Teacher =
-                        TeacherData.find(
-                          (T) => T.teacher_id === room.teacher_id
-                        ) || {};
-
-                      return {
-                        ...room,
-                        full_name: student.full_name || Teacher.full_name,
-                        role: student.role || Teacher.role,
-                        participantCount:
-                          participantCountMap[room.room_request_id] || 0, // ✅ ดึงค่าจำนวนผู้เข้าร่วม
-                      };
-                    });
-
-                    console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
-
-                    const tableBody =
-                      document.getElementById("reservation-table");
-                    tableBody.innerHTML = "";
-
-                    mergedData.forEach((row) => {
-                      tableBody.innerHTML += `
-                            <tr>
-                                 <td class="text-center">${new Date(
-                                   row.submitted_time
-                                 ).toLocaleDateString("th")}</td>
-                                <td class="text-center">${row.full_name}</td>
-                                <td class="text-center">${row.role}</td>
-                                <td class="text-center">${row.room_id}</td>
-                                <td class="text-center">${
-                                  row.participantCount
-                                }</td>
-                                <td class="text-center">
-                                    ${
-                                      getDayOfWeek(row.used_date) +
-                                      " " +
-                                      new Date(
-                                        row.used_date
-                                      ).toLocaleDateString("th")
-                                    }<br>
-                                    ${
-                                      row.start_time.slice(0, 5) +
-                                      " - " +
-                                      row.end_time.slice(0, 5)
-                                    }<br>
-                                    ${"(" + row.request_type + ")"}
-                                </td>
-                                <td><button class="btn btn-danger btn-sm" onclick="cancelStatus(${
-                                  row.room_request_id
-                                }, 'ไม่อนุมัติ')">ยกเลิก</button></td>
-                            </tr>
-                        `;
-                    });
-                  } catch (error) {
-                    console.error("❌ Error fetching data:", error);
-                  }
-                }
-                async function updateStatus(requestId, newStatus) {
-                  try {
-                    const response = await fetch(
-                      "http://localhost:3000/updateStatus ",
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ requestId, status: newStatus }),
-                      }
-                    );
-
-                    if (response.ok) {
-                      fetchData(); // โหลดข้อมูลใหม่หลังอัปเดตสถานะ
-                    } else {
-                      const error = await response.json();
-
-                      alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
-                    }
-                  } catch (error) {
-                    console.error("❌ Error updating status:", error);
-                    alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-                  }
-                }
-
-                document.addEventListener("DOMContentLoaded", fetchData);
-                document
-                  .getElementById("detailModal")
-                  .addEventListener("show.bs.modal", function (event) {
-                    const button = event.relatedTarget;
-                    document.getElementById("modal-date").textContent =
-                      button.getAttribute("data-date");
-                    document.getElementById("modal-name").textContent =
-                      button.getAttribute("data-name");
-                    document.getElementById("modal-room").textContent =
-                      button.getAttribute("data-room");
-                    document.getElementById("modal-time").textContent =
-                      button.getAttribute("data-time");
-                    document.getElementById("modal-reason").textContent =
-                      button.getAttribute("data-reason");
-                  });
-                function getDayOfWeek(dateString) {
-                  const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-                  const date = new Date(dateString);
-                  return days[date.getDay()]; // Returns 0-6 (0 = Sunday, 1 = Monday, ...)
-                }
-
-                fetchReservations();
-              </script>
-              <!-- ใส่ข้อมูลเพิ่มตามต้องการ -->
-            </tbody>
-            >>>>>>> 6edc20e73d50a05264b1f4a71df4ce19eb8d0bff
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Calendar Scripts -->
+    <!-- Scripts -->
     <script>
-      const currentDate = new Date();
-      function toggleCalendar() {
-        const calendar = document.getElementById("dropdown-calendar");
-        if (
-          calendar.style.display === "none" ||
-          calendar.style.display === ""
-        ) {
-          calendar.style.display = "block";
-          initializeCalendar();
-        } else {
-          calendar.style.display = "none";
-        }
-      }
-      document.addEventListener("click", function (event) {
-        const calendar = document.getElementById("dropdown-calendar");
-        const icon = document.querySelector("i.bi-caret-down-fill");
-        if (!calendar.contains(event.target) && event.target !== icon) {
-          calendar.style.display = "none";
-        }
-      });
-      function initializeCalendar() {
-        const monthSelect = document.getElementById("month-select");
-        const yearSelect = document.getElementById("year-select");
-        monthSelect.innerHTML = "";
-        const monthNames = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
-        monthNames.forEach((m, i) => {
-          const option = document.createElement("option");
-          option.value = i;
-          option.text = m;
-          if (i === currentDate.getMonth()) option.selected = true;
-          monthSelect.appendChild(option);
-        });
-        yearSelect.innerHTML = "";
-        const startYear = currentDate.getFullYear() - 10;
-        const endYear = currentDate.getFullYear() + 50;
-        for (let y = startYear; y <= endYear; y++) {
-          const option = document.createElement("option");
-          option.value = y;
-          option.text = y;
-          if (y === currentDate.getFullYear()) option.selected = true;
-          yearSelect.appendChild(option);
-        }
-        renderCustomCalendar();
-      }
-      function renderCustomCalendar() {
-        const calendarDiv = document.getElementById("custom-calendar");
-        calendarDiv.innerHTML = "";
-        const month = parseInt(document.getElementById("month-select").value);
-        const year = parseInt(document.getElementById("year-select").value);
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const firstDay = new Date(year, month, 1).getDay();
-        const table = document.createElement("table");
-        table.style.borderCollapse = "collapse";
-        table.style.width = "100%";
-        const headerRow = document.createElement("tr");
-        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
-          const th = document.createElement("th");
-          th.style.textAlign = "center";
-          th.innerText = day;
-          headerRow.appendChild(th);
-        });
-        table.appendChild(headerRow);
-        let date = 1;
-        for (let i = 0; i < 6; i++) {
-          const row = document.createElement("tr");
-          for (let j = 0; j < 7; j++) {
-            const cell = document.createElement("td");
-            cell.style.textAlign = "center";
-            cell.style.padding = "5px";
-            cell.style.border = "1px solid #ddd";
-            if (i === 0 && j < firstDay) {
-              cell.innerText = "";
-            } else if (date > daysInMonth) {
-              break;
-            } else {
-              cell.innerText = date;
-              cell.style.cursor = "pointer";
-              cell.onclick = function () {
-                document.getElementById("dropdown-calendar").style.display =
-                  "none";
-              };
-              date++;
-            }
-            row.appendChild(cell);
-          }
-          table.appendChild(row);
-        }
-        calendarDiv.appendChild(table);
-      }
-    </script>
-
-    <!-- Data & Filter Scripts -->
-    <script>
-      // Helper: รวมข้อความในแต่ละแถวเพื่อค้นหา (search)
+      // ฟังก์ชันช่วยสำหรับรวมข้อความในแต่ละแถว (ใช้สำหรับค้นหา)
       function getRowText(row) {
         return (
           new Date(row.submitted_time).toLocaleDateString("th") +
@@ -497,12 +199,15 @@
           row.request_type
         ).toLowerCase();
       }
+      // ฟังก์ชันแปลงวันที่ให้เป็นชื่อย่อของวัน
       function getDayOfWeek(dateStr) {
         const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
         return days[new Date(dateStr).getDay()];
       }
+
       async function fetchData() {
         try {
+          // ดึงข้อมูลจาก API ทั้ง 4 แห่ง
           const [roomsRes, stuRes, teaRes, partRes] = await Promise.all([
             fetch("http://localhost:3000/room_request"),
             fetch("http://localhost:3000/student"),
@@ -513,23 +218,16 @@
           const stuData = await stuRes.json();
           const teaData = await teaRes.json();
           const partData = await partRes.json();
-          // สำหรับหน้า accept booking ให้แสดงเฉพาะคำขอที่:
-          // • request_status === "อนุมัติ" และ request_type === "นอกเวลา"
-          // • และใช้เวลาที่ใช้ห้อง (used_date + start_time ในโซนไทย) ยังไม่มาถึง
-          const filteredData = roomsData.filter((row) => {
-            const usedDate = new Date(row.used_date);
-            const thaiUsedDateTime = new Date(
-              usedDate.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
-            );
-            const [h, m, s] = row.start_time.split(":").map(Number);
-            thaiUsedDateTime.setHours(h, m, s, 0);
-            return (
-              row.request_status === "อนุมัติ" &&
-              row.request_type === "นอกเวลา" &&
-              thaiUsedDateTime >= new Date()
-            );
-          });
-          // รวมข้อมูลจาก student, teacher และนับจำนวนผู้เข้าร่วม
+
+          // กรองข้อมูลให้เหลือเฉพาะคำขอที่มีสถานะ "อนุมัติ" และประเภท "นอกเวลา"
+          // (หมายเหตุ: ในโค้ดเดิมมีการตรวจสอบ used_date แล้วเรียก updateStatus
+          //  แต่ถ้าให้แสดงข้อมูลตามที่อยู่ในฐานข้อมูล ให้ลบหรือคอมเมนต์ส่วนนี้ออก)
+          const filteredData = roomsData.filter(
+            (row) =>
+              row.request_status === "อนุมัติ" && row.request_type === "นอกเวลา"
+          );
+
+          // รวมข้อมูลจากตาราง student, teacher และนับจำนวนผู้เข้าร่วม
           let data = filteredData.map((r) => {
             const stu =
               stuData.find((s) => s.student_id === r.student_id) || {};
@@ -544,14 +242,16 @@
               ).length,
             };
           });
-          // Apply Search Filter (real-time)
+
+          // กรองข้อมูลด้วยคำค้นหา (Search) แบบเรียลไทม์
           const search = document
             .getElementById("searchBox")
             .value.toLowerCase();
           if (search) {
             data = data.filter((r) => getRowText(r).includes(search));
           }
-          // Apply Sorting from dropdown
+
+          // เรียงข้อมูลตามที่เลือกใน dropdown
           const sortVal = document.getElementById("sorttime").value;
           if (sortVal === "submission_desc" || sortVal === "submission_asc") {
             data.sort((a, b) => {
@@ -560,7 +260,7 @@
               return sortVal === "submission_desc" ? bT - aT : aT - bT;
             });
           } else if (sortVal === "overlap_asc" || sortVal === "overlap_desc") {
-            // Group by room_id and used_date
+            // จัดกลุ่มข้อมูลตาม room_id และ used_date
             const groups = {};
             data.forEach((r) => {
               const key = r.room_id + "_" + r.used_date;
@@ -605,7 +305,8 @@
             });
             data = sorted;
           }
-          // Render table
+
+          // แสดงผลลงในตาราง
           const tbody = document.getElementById("reservation-table");
           tbody.innerHTML = "";
           if (data.length === 0) {
@@ -654,94 +355,37 @@
           console.error("❌ Error fetching data:", e);
         }
       }
+
+      // ตั้ง event listener สำหรับ search และ sort
       document.getElementById("sorttime").addEventListener("change", fetchData);
       document.getElementById("searchBox").addEventListener("input", fetchData);
       document.addEventListener("DOMContentLoaded", fetchData);
-    </script>
 
-    <<<<<<< HEAD
-    <!-- Alert Functions -->
-    <script>
-      async function confirmstatus(requestId, newStatus) {
-        Swal.fire({
-          title: "ยืนยันการอนุมัติการจองห้อง?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "ยืนยัน",
-          cancelButtonText: "ยกเลิก",
-          position: "center",
-          customClass: { popup: "my-popup" },
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-              await updateStatus(requestId, newStatus);
-              Swal.fire(
-                "สถานะถูกอัปเดต!",
-                "คำขอได้รับการอนุมัติแล้ว.",
-                "success"
-              );
-            } catch (error) {
-              Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถอัปเดตสถานะได้", "error");
-              console.error(error);
-            }
-          }
-        });
-      }
-      async function showDetails(requestID) {
+      // ฟังก์ชันสำหรับยกเลิก (cancelStatus) และอัปเดตสถานะ (updateStatus)
+      // (ส่วนนี้คุณสามารถคงไว้ตามเดิมหรือแก้ไขเพิ่มเติมตามความต้องการ)
+      async function updateStatus(requestId, newStatus) {
         try {
-          const res = await fetch("http://localhost:3000/detailsPop");
-          const data = await res.json();
-          const booking = data.find((item) => item.requestID === requestID);
-          if (!booking) {
-            Swal.fire("ไม่พบข้อมูลการจอง", "", "error");
-            return;
-          }
-          let htmlContent = `
-            <p><strong>ขอใช้ห้อง:</strong> ${booking.roombooking}</p>
-            <p><strong>เวลาที่ใช้ห้อง:</strong> ${booking.timebooking}</p>
-            <hr/>
-            <h6><strong>ข้อมูลผู้จอง</strong></h6>
-            <p><strong>รหัสนิสิต / อาจารย์:</strong> ${booking.id}</p>
-            <p><strong>ชื่อ-นามสกุล:</strong> ${booking.name}</p>
-            <p><strong>Email:</strong> ${booking.email}</p>
-            <p><strong>เบอร์ติดต่อ:</strong> ${booking.phone_number}</p>
-            <p><strong>สาขาวิชา:</strong> ${booking.department}</p>
-            <hr/>
-            <h6><strong>ข้อมูลผู้จองร่วม</strong></h6>
-          `;
-          const parts = data.filter(
-            (item) => item.requestID === requestID && item.role !== "ผู้ขอใช้"
-          );
-          if (parts.length > 0) {
-            parts.forEach((p, i) => {
-              htmlContent += `
-                <p><strong>ลำดับที่ ${i + 1}</strong><br>
-                <strong>รหัสนิสิต:</strong> ${p.id}<br>
-                <strong>ชื่อ-นามสกุล:</strong> ${p.name}<br>
-                <strong>Email:</strong> ${p.email}<br>
-                <strong>สาขาวิชา:</strong> ${p.department}</p>
-                <hr/>
-              `;
-            });
-          } else {
-            htmlContent += "<p>ไม่มีผู้จองร่วม</p><hr/>";
-          }
-          htmlContent += `
-            <p><strong>มีความประสงค์:</strong> ${booking.bookingreason}</p>
-            <p><strong>รายละเอียดเหตุผลการจอง:</strong> ${booking.detailbookingreason}</p>
-          `;
-          Swal.fire({
-            title: "รายละเอียดการจองห้อง",
-            html: htmlContent,
-            width: 600,
-            confirmButtonText: "ปิด",
-            customClass: { popup: "my-popup" },
+          const res = await fetch("http://localhost:3000/updateStatus", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ requestId, status: newStatus }),
           });
+          if (res.ok) {
+            fetchData();
+          } else {
+            console.error("❌ Error updating status:", await res.json());
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถอัปเดตสถานะได้", "error");
+          }
         } catch (err) {
-          console.error("❌ Error in showDetails:", err);
-          Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถโหลดข้อมูลได้", "error");
+          console.error("❌ Error updating status:", err);
+          Swal.fire(
+            "เกิดข้อผิดพลาด",
+            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+            "error"
+          );
         }
       }
+
       async function cancelStatus(requestID, updateNewStatus) {
         try {
           const res = await fetch("http://localhost:3000/RejectReasons");
@@ -752,18 +396,18 @@
           const { value: formValues } = await Swal.fire({
             title: "กรุณาระบุเหตุผลที่ไม่อนุมัติ",
             html: `<div style="display: flex; flex-direction: column; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <label style="min-width:150px; font-size:16px;">เลือกเหตุผล:</label>
-                      <select id="rejectReason" class="swal2-select">
-                        <option value=""> เลือกเหตุผล </option>
-                        ${opts}
-                      </select>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                      <label style="min-width:150px; font-size:16px;">เหตุผลเพิ่มเติม:</label>
-                      <input id="additionalReason" type="text" class="swal2-input" placeholder="ระบุเหตุผลเพิ่มเติม">
-                    </div>
-                  </div>`,
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="min-width:150px; font-size:16px;">เลือกเหตุผล:</label>
+                        <select id="rejectReason" class="swal2-select">
+                          <option value=""> เลือกเหตุผล </option>
+                          ${opts}
+                        </select>
+                      </div>
+                      <div style="display: flex; align-items: center;">
+                        <label style="min-width:150px; font-size:16px;">เหตุผลเพิ่มเติม:</label>
+                        <input id="additionalReason" type="text" class="swal2-input" placeholder="ระบุเหตุผลเพิ่มเติม">
+                      </div>
+                    </div>`,
             showCancelButton: true,
             confirmButtonText: "ยืนยัน",
             cancelButtonText: "ยกเลิก",
@@ -797,6 +441,7 @@
           Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถโหลดข้อมูลได้", "error");
         }
       }
+
       async function submitRejection(
         requestID,
         reject_reason,
@@ -820,7 +465,6 @@
                   room_request_id: requestID,
                   reject_reason,
                   detail_reject_reason,
-                  executive_id: "CSB25645",
                 }),
               });
               if (!res.ok) throw new Error("การบันทึกล้มเหลว");
@@ -837,163 +481,11 @@
           }
         });
       }
-      async function updateStatus(requestId, newStatus) {
-        try {
-          const res = await fetch("http://localhost:3000/updateStatus", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              requestId,
-              status: newStatus,
-              executiveId: "CSB25645",
-            }),
-          });
-          if (res.ok) {
-            fetchData();
-          } else {
-            console.error("❌ Error updating status:", await res.json());
-            Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถอัปเดตสถานะได้", "error");
-          }
-        } catch (err) {
-          console.error("❌ Error updating status:", err);
-          Swal.fire(
-            "เกิดข้อผิดพลาด",
-            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
-            "error"
-          );
-        }
-      }
-      document.addEventListener("DOMContentLoaded", fetchData);
     </script>
 
-    <!-- Sidebar -->
-    =======
-    <script>
-      //Pop-up ปุ่มไม่อนุมัติ
-      // เปิด Pop-up SweetAlert2 พร้อมโหลดเหตุผลจากฐานข้อมูล
-      async function cancelStatus(requestID, updateNewStatus) {
-        try {
-          // ดึงตัวเลือกจาก ENUM ผ่าน API
-          const response = await fetch("http://localhost:3000/RejectReasons");
-          const reasons = await response.json();
-
-          // สร้างตัวเลือก dropdown
-          const options = reasons
-            .map(
-              (reason) => `
-                        <option value="${reason}">${reason}</option>
-                    `
-            )
-            .join("");
-
-          // แสดง Pop-up
-          const { value: formValues } = await Swal.fire({
-            title: "กรุณาระบุเหตุผลที่ไม่อนุมัติ",
-            html: `
-                            <div style="display: flex; flex-direction: column; text-align: left;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <label for="rejectReason" style="min-width: 150px; font-size: 16px;">เลือกเหตุผล:</label>
-                                    <select id="rejectReason" class="swal2-select">
-                                        <option value=""> เลือกเหตุผล </option>
-                                        ${options}
-                                    </select>
-                                </div>
-                                <div style="display: flex; align-items: center;">
-                                    <label for="additionalReason" style="min-width: 150px; font-size: 16px;">เหตุผลเพิ่มเติม (ถ้ามี):</label>
-                                    <input id="additionalReason" type="text" class="swal2-input" placeholder="ระบุเหตุผลเพิ่มเติม">
-                                </div>
-                            </div>
-                        `,
-            showCancelButton: true,
-            confirmButtonText: "ยืนยัน",
-            cancelButtonText: "ยกเลิก",
-            preConfirm: () => {
-              return {
-                reject_reason: document.getElementById("rejectReason").value,
-                detail_reject_reason:
-                  document.getElementById("additionalReason").value,
-              };
-            },
-          });
-
-          if (formValues) {
-            const { reject_reason, detail_reject_reason } = formValues;
-
-            if (!reject_reason) {
-              Swal.fire(
-                "แจ้งเตือน",
-                "กรุณาเลือกเหตุผลที่ไม่อนุมัติ",
-                "warning"
-              );
-              return;
-            }
-
-            await submitRejection(
-              requestID,
-              reject_reason,
-              detail_reject_reason,
-              updateNewStatus
-            );
-          }
-        } catch (error) {
-          console.error("❌ เกิดข้อผิดพลาด:", error);
-          Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถโหลดข้อมูลได้", "error");
-        }
-      }
-      // ส่งข้อมูลเหตุผลไม่อนุมัติไปยัง API
-      async function submitRejection(
-        requestID,
-        reject_reason,
-        detail_reject_reason,
-        updateNewStatus
-      ) {
-        // ยืนยันการส่งข้อมูล
-        Swal.fire({
-          title: "ยืนยันที่จะไม่อนุมัติการจองห้อง?",
-          text: "โปรดยืนยันว่าคุณต้องการไม่อนุมัติคำขอนี้",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "ยืนยัน",
-          cancelButtonText: "ยกเลิก",
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-              // ส่งข้อมูลไปยัง API เพื่อบันทึกเหตุผลที่ไม่อนุมัติ
-              const response = await fetch(
-                "http://localhost:3000/submitRejection",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    room_request_id: requestID,
-                    reject_reason,
-                    detail_reject_reason,
-                  }),
-                }
-              );
-
-              if (!response.ok) throw new Error("การบันทึกล้มเหลว");
-
-              // ✅ หากการบันทึกสำเร็จ ทำการอัปเดตสถานะ
-              await updateStatus(requestID, updateNewStatus);
-
-              // ✅ แจ้งเตือนความสำเร็จ
-              Swal.fire(
-                "สถานะถูกอัปเดต!",
-                "คำขอไม่ได้รับการอนุมัติ",
-                "success"
-              );
-            } catch (error) {
-              console.error("❌ เกิดข้อผิดพลาด:", error);
-              Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถอัปเดตสถานะได้", "error");
-            }
-          }
-        });
-      }
-    </script>
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    >>>>>>> 6edc20e73d50a05264b1f4a71df4ce19eb8d0bff
+    <!-- โหลด Sidebar -->
     <script>
       fetch("sidebar.html")
         .then((resp) => resp.text())
