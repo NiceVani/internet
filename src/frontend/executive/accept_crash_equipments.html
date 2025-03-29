@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <title>รายการอุปกรณ์ชำรุด</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>รายการอุปกรณ์กำลังดำเนินการ</title>
     <!-- Bootstrap 5 Bundle CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -17,65 +17,54 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-   
     <style>
-        .content-area { margin-left: 290px; }
-        @media (max-width: 576px) { .content-area { margin-left: 0; } }
-
-          body {
-            font-family: Arial, sans-serif;
-          }
-    
-          .content-area {
-            /* ตำแหน่ง main contenet*/
-            margin-left: 290px; /* เว้นด้านซ้ายกันทับกับ Sidebar */
-          }
-          /* Responsive: จอเล็ก */
-          @media (max-width: 576px) {
-            .sidebar {
-              position: relative;
-              width: 100%;
-              max-width: 100%;
-              box-shadow: none;
-            }
-            .content-area {
-              margin-left: 0;
-            }
-          }
-          /* สไตล์สำหรับ Filter Area */
-          .filter-row {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-          }
-          .filter-row label {
-            margin-right: 0.5rem;
-            font-weight: bold;
-          }
-          .filter-row select,
-          .filter-row input[type="date"] {
-            width: auto;
-            display: inline-block;
-            margin-right: 1rem;
-          }
-          .card-header {
-            font-size: 1.25rem;
-          }
-        </style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .content-area {
+        margin-left: 290px;
+      }
+      @media (max-width: 576px) {
+        .content-area {
+          margin-left: 0;
+        }
+      }
+      /* สไตล์สำหรับ Filter Area */
+      .filter-row {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      .filter-row label {
+        margin-right: 0.5rem;
+        font-weight: bold;
+      }
+      .filter-row select,
+      .filter-row input[type="date"] {
+        width: auto;
+        display: inline-block;
+        margin-right: 1rem;
+      }
+      .card-header {
+        font-size: 1.25rem;
+      }
+      /* กำหนดขนาดรูปให้เท่ากัน */
+      .equipment-img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+      }
     </style>
-</head>
-<body>
+  </head>
   <body>
-    <!-- เนื้อหา -->
     <div id="sidebar-container"></div>
     <div class="container">
       <div class="content-area">
         <div class="container-fluid py-3">
           <!-- Nav Tabs -->
           <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <!-- แท็บ อุปกรณ์ชำรุด -->
             <li class="nav-item" role="presentation">
               <button
-              class="nav-link"
+                class="nav-link"
                 id="broken-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#broken"
@@ -87,7 +76,6 @@
                 รอซ่อม
               </button>
             </li>
-            
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link active"
@@ -104,7 +92,7 @@
             </li>
             <li class="nav-item" role="presentation">
               <button
-              class="nav-link"
+                class="nav-link"
                 id="success-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#success"
@@ -113,221 +101,312 @@
                 aria-controls="success"
                 aria-selected="false"
               >
-               ซ่อมเสร็จ
+                ซ่อมเสร็จ
               </button>
             </li>
           </ul>
-
-          <!-- ส่วนของ Filter -->
+          <!-- Filter Area -->
           <div class="row filter-row">
             <div class="col-12">
               <label for="typeFilter">ชนิดอุปกรณ์:</label>
-              <select id="typeFilter" class="form-select d-inline-block">
-                <option value="all">ทั้งหมด</option>
-                <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
-                <option value="เครื่องคอมพิวเตอร์">เครื่องคอมพิวเตอร์</option>
-                <option value="เก้าอี้">เก้าอี้</option>
-                <option value="โต๊ะ">โต๊ะ</option>
-                <option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</option>
-                <option value="ปลั๊กไฟ">ปลั๊กไฟ</option>
-              </select>
-
+              <select
+                id="typeFilter"
+                class="form-select d-inline-block"
+              ></select>
               <label for="roomFilter">ห้อง:</label>
-              <select id="roomFilter" class="form-select d-inline-block">
-                <option value="all">ทั้งหมด</option>
-                <option value="414">SC2-414</option>
-                <option value="307">SC2-307</option>
-              </select>
-
-              <!-- ปฏิทิน -->
+              <select
+                id="roomFilter"
+                class="form-select d-inline-block"
+              ></select>
               <label for="reportDate">วันที่:</label>
+              <!-- ไม่มีการตั้งค่า default -->
               <input
                 type="date"
                 id="reportDate"
                 class="form-control d-inline-block"
               />
-
-              <!-- จัดเรียงตาม “มาก่อน” / “หลังสุด” -->
               <label for="sortOrder">จัดเรียงตาม:</label>
               <select id="sortOrder" class="form-select d-inline-block">
                 <option value="asc">เก่าที่สุด</option>
                 <option value="desc">ใหม่ที่สุด</option>
               </select>
-              <!-- ไม่มีปุ่มกดกรอง -->
             </div>
           </div>
-          <!-- /Filter -->
-          
           <!-- Tab Contents -->
           <div class="tab-content">
             <div class="tab-pane fade" id="broken"></div>
             <div class="tab-pane fade show active" id="accepted">
-                <div id="equipment-list"></div> <!-- ✅ Container -->
+              <div id="equipment-list"></div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-
-<script>
-  async function fetchData() {
-    try {
-        console.log("🔥 Fetching data...");
-
-        const [brokenResponse, studentResponse, teachersResponse, equipmentsResponse] = await Promise.all([
-            fetch('http://localhost:3000/equipment_brokened'),
-            fetch('http://localhost:3000/student'),
-            fetch('http://localhost:3000/teacher'),
-            fetch('http://localhost:3000/equipment'),
-        ]);
-
-        const brokenData = await brokenResponse.json();
-        const studentData = await studentResponse.json();
-        const teachersData = await teachersResponse.json();
-        const equipmentsData = await equipmentsResponse.json();
-
-        console.log("🔥 API Data Loaded:", brokenData);
-
-        let statusFilter = ['รับเรื่องแล้ว','กำลังจัดซื้อ','กำลังซ่อม'];
-
-        const mergedData = brokenData
-            .filter(row => statusFilter.includes(row.repair_status))
-            .map(item => {
-                const student = studentData.find(s => s.student_id === item.student_id) || {};
-                const teacher = teachersData.find(t => t.teacher_id === item.teacher_id) || {};
-                const equipment = equipmentsData.find(e => e.equipment_id === item.equipment_id) || {};
-
-                return {
-                    ...item,
-                    repairDate: item.repair_date ? new Date(item.repair_date).toLocaleDateString('th-TH') : '-',
-                    email: student.email || teacher.email || '-',
-                    person_name: student.full_name || teacher.full_name || '-',
-                    equipmentName: equipment.equipment_name || '-',
-                    equipmentType: equipment.equipment_type || '-',
-                    damageDetails: item.damage_details || '-',
-                    
-                    imagePath: item.image_path ? `http://localhost:3000/image/${item.image_path}` : null
-                };
-            });
-
-            console.log("🔥 Merged Data:", mergedData);
-
-            // ✅ โหลดข้อมูลทั้งหมดตอนเริ่มต้น
-            filterData("all", "all", "", mergedData);
-    
-            // ✅ ฟังก์ชันกรองข้อมูลเมื่อเปลี่ยนค่าใน Dropdown และปฏิทิน
-            document.getElementById("typeFilter").addEventListener("change", function () {
-                const selectedType = this.value;
-                const selectedRoom = document.getElementById("roomFilter").value;
-                const selectedDate = document.getElementById("reportDate").value;
-                filterData(selectedType, selectedRoom, selectedDate, mergedData);
-            });
-    
-            document.getElementById("roomFilter").addEventListener("change", function () {
-                const selectedType = document.getElementById("typeFilter").value;
-                const selectedRoom = this.value;
-                const selectedDate = document.getElementById("reportDate").value;
-                filterData(selectedType, selectedRoom, selectedDate, mergedData);
-            });
-    
-            document.getElementById("reportDate").addEventListener("change", function () {
-                const selectedType = document.getElementById("typeFilter").value;
-                const selectedRoom = document.getElementById("roomFilter").value;
-                const selectedDate = this.value;
-                filterData(selectedType, selectedRoom, selectedDate, mergedData);
-            });
-    
-        } catch (error) {
-            console.error("❌ Fetch Error:", error);
+    <script>
+      // ฟังก์ชันสำหรับแสดง badge สถานะพร้อม icon
+      function getStatusBadge(status) {
+        switch (status) {
+          case "รอซ่อม":
+            return '<span class="badge bg-danger"><i class="fa fa-clock"></i> รอซ่อม</span>';
+          case "รับเรื่องแล้ว":
+            return '<span class="badge bg-primary"><i class="fa fa-check"></i> รับเรื่องแล้ว</span>';
+          case "กำลังซ่อม":
+            return '<span class="badge bg-warning text-dark"><i class="fa fa-tools"></i> กำลังซ่อม</span>';
+          case "กำลังจัดซื้อ":
+            return '<span class="badge bg-info text-dark"><i class="fa fa-shopping-cart"></i> กำลังจัดซื้อ</span>';
+          case "ซ่อมสำเร็จ":
+            return '<span class="badge bg-success"><i class="fa fa-check-circle"></i> ซ่อมสำเร็จ</span>';
+          default:
+            return '<span class="badge bg-secondary">' + status + "</span>";
         }
       }
-    
+      async function fetchEquipmentTypes() {
+        try {
+          const brokenResponse = await fetch(
+            "http://localhost:3000/equipment_brokened"
+          );
+          const brokenData = await brokenResponse.json();
+          const equipmentResponse = await fetch(
+            "http://localhost:3000/equipment"
+          );
+          const equipmentData = await equipmentResponse.json();
+          const equipmentMap = new Map();
+          equipmentData.forEach((item) => {
+            equipmentMap.set(item.equipment_id, item.equipment_name);
+          });
+          const uniqueTypes = [
+            ...new Set(
+              brokenData.map((item) => equipmentMap.get(item.equipment_id))
+            ),
+          ];
+          const typeFilter = document.getElementById("typeFilter");
+          typeFilter.innerHTML = '<option value="all">ทั้งหมด</option>';
+          uniqueTypes.forEach((type) => {
+            const option = document.createElement("option");
+            option.value = type;
+            option.textContent = type;
+            typeFilter.appendChild(option);
+          });
+        } catch (error) {
+          console.error("❌ Fetch Equipment Types Error:", error);
+        }
+      }
+      async function fetchRoomOptions() {
+        try {
+          const brokenResponse = await fetch(
+            "http://localhost:3000/equipment_brokened"
+          );
+          const brokenData = await brokenResponse.json();
+          const uniqueRooms = [
+            ...new Set(brokenData.map((item) => item.room_id)),
+          ];
+          const roomFilter = document.getElementById("roomFilter");
+          roomFilter.innerHTML = '<option value="all">ทั้งหมด</option>';
+          uniqueRooms.forEach((roomId) => {
+            const option = document.createElement("option");
+            option.value = roomId;
+            option.textContent = `SC2 - ${roomId}`;
+            roomFilter.appendChild(option);
+          });
+        } catch (error) {
+          console.error("❌ Fetch Room Options Error:", error);
+        }
+      }
+      async function fetchData() {
+        try {
+          const [
+            brokenResponse,
+            studentResponse,
+            teachersResponse,
+            equipmentsResponse,
+          ] = await Promise.all([
+            fetch("http://localhost:3000/equipment_brokened"),
+            fetch("http://localhost:3000/student"),
+            fetch("http://localhost:3000/teacher"),
+            fetch("http://localhost:3000/equipment"),
+          ]);
+          const brokenData = await brokenResponse.json();
+          const studentData = await studentResponse.json();
+          const teachersData = await teachersResponse.json();
+          const equipmentsData = await equipmentsResponse.json();
+          let mergedData = brokenData.map((item) => {
+            const student =
+              studentData.find((s) => s.student_id === item.student_id) || {};
+            const teacher =
+              teachersData.find((t) => t.teacher_id === item.teacher_id) || {};
+            const equipment =
+              equipmentsData.find(
+                (e) => e.equipment_id === item.equipment_id
+              ) || {};
+            return {
+              ...item,
+              repairDate: item.repair_date
+                ? new Date(item.repair_date).toLocaleDateString("th-TH", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                : "-",
+              email: student.email || teacher.email || "-",
+              person_name: student.full_name || teacher.full_name || "-",
+              equipmentName: equipment.equipment_name || "ไม่พบชื่ออุปกรณ์",
+              equipmentType: equipment.equipment_type || "ไม่ระบุประเภท",
+              damageDetails: item.damage_details || "-",
+              imagePath: item.image_path
+                ? `http://localhost:3000/image/${item.image_path}`
+                : null,
+            };
+          });
+          // กรองเฉพาะรายการที่สถานะเป็น รับเรื่องแล้ว, กำลังซ่อม หรือ กำลังจัดซื้อ
+          mergedData = mergedData.filter(
+            (item) =>
+              item.repair_status === "รับเรื่องแล้ว" ||
+              item.repair_status === "กำลังซ่อม" ||
+              item.repair_status === "กำลังจัดซื้อ"
+          );
+          // โหลดข้อมูลทั้งหมดตอนเริ่มต้น
+          filterData("all", "all", "", mergedData);
+          document
+            .getElementById("typeFilter")
+            .addEventListener("change", function () {
+              const selectedType = this.value;
+              const selectedRoom = document.getElementById("roomFilter").value;
+              const selectedDate = document.getElementById("reportDate").value;
+              filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+          document
+            .getElementById("roomFilter")
+            .addEventListener("change", function () {
+              const selectedType = document.getElementById("typeFilter").value;
+              const selectedRoom = this.value;
+              const selectedDate = document.getElementById("reportDate").value;
+              filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+          document
+            .getElementById("reportDate")
+            .addEventListener("change", function () {
+              const selectedType = document.getElementById("typeFilter").value;
+              const selectedRoom = document.getElementById("roomFilter").value;
+              const selectedDate = this.value;
+              filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+          document
+            .getElementById("sortOrder")
+            .addEventListener("change", function () {
+              const selectedType = document.getElementById("typeFilter").value;
+              const selectedRoom = document.getElementById("roomFilter").value;
+              const selectedDate = document.getElementById("reportDate").value;
+              filterData(selectedType, selectedRoom, selectedDate, mergedData);
+            });
+        } catch (error) {
+          console.error("❌ Fetch Error:", error);
+        }
+      }
       function filterData(selectedType, selectedRoom, selectedDate, data) {
         const equipmentContainer = document.getElementById("equipment-list");
         equipmentContainer.innerHTML = "";
-    
         let filteredData = data;
-        
-        // ✅ กรองตามชนิดอุปกรณ์
         if (selectedType !== "all") {
-            filteredData = filteredData.filter(item => item.equipmentName === selectedType);
+          filteredData = filteredData.filter(
+            (item) => item.equipmentName === selectedType
+          );
         }
-    
-        // ✅ กรองตามห้อง
         if (selectedRoom !== "all") {
-            filteredData = filteredData.filter(item => item.room_id === selectedRoom);
+          filteredData = filteredData.filter(
+            (item) => item.room_id === selectedRoom
+          );
         }
-    
-        // ✅ กรองตามวันที่ (ถ้าเลือก)
         if (selectedDate) {
-            filteredData = filteredData.filter(item => item.repairDate === selectedDate);
+          const formattedSelectedDate = new Date(
+            selectedDate
+          ).toLocaleDateString("th-TH", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+          filteredData = filteredData.filter(
+            (item) => item.repairDate === formattedSelectedDate
+          );
         }
-    
+        const sortOrder = document.getElementById("sortOrder").value;
+        filteredData = filteredData.sort((a, b) => {
+          const dateParts_a = a.repairDate.split("/");
+          const dateParts_b = b.repairDate.split("/");
+          const dateA = new Date(
+            parseInt(dateParts_a[2]) - 543,
+            parseInt(dateParts_a[1]) - 1,
+            parseInt(dateParts_a[0])
+          );
+          const dateB = new Date(
+            parseInt(dateParts_b[2]) - 543,
+            parseInt(dateParts_b[1]) - 1,
+            parseInt(dateParts_b[0])
+          );
+          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        });
         if (filteredData.length === 0) {
-            equipmentContainer.innerHTML = "<p class='text-muted'>ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>";
-            return;
+          equipmentContainer.innerHTML =
+            "<p class='text-muted'>ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>";
+          return;
         }
-      filteredData.forEach((item) => {
+        filteredData.forEach((item) => {
           const equipmentCard = `
-              <div class="card my-3">
-                  <div class="card-header h5">${item.equipmentName}</div>
-                  <div class="card-body d-flex align-items-start">
-                      ${item.imagePath ? `<img src="${item.imagePath}" alt="ภาพอุปกรณ์ชำรุด" class="img-fluid me-3" style="max-width: 200px; max-height: 200px;">` : ''}
-                      <div>
-                          <p><strong>${item.damageDetails}</strong></p>
-                          <p><strong>ห้อง:</strong> ${item.room_id}</p>
-                          <p><strong>ผู้แจ้ง:</strong> ${item.person_name}</p>
-                          <p><strong>อีเมล:</strong> ${item.email}</p>
-                          <p><strong>รายงานเมื่อ:</strong> ${item.repairDate}</p>
-                          <p><strong>สถานะ:</strong> ${item.repair_status}</p>
-                      </div>
-                  </div>
+          <div class="card my-3">
+            <div class="card-header h5">${item.equipmentName}</div>
+            <div class="card-body d-flex align-items-start">
+              ${
+                item.imagePath
+                  ? `<img src="${item.imagePath}" alt="ภาพอุปกรณ์ชำรุด" class="equipment-img me-3">`
+                  : ""
+              }
+              <div>
+                <p><strong>${item.damageDetails}</strong></p>
+                <p><strong>ห้อง:</strong> ${item.room_id}</p>
+                <p><strong>ผู้แจ้ง:</strong> ${item.person_name}</p>
+                <p><strong>อีเมล:</strong> ${item.email}</p>
+                <p><strong>รายงานเมื่อ:</strong> ${item.repairDate}</p>
+                <p><strong>สถานะ:</strong> ${getStatusBadge(
+                  item.repair_status
+                )}</p>
               </div>
-          `;
+            </div>
+          </div>
+        `;
           equipmentContainer.innerHTML += equipmentCard;
+        });
+      }
+      document.addEventListener("DOMContentLoaded", async function () {
+        await fetchEquipmentTypes();
+        await fetchRoomOptions();
+        fetchData();
       });
-  }
-
-  document.addEventListener("DOMContentLoaded", fetchData);
-
-// โหลด Sidebar
-fetch("sidebar.html")
+      // โหลด Sidebar
+      fetch("sidebar.html")
         .then((resp) => resp.text())
         .then((html) => {
           document.getElementById("sidebar-container").innerHTML = html;
         })
         .then(() => {
-          // Highlight ปุ่ม "คำขออนุมัติการจองห้อง"
           const btnStats = document.getElementById("btnBroken");
           btnStats.classList.add("btn-sidebar-active");
         })
         .catch((err) => console.error("Failed to load sidebar:", err));
-
-// ตั้งค่า Event Listener สำหรับเปลี่ยนเส้นทางตามแท็บ
-document.addEventListener("DOMContentLoaded", function () {
-    const brokenTab = document.querySelector("#broken-tab"); // แท็บ "รอซ่อม"
-    const acceptedTab = document.querySelector("#accepted-tab"); // แท็บ "กำลังดำเนินการ"
-    const successTab = document.querySelector("#success-tab");
-    
-
-    if (brokenTab) {
-        brokenTab.addEventListener("click", function () {
-            window.location.href = "crash_equipments_requests.html"; // ไปหน้า crash_equipments_requests.html
-        });
-    } else {
-        console.error("❌ broken-tab not found!");
-    }
-
-    if (successTab) {
-        successTab.addEventListener("click", function () {
-            window.location.href = "successful_equipments.html"; // ไปหน้า accept_crash_equipments.html
-        });
-    } else {
-        console.error("❌ accepted-tab not found!");
-    }
-});
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
+      // ตั้งค่า Event Listener สำหรับเปลี่ยนแท็บ
+      document.addEventListener("DOMContentLoaded", function () {
+        const brokenTab = document.querySelector("#broken-tab");
+        const successTab = document.querySelector("#success-tab");
+        if (brokenTab) {
+          brokenTab.addEventListener("click", function () {
+            window.location.href = "crash_equipments_requests.html";
+          });
+        }
+        if (successTab) {
+          successTab.addEventListener("click", function () {
+            window.location.href = "successful_equipments.html";
+          });
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
