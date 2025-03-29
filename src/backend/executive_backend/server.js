@@ -1,59 +1,68 @@
-const express = require('express');
-const connection = require('./db'); // นำเข้าการเชื่อมต่อฐานข้อมูล
-const mysql = require('mysql2');
+const express = require("express");
+const connection = require("./db"); // นำเข้าการเชื่อมต่อฐานข้อมูล
+const mysql = require("mysql2");
 const fs = require("fs");
-const cors = require('cors');  // เพิ่ม cors
-const { error } = require('console');
-const util = require('util');
-const path = require('path');
-
+const cors = require("cors"); // เพิ่ม cors
+const { error } = require("console");
+const util = require("util");
+const path = require("path");
 
 const app = express();
 app.use(express.json()); // รองรับ JSON request body
 app.use(cors());
 // 📌 ดึงข้อมูลจากตาราง (เปลี่ยน `rooms` เป็นชื่อตารางของคุณ)
-app.get('/rooms', (req, res) => {
-    connection.query('SELECT * FROM Equipments_list_brokened', (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+app.get("/rooms", (req, res) => {
+  connection.query("SELECT * FROM room", (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/brokendEquipment', (req, res) => {
-    connection.query(`SELECT e.equipment_name as name , COUNT(eb.equipment_id) as total  FROM equipment_brokened as eb 
-JOIN equipment as e ON e.equipment_id = eb.equipment_id
-GROUP BY eb.equipment_id 
-ORDER BY total DESC LIMIT 3`, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+
+app.get("/brokendEquipment", (req, res) => {
+  const sql = `
+    SELECT e.equipment_name AS name , COUNT(eb.equipment_id) AS total
+    FROM equipment_brokened AS eb
+    JOIN equipment AS e ON e.equipment_id = eb.equipment_id
+    GROUP BY eb.equipment_id 
+    ORDER BY total DESC 
+    LIMIT 3
+  `;
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/borrowEquipment', (req, res) => {
-    connection.query(`SELECT  rrm.equipment_id,e.equipment_name as name ,SUM(rrm.request_quantity) as total FROM room_request_equipment as rrm
+
+app.get("/borrowEquipment", (req, res) => {
+  connection.query(
+    `SELECT  rrm.equipment_id,e.equipment_name as name ,SUM(rrm.request_quantity) as total FROM room_request_equipment as rrm
 LEFT JOIN equipment as e ON e.equipment_id = rrm.equipment_id
 LEFT JOIN room as r ON r.room_id = rrm.room_id
 GROUP BY rrm.equipment_id,e.equipment_name
-ORDER BY total DESC LIMIT 3 ;`, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+ORDER BY total DESC LIMIT 3 ;`,
+    (err, results) => {
+      if (err) {
+        console.error("❌ เกิดข้อผิดพลาด:", err);
+        res.status(500).send(err);
+        return;
+      }
+      console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+      res.json(results);
+    }
+  );
 });
-app.get('/mostroomalldata', (req, res) => {
-    const query = `SELECT 
+app.get("/mostroomalldata", (req, res) => {
+  const query = `SELECT 
     room_id,
     SUM(cs_count) AS cs_count,
     SUM(it_count) AS it_count,
@@ -74,19 +83,19 @@ GROUP BY room_id
 ORDER BY room_id;
 
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/daysroomday', (req, res) => {
-    const query = `SELECT 
+app.get("/daysroomday", (req, res) => {
+  const query = `SELECT 
     DAYNAME(rr.used_date) AS time,  -- ชื่อวัน
     COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้อง
 FROM room_request AS rr
@@ -95,19 +104,19 @@ LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
 WHERE rr.request_status = 'อนุมัติ'
 GROUP BY time
 ORDER BY FIELD(time, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/daysroomweek', (req, res) => {
-    const query = `SELECT 
+app.get("/daysroomweek", (req, res) => {
+  const query = `SELECT 
     WEEK(rr.used_date, 1) AS time,  -- นับสัปดาห์โดยเริ่มจากวันอาทิตย์
     COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละสัปดาห์
 FROM room_request AS rr
@@ -118,19 +127,19 @@ AND rr.request_status = 'อนุมัติ'
 GROUP BY time
 ORDER BY time;
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/daysroommount', (req, res) => {
-    const query = `SELECT 
+app.get("/daysroommount", (req, res) => {
+  const query = `SELECT 
     MONTH(rr.used_date) AS time,  -- นับเดือนจากวันที่ใช้ห้อง
     COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละเดือน
 FROM room_request AS rr
@@ -141,19 +150,19 @@ AND rr.request_status = 'อนุมัติ'  -- กรองเฉพาะ�
 GROUP BY time
 ORDER BY time;
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/daysroomyear', (req, res) => {
-    const query = `SELECT 
+app.get("/daysroomyear", (req, res) => {
+  const query = `SELECT 
     YEAR(rr.used_date) AS time,  -- นับปีจากวันที่ใช้ห้อง
     COUNT(rr.room_request_id) AS total_requests  -- นับจำนวนคำขอใช้ห้องในแต่ละปี
 FROM room_request AS rr
@@ -164,19 +173,19 @@ AND rr.request_status = 'อนุมัติ' -- กรองช่วงป�
 GROUP BY time
 ORDER BY time;
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/detailsdaysroom', (req, res) => {
-    const query = `SELECT 
+app.get("/detailsdaysroom", (req, res) => {
+  const query = `SELECT 
         SUM(CASE WHEN COALESCE(s.department, t.department) = 'วิทยาการคอมพิวเตอร์' THEN 1 ELSE 0 END) AS cs_count,
         SUM(CASE WHEN COALESCE(s.department, t.department) = 'เทคโนโลยีสารสนเทศ' THEN 1 ELSE 0 END) AS it_count,
         SUM(
@@ -186,19 +195,19 @@ app.get('/detailsdaysroom', (req, res) => {
 FROM room_request AS rr
 LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id;
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
-app.get('/useralldata', (req, res) => {
-    const query = `SELECT 
+app.get("/useralldata", (req, res) => {
+  const query = `SELECT 
     COALESCE(s.full_name, t.full_name) AS name,
     COUNT(rr.room_request_id) AS stat
 FROM room_request AS rr
@@ -206,123 +215,120 @@ LEFT JOIN student AS s ON rr.student_id = s.student_id
 LEFT JOIN teacher AS t ON rr.teacher_id = t.teacher_id
 GROUP BY name
 ORDER BY stat DESC LIMIT 3 ;
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-
-app.get('/room_request', (req, res) => {
-    connection.query('SELECT * FROM room_request ORDER BY submitted_time ASC', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Rooms_list_requests:', results);
-        res.json(results);
-    });
+app.get("/room_request", (req, res) => {
+  connection.query(
+    "SELECT * FROM room_request ORDER BY submitted_time ASC",
+    (err, results) => {
+      if (err) {
+        console.error("❌ Error:", err);
+        res.status(500).send(err);
+        return;
+      }
+      console.log("✅ ดึงข้อมูลสำเร็จจาก Rooms_list_requests:", results);
+      res.json(results);
+    }
+  );
 });
 
-
-app.get('/student', (req, res) => {
-    connection.query('SELECT * FROM student', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Student_information:', results);
-        res.json(results);
-    });
+app.get("/student", (req, res) => {
+  connection.query("SELECT * FROM student", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก Student_information:", results);
+    res.json(results);
+  });
 });
 
-app.get('/teacher', (req, res) => {
-    connection.query('SELECT * FROM teacher', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
-        res.json(results);
-    });
+app.get("/teacher", (req, res) => {
+  connection.query("SELECT * FROM teacher", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก Teacher_information:", results);
+    res.json(results);
+  });
 });
 
-app.get('/quipment_brokened', (req, res) => {
-    connection.query('SELECT * FROM quipment_brokened', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:', results);
-        res.json(results);
-    });
+app.get("/equipment_brokened", (req, res) => {
+  connection.query("SELECT * FROM equipment_brokened", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก equipment_brokened:", results);
+    res.json(results);
+  });
 });
-app.get('/equipment', (req, res) => {
-    connection.query('SELECT * FROM equipment', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก equipment:', results);
-        res.json(results);
-    });
+
+app.get("/equipment", (req, res) => {
+  connection.query("SELECT * FROM equipment", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก equipment:", results);
+    res.json(results);
+  });
 });
 
 app.get("/image/:filename", (req, res) => {
-    const filename = req.params.filename;
-    const filePath = path.join(__dirname, "../storage/equipment_img", filename);
-  
-    if (fs.existsSync(filePath)) {
-      res.setHeader("Content-Type", "image/jpeg");
-      res.sendFile(filePath);
-    } else {
-      res.status(404).json({ error: "File not found" });
-    }
-  });
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, "../storage/equipment_img", filename);
 
-app.get('/room_request_participant', (req, res) => {
-    connection.query('SELECT * FROM room_request_participant', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก room_request_participant:', results);
-        res.json(results);
-    });
+  if (fs.existsSync(filePath)) {
+    res.setHeader("Content-Type", "image/jpeg");
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: "File not found" });
+  }
 });
 
-
-
-
-
-
-app.get('/user', (req, res) => {
-    const sortType = req.query.sort || "most"; // ค่าเริ่มต้นเป็น "most"
-
-    let orderBy = "stat DESC"; // เรียงจากจองบ่อยสุด
-    let limit = ""; // ค่า limit
-
-    if (sortType === "latest") {
-        orderBy = "MAX(rr.room_request_id) DESC"; // เรียงจาก ID ล่าสุด
-        limit = "LIMIT 10";
-    } else if (sortType === "oldest") {
-        orderBy = "MIN(rr.room_request_id) ASC"; // เรียงจาก ID เก่าสุด
-        limit = "LIMIT 10";
+app.get("/room_request_participant", (req, res) => {
+  connection.query("SELECT * FROM room_request_participant", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
     }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก room_request_participant:", results);
+    res.json(results);
+  });
+});
 
-    const query = `
+app.get("/user", (req, res) => {
+  const sortType = req.query.sort || "most"; // ค่าเริ่มต้นเป็น "most"
+
+  let orderBy = "stat DESC"; // เรียงจากจองบ่อยสุด
+  let limit = ""; // ค่า limit
+
+  if (sortType === "latest") {
+    orderBy = "MAX(rr.room_request_id) DESC"; // เรียงจาก ID ล่าสุด
+    limit = "LIMIT 10";
+  } else if (sortType === "oldest") {
+    orderBy = "MIN(rr.room_request_id) ASC"; // เรียงจาก ID เก่าสุด
+    limit = "LIMIT 10";
+  }
+
+  const query = `
         SELECT 
             COALESCE(s.full_name, t.full_name) AS name,
             COALESCE(s.student_id, t.teacher_id) AS id,
@@ -339,61 +345,54 @@ app.get('/user', (req, res) => {
         ORDER BY ${orderBy}
         ${limit};`; // ใส่ LIMIT แยกออกมา
 
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error("Database Error:", err);
-            return res.status(500).json({ error: "Database query failed" });
-        }
-        res.json(results);
-    });
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    res.json(results);
+  });
 });
 
-
-
-
-
-app.get('/roomdetail', (req, res) => {
-    const query = "SELECT rli.Rooms_name AS Name,rli.Floors, rli.Rooms_ID, SUM(CASE WHEN rlr.Requests_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count FROM Rooms_list_information rli LEFT JOIN Rooms_list_requests rlr ON rli.Rooms_ID = rlr.Rooms_ID GROUP BY rli.Rooms_ID, rli.Rooms_name, rli.Floors ORDER BY Approved_Count;"
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+app.get("/roomdetail", (req, res) => {
+  const query =
+    "SELECT rli.Rooms_name AS Name,rli.Floors, rli.Rooms_ID, SUM(CASE WHEN rlr.Requests_status = 'อนุมัติ' THEN 1 ELSE 0 END) AS Approved_Count FROM Rooms_list_information rli LEFT JOIN Rooms_list_requests rlr ON rli.Rooms_ID = rlr.Rooms_ID GROUP BY rli.Rooms_ID, rli.Rooms_name, rli.Floors ORDER BY Approved_Count;";
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
+app.post("/updateStatus", (req, res) => {
+  const { requestId, status } = req.body;
 
+  const sql =
+    "UPDATE room_request SET request_status = ? WHERE room_request_id = ?";
 
+  connection.query(sql, [status, requestId], (err, results) => {
+    if (err) {
+      console.error("❌ Error updating status:", err);
+      return res.status(500).json({ message: "Failed to update status" });
+    }
 
+    if (results.affectedRows === 0) {
+      // ถ้าไม่มีแถวไหนถูกอัปเดต แสดงว่า requestId อาจไม่ถูกต้อง
+      return res.status(404).json({ message: "Request ID not found" });
+    }
 
-app.post('/updateStatus', (req, res) => {
-    const { requestId, status } = req.body;
-
-    const sql = 'UPDATE room_request SET request_status = ? WHERE room_request_id = ?';
-
-    connection.query(sql, [status, requestId], (err, results) => {
-        if (err) {
-            console.error('❌ Error updating status:', err);
-            return res.status(500).json({ message: 'Failed to update status' });
-        }
-
-        if (results.affectedRows === 0) {
-            // ถ้าไม่มีแถวไหนถูกอัปเดต แสดงว่า requestId อาจไม่ถูกต้อง
-            return res.status(404).json({ message: 'Request ID not found' });
-        }
-
-        console.log(`✅ Status updated for Request ID ${requestId}: ${status}`);
-        res.status(200).json({ message: 'Status updated successfully' });
-    });
+    console.log(`✅ Status updated for Request ID ${requestId}: ${status}`);
+    res.status(200).json({ message: "Status updated successfully" });
+  });
 });
 
-
-app.get('/TableBorrowEquipment', (req, res) => {
-    const { equipment } = req.query; // รับค่าที่เลือกจาก dropdown
-    let query = `
+app.get("/TableBorrowEquipment", (req, res) => {
+  const { equipment } = req.query; // รับค่าที่เลือกจาก dropdown
+  let query = `
         SELECT 
             e.equipment_name AS name, 
             r.room_name AS room, 
@@ -408,28 +407,27 @@ app.get('/TableBorrowEquipment', (req, res) => {
         WHERE rr.request_status = 'อนุมัติ'
     `;
 
-    // เพิ่มเงื่อนไขกรองอุปกรณ์ที่เลือก (ถ้ามี)
-    if (equipment) {
-        query += ` AND e.equipment_name = ?`;
+  // เพิ่มเงื่อนไขกรองอุปกรณ์ที่เลือก (ถ้ามี)
+  if (equipment) {
+    query += ` AND e.equipment_name = ?`;
+  }
+
+  query += ` GROUP BY rre.room_id, rre.equipment_id, e.equipment_name, r.room_name, rr.request_status`;
+
+  connection.query(query, equipment ? [equipment] : [], (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
     }
-
-    query += ` GROUP BY rre.room_id, rre.equipment_id, e.equipment_name, r.room_name, rr.request_status`;
-
-    connection.query(query, equipment ? [equipment] : [], (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก TableBorrowEquipment:', results);
-        res.json(results);
-    });
+    console.log("✅ ดึงข้อมูลสำเร็จจาก TableBorrowEquipment:", results);
+    res.json(results);
+  });
 });
 
-
-app.get('/TableRoomListRequest', (req, res) => {
-    // 🛠 สร้างคำสั่ง SQL ตามเงื่อนไขที่เลือก
-    const sql = `
+app.get("/TableRoomListRequest", (req, res) => {
+  // 🛠 สร้างคำสั่ง SQL ตามเงื่อนไขที่เลือก
+  const sql = `
         SELECT 
             DATE_FORMAT(rr.used_date, '%Y/%m/%d') as date,
             CONCAT_WS('-', rr.start_time, rr.end_time) as time,
@@ -444,26 +442,23 @@ app.get('/TableRoomListRequest', (req, res) => {
         ORDER BY rr.used_date DESC, rr.end_time DESC;
     `;
 
-    // 📌 Query ข้อมูลจาก Database
-    connection.query(sql, (err, results) => {
-        if (err) {
-            console.error("❌ Error:", err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log("✅ ดึงข้อมูลสำเร็จ:", results);
-        res.json(results);
-    });
+  // 📌 Query ข้อมูลจาก Database
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-
-
-
 app.get("/TableRoomBooked", async (req, res) => {
-    let roomName = req.query.room || "allroom";
-    console.log("API Received Request for Room:", roomName); // Debug
+  let roomName = req.query.room || "allroom";
+  console.log("API Received Request for Room:", roomName); // Debug
 
-    let sql = `
+  let sql = `
         SELECT 
             r.room_name,
             r.floor,
@@ -476,33 +471,30 @@ app.get("/TableRoomBooked", async (req, res) => {
         WHERE rr.request_status = 'อนุมัติ'
         `;
 
-    let params = [];
+  let params = [];
 
-    // เพิ่มเงื่อนไขถ้าเลือกห้องใดห้องหนึ่ง
-    if (roomName !== "allroom") {
-        sql += ` WHERE r.room_name = ?`;
-        params.push(roomName);
+  // เพิ่มเงื่อนไขถ้าเลือกห้องใดห้องหนึ่ง
+  if (roomName !== "allroom") {
+    sql += ` WHERE r.room_name = ?`;
+    params.push(roomName);
+  }
+
+  sql += ` GROUP BY r.room_name, r.floor, r.room_id, rt.type_name ORDER BY total DESC;`;
+
+  connection.query(sql, params, (error, results) => {
+    if (error) {
+      console.error("Error fetching room data:", error);
+      res.status(500).send("Internal Server Error");
+    } else {
+      console.log("Raw Database Response:", results); // Debug ค่าที่ได้จาก DB
+      res.json(results); // ส่งค่ากลับไปให้ frontend
     }
-
-    sql += ` GROUP BY r.room_name, r.floor, r.room_id, rt.type_name ORDER BY total DESC;`;
-
-    connection.query(sql, params, (error, results) => {
-        if (error) {
-            console.error("Error fetching room data:", error);
-            res.status(500).send("Internal Server Error");
-        } else {
-            console.log("Raw Database Response:", results); // Debug ค่าที่ได้จาก DB
-            res.json(results); // ส่งค่ากลับไปให้ frontend
-        }
-    });
-
+  });
 });
 
-
-
-
-app.get('/TableBrokenEqipment', (req, res) => {
-    connection.query(`SELECT
+app.get("/TableBrokenEqipment", (req, res) => {
+  connection.query(
+    `SELECT
     e.equipment_name as name,
     r.room_name as room,
     em.stock_quantity as totalequipment,
@@ -516,19 +508,21 @@ GROUP BY e.equipment_name, r.room_name, em.stock_quantity
 ORDER BY r.room_name, e.equipment_name;
 
  `,
-        (err, results) => {
-            if (err) {
-                console.error('❌ Error:', err);
-                res.status(500).send(err);
-                return;
-            }
-            console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
-            res.json(results);
-        });
+    (err, results) => {
+      if (err) {
+        console.error("❌ Error:", err);
+        res.status(500).send(err);
+        return;
+      }
+      console.log("✅ ดึงข้อมูลสำเร็จจาก Teacher_information:", results);
+      res.json(results);
+    }
+  );
 });
 
-app.get('/DataEquipment', (req, res) => {
-    connection.query(`SELECT 
+app.get("/DataEquipment", (req, res) => {
+  connection.query(
+    `SELECT 
     name, 
     room, 
     SUM(totalequipment) AS totalequipment, 
@@ -571,19 +565,20 @@ FROM (
 GROUP BY name, room;
 
 `,
-        (err, results) => {
-            if (err) {
-                console.error('❌ Error:', err);
-                res.status(500).send(err);
-                return;
-            }
-            console.log('✅ ดึงข้อมูลสำเร็จจาก Teacher_information:', results);
-            res.json(results);
-        });
+    (err, results) => {
+      if (err) {
+        console.error("❌ Error:", err);
+        res.status(500).send(err);
+        return;
+      }
+      console.log("✅ ดึงข้อมูลสำเร็จจาก Teacher_information:", results);
+      res.json(results);
+    }
+  );
 });
 
-app.get('/mostreport', (req, res) => {
-    const query = `SELECT 
+app.get("/mostreport", (req, res) => {
+  const query = `SELECT 
     COALESCE(s.full_name, t.full_name) AS name,
     COALESCE(s.student_id,t.teacher_id) as id,
     COUNT(eb.equipment_id) AS stat
@@ -592,20 +587,20 @@ LEFT JOIN student AS s ON eb.student_id = s.student_id
 LEFT JOIN teacher AS t ON eb.teacher_id = t.teacher_id
 GROUP BY name,id
 ORDER BY stat DESC LIMIT 3 ;
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-app.get('/reportTable', (req, res) => {
-    const query = `SELECT
+app.get("/reportTable", (req, res) => {
+  const query = `SELECT
 	COALESCE(s.student_id,t.teacher_id) as id,
     COALESCE(s.full_name,t.full_name) as name,
     COALESCE(s.email,t.email) as email,
@@ -615,22 +610,21 @@ FROM equipment_brokened as eb
 LEFT JOIN student as s on s.student_id = eb.student_id
 LEFT JOIN teacher as t  on t.teacher_id = eb.teacher_id
 GROUP BY id,name,email,role ;
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-
 //box 1
-app.get('/box1', (req, res) => {
-    const query = `SELECT  
+app.get("/box1", (req, res) => {
+  const query = `SELECT  
     r.room_name AS name, 
     COUNT(rr.room_id) AS room_count,
     ROUND((COUNT(rr.room_id) * 100.0) / (SELECT COUNT(*) FROM room_request), 2) AS percentage
@@ -639,21 +633,21 @@ JOIN room AS r ON r.room_id = rr.room_id
 GROUP BY name
 ORDER BY percentage DESC ;
  ;
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
 //box 2
-app.get('/box2', (req, res) => {
-    const query = `SELECT  
+app.get("/box2", (req, res) => {
+  const query = `SELECT  
     e.equipment_name AS name, 
     COUNT(eb.equipment_id) AS equipment_count,
     ROUND((COUNT(eb.equipment_id) * 100.0) / (SELECT COUNT(*) FROM equipment_brokened), 2) AS percentage
@@ -662,40 +656,40 @@ JOIN equipment AS e ON e.equipment_id = eb.equipment_id
 GROUP BY name
 ORDER BY percentage DESC ;
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
 //box3
-app.get('/box3', (req, res) => {
-    const query = `SELECT  
+app.get("/box3", (req, res) => {
+  const query = `SELECT  
     CONCAT(rr.start_time ,'-',rr.end_time) as time,
     COUNT(*) AS count_time,
     (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM room_request)) AS percentage
 FROM room_request AS rr
 GROUP BY time
-ORDER BY count_time DESC;`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+ORDER BY count_time DESC;`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 //box 4
-app.get('/box4', (req, res) => {
-    const query = `SELECT 
+app.get("/box4", (req, res) => {
+  const query = `SELECT 
     COALESCE(s.department, t.department) AS name,
     COUNT(*) AS d_count,
     ROUND((COUNT(*) * 100.0) / (SELECT COUNT(*) FROM room_request), 2) AS percentage
@@ -706,20 +700,20 @@ GROUP BY name
 ORDER BY percentage DESC;
 
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-app.get('/box42', (req, res) => {
-    const query = `SELECT 
+app.get("/box42", (req, res) => {
+  const query = `SELECT 
     COALESCE(s.department, t.department) AS name,
     COUNT(*) AS d_count
 
@@ -732,20 +726,20 @@ ORDER BY name
 ;
 
 
-`
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+`;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-app.get('/detailsPop', (req, res) => {
-    const query = `
+app.get("/detailsPop", (req, res) => {
+  const query = `
                     SELECT
                         rrp.room_request_id as requestID,
                         r.room_name as roombooking,
@@ -766,73 +760,76 @@ app.get('/detailsPop', (req, res) => {
                     WHERE rrp.role
                     ORDER BY requestID
                     ;
-                    `
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ เกิดข้อผิดพลาด:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จ:', results);
-        res.json(results);
-    });
+                    `;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จ:", results);
+    res.json(results);
+  });
 });
 
-app.get('/equipment_brokened', (req, res) => {
-    connection.query('SELECT * FROM equipment_brokened', (err, results) => {
-        if (err) {
-            console.error('❌ Error:', err);
-            res.status(500).send(err);
-            return;
-        }
-        console.log('✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:', results);
-        res.json(results);
-    });
+app.get("/equipment_brokened", (req, res) => {
+  connection.query("SELECT * FROM equipment_brokened", (err, results) => {
+    if (err) {
+      console.error("❌ Error:", err);
+      res.status(500).send(err);
+      return;
+    }
+    console.log("✅ ดึงข้อมูลสำเร็จจาก quipment_brokened:", results);
+    res.json(results);
+  });
 });
 
 // ดึงข้อมูลเหตุผลไม่อนุมัติ
 // ดึงรายการ ENUM จากคอลัมน์ reject_reason
-app.get('/RejectReasons', (req, res) => {
-    const query = `SHOW COLUMNS FROM room_request LIKE 'reject_reason'`;
+app.get("/RejectReasons", (req, res) => {
+  const query = `SHOW COLUMNS FROM room_request LIKE 'reject_reason'`;
 
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ ดึงข้อมูล ENUM ไม่สำเร็จ:', err);
-            return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
-        }
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ ดึงข้อมูล ENUM ไม่สำเร็จ:", err);
+      return res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
+    }
 
-        // แปลง ENUM จากข้อมูลดิบ
-        const enumString = results[0].Type; // ตัวอย่าง: "enum('เอกสารไม่ครบ','ห้องไม่ว่าง','เวลาซ้ำซ้อน')"
-        const enumValues = enumString.match(/'([^']+)'/g).map(value => value.replace(/'/g, ""));
+    // แปลง ENUM จากข้อมูลดิบ
+    const enumString = results[0].Type; // ตัวอย่าง: "enum('เอกสารไม่ครบ','ห้องไม่ว่าง','เวลาซ้ำซ้อน')"
+    const enumValues = enumString
+      .match(/'([^']+)'/g)
+      .map((value) => value.replace(/'/g, ""));
 
-        res.json(enumValues);
-    });
+    res.json(enumValues);
+  });
 });
 
-
 // บันทึกเหตุผลที่ไม่อนุมัติ
-app.post('/submitRejection', (req, res) => {
-    const { room_request_id, reject_reason, detail_reject_reason } = req.body;
+app.post("/submitRejection", (req, res) => {
+  const { room_request_id, reject_reason, detail_reject_reason } = req.body;
 
-    const query = `
+  const query = `
         UPDATE room_request 
         SET reject_reason = ?, detail_reject_reason = ? 
         WHERE room_request_id = ?
     `;
 
-    connection.query(query, [reject_reason, detail_reject_reason || '', room_request_id], (err) => {
-        if (err) {
-            console.error('❌ บันทึกข้อมูลไม่สำเร็จ:', err);
-            return res.status(500).json({ error: 'บันทึกข้อมูลไม่สำเร็จ' });
-        }
-        res.json({ message: '✅ บันทึกเหตุผลการไม่อนุมัติสำเร็จ' });
-    });
+  connection.query(
+    query,
+    [reject_reason, detail_reject_reason || "", room_request_id],
+    (err) => {
+      if (err) {
+        console.error("❌ บันทึกข้อมูลไม่สำเร็จ:", err);
+        return res.status(500).json({ error: "บันทึกข้อมูลไม่สำเร็จ" });
+      }
+      res.json({ message: "✅ บันทึกเหตุผลการไม่อนุมัติสำเร็จ" });
+    }
+  );
 });
-
-
 
 // 📌 เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
