@@ -12,3 +12,5 @@ easyroom.sql
 src\backend\booker_backend\.env
 **/.env
 fix-db
+
+src/backend/booker_backend/.env
