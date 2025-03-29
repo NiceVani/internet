@@ -1454,9 +1454,12 @@ app.post("/submitBooking", async (req, res) => {
       console.log(`👥 กำลังเพิ่มสมาชิก ${members.length} คน`);
 
       // ✅ ตรวจสอบค่าของ `members` ให้แน่ใจว่าเป็น Array ของรหัสนิสิตจริงๆ
-      const validMembers = members.filter(
-        (member) => typeof member === "string" && member.trim() !== ""
-      );
+      const validMembers = [...new Set(
+        members.filter(
+          (member) => typeof member === "string" && member.trim() !== ""
+        )
+      )];
+      
 
       if (validMembers.length > 0) {
         const memberValues = validMembers.map((memberId) => {
