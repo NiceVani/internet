@@ -12,12 +12,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-    <link 
-      rel="stylesheet" 
+    <link
+      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
-
-    <!-- ย้าย executive.css มาไว้ใน <style> -->
     <style>
       body {
         margin: 0;
@@ -26,52 +24,21 @@
       }
       .container {
         display: flex;
-        /* height: 100vh; ถ้าต้องการเต็มจอสูงสุด */
       }
-
-      .notification-btn {
-        position: relative;
-        display: inline-block;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        font-family: Arial, sans-serif;
-      }
-      .notification-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: red;
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: bold;
-        border: 2px solid white;
-      }
-
       .main-content {
         margin-left: 20%;
         margin-top: 3%;
         margin-bottom: 5%;
         flex: 1;
         padding: 20px;
-        padding-top: 2px;
         background-color: #e8e8e8;
         border-radius: 10px;
       }
-
       .tab-bar {
         display: flex;
         padding: 10px;
-        justify-content: flex-start;
-        align-items: center;
         gap: 10px;
+        align-items: center;
       }
       .tab {
         padding: 15px 20px;
@@ -84,75 +51,17 @@
         color: #000;
         border-bottom: 2px solid #000;
       }
-      .tab-bar button.active {
-        background-color: #f5f5f5;
-        border: 1px solid #ccc;
-        font-weight: bold;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th {
-        text-align: center;
-        padding: 10px;
-        border-bottom: 1px solid #ddd;
-      }
-      td {
-        text-align: center;
-      }
-
-      .actions {
-        display: flex;
-        gap: 10px;
-      }
-      .actions button {
-        padding: 5px 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-      }
-      .actions2 {
-        text-align: center;
-        gap: 10px;
-      }
-      .actions2 button {
-        padding: 5px 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-      }
-
-      .approve {
-        background-color: #4caf50;
-        color: white;
-      }
-      .reject {
-        background-color: #ff0606;
-        color: white;
-      }
-      .icon-button {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .receive {
-        justify-content: center;
-      }
       .tab a {
         text-decoration: none;
         color: inherit;
       }
-
       .dropdown-container {
         display: inline-block;
         position: relative;
-        font-family: Arial, sans-serif;
         margin-left: auto;
       }
       select {
-        width: 135px;
+        width: 250px;
         padding: 10px;
         font-size: 14px;
         color: #7e7e7e;
@@ -165,13 +74,35 @@
       select:focus {
         border-color: #aaa;
       }
-
-      /* ทำให้ Sidebar Responsive */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
       @media (max-width: 992px) {
         .main-content {
           margin-left: 0;
-          margin-top: 120px; /* เว้นที่ให้ sidebar ด้านบน */
+          margin-top: 120px;
         }
+      }
+      /* Search box */
+      #searchBox {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+      }
+      #dropdown-calendar {
+        display: none;
+        position: absolute;
+        background: white;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        padding: 10px;
       }
     </style>
   </head>
@@ -180,436 +111,325 @@
       <div id="sidebar-container"></div>
       <div class="main-content">
         <div class="tab-bar">
-          <div class="tab">
-            <a href="booking_rooms_requests.html">คำขอ</a>
-          </div>
+          <div class="tab"><a href="booking_rooms_requests.html">คำขอ</a></div>
           <div class="tab">
             <a href="accept_requests_booking_rooms.html">อนุมัติ</a>
           </div>
-          <div class="tab active"><a>ไม่อนุมัติ</a></div>
+          <div class="tab active"><a href="#">ไม่อนุมัติ</a></div>
           <div class="dropdown-container">
+            <!-- Search Box -->
+            <input type="text" id="searchBox" placeholder="ค้นหาข้อมูล..." />
             <select id="sorttime">
-              <option value="oldest">เวลาเก่าที่สุด</option>
-              <option value="newest">เวลาใหม่ที่สุด</option>
+              <optgroup label="เวลาส่งคำขอ">
+                <option value="submission_desc" selected>คำขอล่าสุด</option>
+                <option value="submission_asc">คำขอเก่าสุด</option>
+              </optgroup>
+              <optgroup label="เวลาซ้อนกัน">
+                <option value="overlap_asc">เวลาซ้อนกัน (ใกล้มาถึง)</option>
+                <option value="overlap_desc">เวลาซ้อนกัน (ไกลออกไป)</option>
+              </optgroup>
             </select>
           </div>
         </div>
-
-        <!-- ครอบด้วย .table-responsive -->
+        <!-- Table -->
         <div class="table-responsive">
           <table class="table">
             <thead>
               <tr>
-                <th style="color: #929292">
-                  วันที่
-                  <i
-                    class="bi bi-caret-down-fill"
-                    style="
-                      margin-left: 5px;
-                      cursor: pointer;
-                      color: #929292;
-                      font-size: 10px;
-                    "
-                    onclick="toggleCalendar()"
-                  ></i>
-                </th>
-                <div
-                  id="dropdown-calendar"
-                  style="
-                    display: none;
-                    position: absolute;
-                    background: white;
-                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                    border-radius: 5px;
-                    padding: 10px;
-                  "
-                >
-                  <div
-                    style="
-                      display: flex;
-                      justify-content: space-between;
-                      margin-bottom: 10px;
-                    "
-                  >
-                    <select
-                      id="month-select"
-                      onchange="renderCustomCalendar()"
-                    ></select>
-                    <select
-                      id="year-select"
-                      onchange="renderCustomCalendar()"
-                    ></select>
-                  </div>
-                  <div id="custom-calendar"></div>
-                </div>
-
-                <script>
-                  const currentDate = new Date();
-
-                  function toggleCalendar() {
-                    const calendar =
-                      document.getElementById("dropdown-calendar");
-                    if (
-                      calendar.style.display === "none" ||
-                      calendar.style.display === ""
-                    ) {
-                      calendar.style.display = "block";
-                      initializeCalendar();
-                    } else {
-                      calendar.style.display = "none";
-                    }
-                  }
-
-                  document.addEventListener("click", function (event) {
-                    const calendar =
-                      document.getElementById("dropdown-calendar");
-                    const iconElement = document.querySelector(
-                      "i.bi-caret-down-fill"
-                    );
-                    if (
-                      !calendar.contains(event.target) &&
-                      event.target !== iconElement
-                    ) {
-                      calendar.style.display = "none";
-                    }
-                  });
-
-                  function initializeCalendar() {
-                    const monthSelect = document.getElementById("month-select");
-                    const yearSelect = document.getElementById("year-select");
-
-                    // Populate months
-                    monthSelect.innerHTML = "";
-                    const monthNames = [
-                      "January",
-                      "February",
-                      "March",
-                      "April",
-                      "May",
-                      "June",
-                      "July",
-                      "August",
-                      "September",
-                      "October",
-                      "November",
-                      "December",
-                    ];
-                    monthNames.forEach((month, index) => {
-                      const option = document.createElement("option");
-                      option.value = index;
-                      option.text = month;
-                      if (index === currentDate.getMonth())
-                        option.selected = true;
-                      monthSelect.appendChild(option);
-                    });
-
-                    // Populate years
-                    yearSelect.innerHTML = "";
-                    const startYear = currentDate.getFullYear() - 10;
-                    const endYear = currentDate.getFullYear() + 50;
-                    for (let year = startYear; year <= endYear; year++) {
-                      const option = document.createElement("option");
-                      option.value = year;
-                      option.text = year;
-                      if (year === currentDate.getFullYear())
-                        option.selected = true;
-                      yearSelect.appendChild(option);
-                    }
-
-                    renderCustomCalendar();
-                  }
-
-                  function renderCustomCalendar() {
-                    const calendarDiv =
-                      document.getElementById("custom-calendar");
-                    calendarDiv.innerHTML = ""; // Clear existing
-
-                    const selectedMonth = parseInt(
-                      document.getElementById("month-select").value
-                    );
-                    const selectedYear = parseInt(
-                      document.getElementById("year-select").value
-                    );
-
-                    const daysInMonth = new Date(
-                      selectedYear,
-                      selectedMonth + 1,
-                      0
-                    ).getDate();
-                    const firstDay = new Date(
-                      selectedYear,
-                      selectedMonth,
-                      1
-                    ).getDay();
-
-                    const calendarTable = document.createElement("table");
-                    calendarTable.style.borderCollapse = "collapse";
-                    calendarTable.style.width = "100%";
-
-                    const headerRow = document.createElement("tr");
-                    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(
-                      (day) => {
-                        const th = document.createElement("th");
-                        th.style.textAlign = "center";
-                        th.innerText = day;
-                        headerRow.appendChild(th);
-                      }
-                    );
-                    calendarTable.appendChild(headerRow);
-
-                    let date = 1;
-                    for (let i = 0; i < 6; i++) {
-                      const row = document.createElement("tr");
-                      for (let j = 0; j < 7; j++) {
-                        const cell = document.createElement("td");
-                        cell.style.textAlign = "center";
-                        cell.style.padding = "5px";
-                        cell.style.border = "1px solid #ddd";
-                        if (i === 0 && j < firstDay) {
-                          cell.innerText = "";
-                        } else if (date > daysInMonth) {
-                          break;
-                        } else {
-                          cell.innerText = date;
-                          cell.style.cursor = "pointer";
-                          cell.onclick = function () {
-                            document.getElementById(
-                              "dropdown-calendar"
-                            ).style.display = "none";
-                          };
-                          date++;
-                        }
-                        row.appendChild(cell);
-                      }
-                      calendarTable.appendChild(row);
-                    }
-                    calendarDiv.appendChild(calendarTable);
-                  }
-                </script>
+                <th style="color: #929292">วันที่</th>
                 <th style="color: #929292">ชื่อ-นามสกุล</th>
-                <th style="color: #929292">
-                  ตำแหน่ง
-                  <div class="dropdown d-inline">
-                    <i
-                      class="bi bi-caret-down-fill"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      style="color: #929292; font-size: 10px"
-                    ></i>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('ทั้งหมด')">ทั้งหมด</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('นิสิต')">นิสิต</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRole('อาจารย์')">อาจารย์</a></li>
-                    </ul>
-                  </div>
-                </th>
-                <th style="color: #929292">
-                  ห้อง
-                  <div class="dropdown d-inline">
-                    <i
-                      class="bi bi-caret-down-fill"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      style="color: #929292; font-size: 10px"
-                    ></i>
-                    <ul class="dropdown-menu" id="roomDropdownMenu"></ul>
-                  </div>  
-                </th>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('ทั้งหมด')">ทั้งหมด</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('307')">307</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="filterTableRoom('414')">414</a></li>
-                    </ul>
-                  </div>
-                </th>
+                <th style="color: #929292">ตำแหน่ง</th>
+                <th style="color: #929292">ห้อง</th>
                 <th style="color: #929292">จำนวนนิสิต(คน)</th>
                 <th style="color: #929292">เวลาจอง</th>
                 <th style="color: #929292">สถานะ</th>
               </tr>
             </thead>
             <tbody id="reservation-table">
-              <!-- ตัวอย่างข้อมูล -->
-              <script>
-                async function fetchData() {
-                try {
-                    // ดึงข้อมูลจาก 2 API พร้อมกัน
-                    const [roomsResponse, studentsResponse ,TeacherResponse,participantResponse] = await Promise.all([
-                          fetch('http://localhost:3000/room_request'),
-                          fetch('http://localhost:3000/student'),
-                          fetch('http://localhost:3000/teacher'),
-                          fetch('http://localhost:3000/room_request_participant')
-                        
-                          
-                        
-                    ])
-            
-                    const roomsData = await roomsResponse.json();
-                    const studentsData = await studentsResponse.json();
-                    const TeacherData = await TeacherResponse.json();
-                    const participantData = await participantResponse.json();
-                    //console.log(TeacherData);
-                    // JOIN ข้อมูลจากทั้งสองตารางโดยใช้ Student_ID
-                    const filteredData = roomsData.filter(row => row.request_status === 'ไม่อนุมัติ');
-
-                    
-                        const participantCountMap = participantData.reduce((acc, participant) => {
-                          acc[participant.room_request_id] = (acc[participant.room_request_id] || 0) + 1;
-                          return acc;
-                      }, {});
-          
-                      console.log("📌 จำนวนผู้เข้าร่วมต่อ room_request_id:", participantCountMap);
-                    const mergedData = filteredData.map(room => {
-                       
-                        const student = studentsData.find(s => s.student_id === room.student_id) || {};
-                        const Teacher = TeacherData.find(T => T.teacher_id === room.teacher_id) || {};
-                        const students = studentsData.find(s => s.student_id === room.role) || {};
-                        
-
-                        console.log(Teacher);
-                        return {
-                            ...room,
-                            full_name: student.full_name || Teacher.full_name,
-                            role: student.role || Teacher.role,
-                            participantCount: participantCountMap[room.room_request_id] || 0 // ✅ ดึงค่าจำนวนผู้เข้าร่วม
-                            
-                        };
-
-                    });
-                    
-
-                    console.log("✅ ข้อมูลที่รวมกันแล้ว:", mergedData);
-            
-                    const tableBody = document.getElementById('reservation-table');
-                    tableBody.innerHTML = '';
-            
-                    mergedData.forEach(row => {
-                        tableBody.innerHTML += `
-                            <tr>
-                                <td class="text-center">${new Date(row.submitted_time).toLocaleDateString('th')}</td>
-                                <td class="text-center">${row.full_name}</td>
-                                <td class="text-center">${row.role}</td>
-                                <td class="text-center">${row.room_id}</td>
-                                <td class="text-center">${row.participantCount}</td>
-                                <td class="text-center">
-                                    ${getDayOfWeek(row.used_date) + ' ' + new Date(row.used_date).toLocaleDateString('th')}<br>
-                                    ${row.start_time.slice(0, 5) + ' - ' + row.end_time.slice(0, 5)}<br>
-                                    ${'(' + row.request_type + ')'}
-                                </td>
-                                <td style="color: #929292">ไม่อนุมัติ</td>
-                               
-                            </tr>
-                        `;
-                    });
-            
-                } catch (error) {
-                    console.error('❌ Error fetching data:', error);
-                }
-            }
-            
-            document.addEventListener("DOMContentLoaded", fetchData);
-                document.getElementById('detailModal').addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    document.getElementById('modal-date').textContent = button.getAttribute('data-date');
-                    document.getElementById('modal-name').textContent = button.getAttribute('data-name');
-                    document.getElementById('modal-room').textContent = button.getAttribute('data-room');
-                    document.getElementById('modal-time').textContent = button.getAttribute('data-time');
-                    document.getElementById('modal-reason').textContent = button.getAttribute('data-reason');
-                });
-                function getDayOfWeek(dateString) {
-                  const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-                  const date = new Date(dateString);
-                  return days[date.getDay()];  // Returns 0-6 (0 = Sunday, 1 = Monday, ...)
-              }
-            
-                fetchReservations();
-              </script>
-
-              <!-- ใส่ข้อมูลอื่นได้ตามต้องการ -->
+              <!-- Data rows -->
             </tbody>
           </table>
         </div>
-        <!-- /table-responsive -->
       </div>
     </div>
-
-    <!-- !--fillter ตำแหน่ง -->
     <script>
-      function filterTableRole(role) {
-        const rows = document.querySelectorAll("#reservation-table tr");
-      
-        rows.forEach(row => {
-          const roleCell = row.querySelector("td:nth-child(3)"); // คอลัมน์ตำแหน่ง
-      
-          if (!roleCell) return;
-      
-          const roleText = roleCell.textContent.trim();
-      
-          if (role === "ทั้งหมด" || roleText === role) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
-        });
+      const currentDate = new Date();
+      function toggleCalendar() {
+        const calendar = document.getElementById("dropdown-calendar");
+        if (
+          calendar.style.display === "none" ||
+          calendar.style.display === ""
+        ) {
+          calendar.style.display = "block";
+          initializeCalendar();
+        } else {
+          calendar.style.display = "none";
+        }
       }
-
-      function filterTableRoom(room_id) {
-        const rows = document.querySelectorAll("#reservation-table tr");
-
-        rows.forEach(row => {
-          const room_idCell = row.querySelector("td:nth-child(4)");
-
-          if (!room_idCell) return;
-
-          const room_idText = room_idCell.textContent.trim();
-
-          if (room_id === "ทั้งหมด" || room_idText === room_id) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
+      document.addEventListener("click", function (event) {
+        const calendar = document.getElementById("dropdown-calendar");
+        const icon = document.querySelector("i.bi-caret-down-fill");
+        if (!calendar.contains(event.target) && event.target !== icon) {
+          calendar.style.display = "none";
+        }
+      });
+      function initializeCalendar() {
+        const monthSelect = document.getElementById("month-select");
+        const yearSelect = document.getElementById("year-select");
+        monthSelect.innerHTML = "";
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        monthNames.forEach((m, i) => {
+          const option = document.createElement("option");
+          option.value = i;
+          option.text = m;
+          if (i === currentDate.getMonth()) option.selected = true;
+          monthSelect.appendChild(option);
         });
+        yearSelect.innerHTML = "";
+        const startYear = currentDate.getFullYear() - 10;
+        const endYear = currentDate.getFullYear() + 50;
+        for (let y = startYear; y <= endYear; y++) {
+          const option = document.createElement("option");
+          option.value = y;
+          option.text = y;
+          if (y === currentDate.getFullYear()) option.selected = true;
+          yearSelect.appendChild(option);
+        }
+        renderCustomCalendar();
       }
-
+      function renderCustomCalendar() {
+        const calendarDiv = document.getElementById("custom-calendar");
+        calendarDiv.innerHTML = "";
+        const month = parseInt(document.getElementById("month-select").value);
+        const year = parseInt(document.getElementById("year-select").value);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay = new Date(year, month, 1).getDay();
+        const table = document.createElement("table");
+        table.style.borderCollapse = "collapse";
+        table.style.width = "100%";
+        const headerRow = document.createElement("tr");
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
+          const th = document.createElement("th");
+          th.style.textAlign = "center";
+          th.innerText = day;
+          headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+        let date = 1;
+        for (let i = 0; i < 6; i++) {
+          const row = document.createElement("tr");
+          for (let j = 0; j < 7; j++) {
+            const cell = document.createElement("td");
+            cell.style.textAlign = "center";
+            cell.style.padding = "5px";
+            cell.style.border = "1px solid #ddd";
+            if (i === 0 && j < firstDay) {
+              cell.innerText = "";
+            } else if (date > daysInMonth) {
+              break;
+            } else {
+              cell.innerText = date;
+              cell.style.cursor = "pointer";
+              cell.onclick = function () {
+                document.getElementById("dropdown-calendar").style.display =
+                  "none";
+              };
+              date++;
+            }
+            row.appendChild(cell);
+          }
+          table.appendChild(row);
+        }
+        calendarDiv.appendChild(table);
+      }
     </script>
-    <script> //เรียงตามห้อง
-      
-      fetch('http://localhost:3000/room_request')
-        .then(response => response.json())
-        .then(data => {
-          const menu = document.getElementById('roomDropdownMenu');
-    
-          // เพิ่มตัวเลือก "ทั้งหมด"
-          const allItem = document.createElement('li');
-          allItem.innerHTML = `<a class="dropdown-item" href="#" onclick="filterTableRoom('ทั้งหมด')">ทั้งหมด</a>`;
-          menu.appendChild(allItem);
-    
-          // เพิ่มรายการจาก database
-          const allroom = [...new Set(data.map(item => item.room_id))];
-
-          allroom.forEach(room_id => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a class="dropdown-item" href="#" onclick="filterTableRoom('${room_id}')">${room_id}</a>`;
-            menu.appendChild(li);
-
-          
+    <script>
+      function getRowText(row) {
+        return (
+          new Date(row.submitted_time).toLocaleDateString("th") +
+          " " +
+          row.full_name +
+          " " +
+          row.role +
+          " " +
+          row.room_id +
+          " " +
+          row.participantCount +
+          " " +
+          row.used_date +
+          " " +
+          row.start_time +
+          " " +
+          row.end_time +
+          " " +
+          row.request_type
+        ).toLowerCase();
+      }
+      function getDayOfWeek(dateString) {
+        const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+        return days[new Date(dateString).getDay()];
+      }
+      async function fetchData() {
+        try {
+          const [roomsRes, studentsRes, teacherRes, partRes] =
+            await Promise.all([
+              fetch("http://localhost:3000/room_request"),
+              fetch("http://localhost:3000/student"),
+              fetch("http://localhost:3000/teacher"),
+              fetch("http://localhost:3000/room_request_participant"),
+            ]);
+          const roomsData = await roomsRes.json();
+          const studentsData = await studentsRes.json();
+          const teacherData = await teacherRes.json();
+          const partData = await partRes.json();
+          let data = roomsData
+            .filter((r) => r.request_status === "ไม่อนุมัติ")
+            .map((r) => {
+              const stu =
+                studentsData.find((s) => s.student_id === r.student_id) || {};
+              const tea =
+                teacherData.find((t) => t.teacher_id === r.teacher_id) || {};
+              return {
+                ...r,
+                full_name: stu.full_name || tea.full_name,
+                role: stu.role || tea.role,
+                participantCount: partData.filter(
+                  (p) => p.room_request_id === r.room_request_id
+                ).length,
+              };
+            });
+          const search = document
+            .getElementById("searchBox")
+            .value.toLowerCase();
+          if (search) {
+            data = data.filter((r) => getRowText(r).includes(search));
+          }
+          const sortVal = document.getElementById("sorttime").value;
+          if (sortVal === "submission_desc" || sortVal === "submission_asc") {
+            data.sort((a, b) => {
+              const aTime = new Date(a.submitted_time);
+              const bTime = new Date(b.submitted_time);
+              return sortVal === "submission_desc"
+                ? bTime - aTime
+                : aTime - bTime;
+            });
+          } else if (sortVal === "overlap_asc" || sortVal === "overlap_desc") {
+            const groups = {};
+            data.forEach((r) => {
+              const key = r.room_id + "_" + r.used_date;
+              if (!groups[key]) groups[key] = [];
+              groups[key].push(r);
+            });
+            const groupKeys = Object.keys(groups).sort((a, b) => {
+              const [roomA, dateA] = a.split("_");
+              const [roomB, dateB] = b.split("_");
+              if (roomA !== roomB) {
+                if (!isNaN(roomA) && !isNaN(roomB)) {
+                  return sortVal === "overlap_asc"
+                    ? roomA - roomB
+                    : roomB - roomA;
+                } else {
+                  return sortVal === "overlap_asc"
+                    ? roomA.localeCompare(roomB)
+                    : roomB.localeCompare(roomA);
+                }
+              } else {
+                return sortVal === "overlap_asc"
+                  ? new Date(dateA) - new Date(dateB)
+                  : new Date(dateB) - new Date(dateA);
+              }
+            });
+            let sorted = [];
+            groupKeys.forEach((key) => {
+              const group = groups[key].sort((a, b) => {
+                const aT = a.start_time
+                  .split(":")
+                  .reduce((acc, cur) => acc * 60 + Number(cur), 0);
+                const bT = b.start_time
+                  .split(":")
+                  .reduce((acc, cur) => acc * 60 + Number(cur), 0);
+                return sortVal === "overlap_asc" ? aT - bT : bT - aT;
+              });
+              sorted.push({
+                header: true,
+                room_id: group[0].room_id,
+                used_date: group[0].used_date,
+              });
+              sorted = sorted.concat(group);
+            });
+            data = sorted;
+          }
+          const tbody = document.getElementById("reservation-table");
+          tbody.innerHTML = "";
+          if (data.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='7'>No data found</td></tr>";
+          }
+          data.forEach((r) => {
+            if (r.header) {
+              const headerTr = document.createElement("tr");
+              headerTr.innerHTML = `<td colspan="7" style="background: #f0f0f0; text-align: left; padding: 10px; font-weight: bold;">ห้อง: ${
+                r.room_id
+              }, วันที่: ${new Date(r.used_date).toLocaleDateString(
+                "th-TH"
+              )}</td>`;
+              tbody.appendChild(headerTr);
+            } else {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td class="text-center">${new Date(
+                  r.submitted_time
+                ).toLocaleDateString("th")}</td>
+                <td class="text-center">${r.full_name}</td>
+                <td class="text-center">${r.role}</td>
+                <td class="text-center">${r.room_id}</td>
+                <td class="text-center">${r.participantCount}</td>
+                <td class="text-center">
+                  ${
+                    getDayOfWeek(r.used_date) +
+                    " " +
+                    new Date(r.used_date).toLocaleDateString("th")
+                  }<br>
+                  ${
+                    r.start_time.slice(0, 5) + " - " + r.end_time.slice(0, 5)
+                  }<br>
+                  ${"(" + r.request_type + ")"}
+                </td>
+                <td class="text-center" style="color: #929292">ไม่อนุมัติ</td>
+              `;
+              tbody.appendChild(tr);
+            }
           });
-        })
-        .catch(error => console.error('Error fetching rooms:', error));
+        } catch (e) {
+          console.error("❌ Error fetching data:", e);
+        }
+      }
+      document.getElementById("sorttime").addEventListener("change", fetchData);
+      document.getElementById("searchBox").addEventListener("input", fetchData);
+      document.addEventListener("DOMContentLoaded", fetchData);
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+      // Sidebar
       fetch("sidebar.html")
         .then((resp) => resp.text())
         .then((html) => {
           document.getElementById("sidebar-container").innerHTML = html;
         })
         .then(() => {
-          // highlight ปุ่ม "คำขออนุมัติการจองห้อง" (หรือปุ่มอื่น หากต้องการ)
-          const btnStats = document.getElementById("btnReceive");
-          btnStats.classList.add("btn-sidebar-active");
+          const btn = document.getElementById("btnReceive");
+          if (btn) btn.classList.add("btn-sidebar-active");
         })
         .catch((err) => console.error("Failed to load sidebar:", err));
     </script>
